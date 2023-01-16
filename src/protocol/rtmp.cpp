@@ -14,11 +14,10 @@ long Rtmp::OnRecvDatas(asio::streambuf::const_buffers_type bufs){
     case RTMP_INIT:
         //_protocolCache.insert(_protocolCache.end(), asio::buffers_begin(bufs), asio::buffers_end(bufs));
         
-            if(!CheckC0(bufs)){
-                return -1;
-            }
+        if(!CheckC0(bufs)){
+            return -1;
         }
-
+    
         for(auto it=asio::buffers_begin(bufs); it!=asio::buffers_end(bufs); ++it){
             LOG::get(MAIN_LOG)->debug("{:c}", *it);
         }

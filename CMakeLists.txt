@@ -37,12 +37,10 @@ if(OPENSSL_FOUND)
 endif()
 
 # log
-message(${CMAKE_SOURCE_DIR})
 add_subdirectory(${CMAKE_SOURCE_DIR}/spdlog)
 target_link_libraries(LiveServer PUBLIC spdlog)
 target_include_directories(LiveServer PUBLIC 
-        ${CMAKE_SOURCE_DIR}/spdlog
-        ${CMAKE_SOURCE_DIR}/spdlog/build
+        ${CMAKE_BINARY_DIR}/spdlog
 )
 
 if(BUILD_TESTING)
