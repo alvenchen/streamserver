@@ -1,6 +1,6 @@
 
 add_compile_options(-fno-access-control)
 
-add_executable(io_test io_test.cpp)
-target_link_libraries(io_test LiveServer)
-add_test(io_test io_test)
+add_executable(udp_server udp_server.cpp)
+target_link_libraries(udp_server PRIVATE Seastar::seastar)
+#add_test(udp_server udp_server)

@@ -36,7 +36,8 @@ private:
 private:
     enum RTMP_STATUS{
         RTMP_INIT,
-
+        RTMP_C0,
+        RTMP_C1,
     };
 
     RTMP_STATUS _status;

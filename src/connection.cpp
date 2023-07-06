@@ -90,13 +90,14 @@ long Connection::OnRecvDatas(std::size_t bytesTransferred){
 
     _socketBuf->commit(bytesTransferred);
     
-    long ret = _rtmp->OnRecvDatas(_socketBuf->data());
-
-    if(ret >= 0){
+    long ret = 0;
+    do{
         _SocketBufUnconsumedLen = _socketBuf->size() - (size_t)ret;
-
         _socketBuf->consume((size_t)ret);
-    }
+
+        ret = _rtmp->OnRecvDatas(_socketBuf->data());
+        
+    }while(ret > 0);
 
     return ret;
 }
