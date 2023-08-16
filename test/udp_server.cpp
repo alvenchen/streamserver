@@ -9,6 +9,7 @@ A udp server using seastar framework randomly change connection thread
 #include <seastar/core/distributed.hh>
 #include <seastar/core/app-template.hh>
 #include <boost/program_options.hpp>
+#include <fmt/printf.h>
 
 using namespace seastar;
 using namespace net;
@@ -23,11 +24,12 @@ private:
     uint64_t _n_sent {};
 public:
     void start(uint16_t port) {
+        fmt::print("start shard: {:d}\n", this_shard_id())
         ipv4_addr listen_addr{port};
         _chan = make_udp_channel(listen_addr);
 
         _stats_timer.set_callback([this] {
-            std::cout << "Out: " << _n_sent << " pps" << std::endl;
+            fmt::print("thread_id:{}, shard_id:{}, pps:{}\n", std::this_thread::get_id(), this_shard_id(), _n_sent);
             _n_sent = 0;
         });
         _stats_timer.arm_periodic(1s);
@@ -35,7 +37,9 @@ public:
         // Run server in background.
         (void)keep_doing([this] {
             return _chan.receive().then([this] (udp_datagram dgram) {
+                fmt::print("receive thread_id:{}, shard_id:{}\n", std::this_thread::get_id(), this_shard_id());
                 return _chan.send(dgram.get_src(), std::move(dgram.get_data())).then([this] {
+                    fmt::print("send thread_id:{}, shard_id:{}\n", std::this_thread::get_id(), this_shard_id());
                     _n_sent++;
                 });
             });
@@ -59,6 +63,10 @@ int main(int ac, char** av) {
     std::cout << "start\n";
 
     app.run_deprecated(ac, av, [&]{   
+        
+        fmt::print("Total cpus: {:d}\n", smp::count);
+        fmt::print("thread affinity: {:d}\n", app.options().smp_opts.thread_affinity);
+
         auto& opts = app.configuration();
         auto& port = opts["port"].as<uint16_t>();
 
