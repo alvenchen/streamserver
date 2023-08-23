@@ -1,27 +1,27 @@
-#ifndef CONFIG_HPP
-#define CONFIG_HPP
+#pragma once
 
 
- class Config{
+#include <cstdint>
+#include <string>
+
+class Config{
 public:
     Config() noexcept {};
 
 public:
     
-    unsigned short port = 1935;
+    uint16_t Port = 1935;
     
-    int thread_pool_size = 1;
+    uint32_t ThreadPoolSize = 4;
     
     //seconds
-    long timeout_request = 5;
-    long timeout_content = 300;
+    long TimeoutRequest = 5;
+    long TimeoutContent = 300;
     
-    std::size_t max_recvbuf_size = 1 * 1024 * 1024;
-    std::size_t max_streambuf_size = 10 * 1024 * 1024;
+    uint32_t MaxRecvbufSize = 1 * 1024 * 1024;
+    uint32_t MaxStreambufSize = 10 * 1024 * 1024;
 
-    std::string address;
+    std::string Address;
 
-    bool reuse_address = true;
+    bool ReuseAddress = true;
 };
-
-#endif

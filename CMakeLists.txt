@@ -44,12 +44,6 @@ target_compile_definitions(LiveServer PUBLIC HAVE_OPENSSL)
 target_link_libraries(LiveServer PUBLIC ${OPENSSL_LIBRARIES})
 target_include_directories(LiveServer PUBLIC ${OPENSSL_INCLUDE_DIR})
 
-# log
-add_subdirectory(${CMAKE_SOURCE_DIR}/spdlog)
-target_link_libraries(LiveServer PUBLIC spdlog)
-target_include_directories(LiveServer PUBLIC 
-        ${CMAKE_BINARY_DIR}/spdlog
-)
 
 ##############################################################
 #for test

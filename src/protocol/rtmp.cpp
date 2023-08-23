@@ -19,7 +19,7 @@ long Rtmp::OnRecvDatas(asio::streambuf::const_buffers_type bufs){
         }
     
         for(auto it=asio::buffers_begin(bufs); it!=asio::buffers_end(bufs); ++it){
-            LOG::get(MAIN_LOG)->debug("{:c}", *it);
+            
         }
         break;
     
@@ -28,7 +28,7 @@ long Rtmp::OnRecvDatas(asio::streambuf::const_buffers_type bufs){
     }
 
     long consume = asio::buffers_end(bufs) - asio::buffers_begin(bufs);
-    LOG::get(MAIN_LOG)->debug("size: {:d}", consume);
+    
 
     return consume;
 }

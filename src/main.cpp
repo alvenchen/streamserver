@@ -1,31 +1,40 @@
-#include "server_base.hpp"
-#include <signal.h>
-using namespace std;
 
-int main() {
-    const auto LOGGER = LOG::rotating_logger_mt(MAIN_LOG, "logs/mainlog", LOG_MAX_SIZE, LOG_MAX_FLLES);
-    LOGGER->set_level(LOG::level::debug);
+#include <seastar/core/reactor.hh>
+#include <seastar/core/distributed.hh>
+#include <seastar/core/app-template.hh>
+#include <udp_server.hpp>
+#include <seastar/util/log.hh>
 
-    LOG::get(MAIN_LOG)->info("\n\nmain started");
-    ServerBase server;
+using namespace seastar;
+using namespace net;
+using namespace std::chrono_literals;
 
-    struct sigaction sigIntHandler;
-    sigIntHandler.sa_handler = [](int s){
-        LOG::get(MAIN_LOG)->info("receive signal:{:d}", s);
-        LOG::get(MAIN_LOG)->info("main ended");
-        LOG::drop_all();
-        exit(0);
-    };
-    sigemptyset(&sigIntHandler.sa_mask);
-    sigIntHandler.sa_flags = 0;
+namespace bpo = boost::program_options;
 
-    sigaction(SIGINT, &sigIntHandler, NULL);
+int main(int ac, char** av) {
 
-    std::thread server_thread([&server]() {
-        server.start();
+    app_template app;
+
+    app.add_options()("port", bpo::value<uint16_t>()->default_value(443), "UDP server port") ;
+    std::cout << "start\n";
+
+    app.run_deprecated(ac, av, [&]{   
+        
+        auto& opts = app.configuration();
+        auto& port = opts["port"].as<uint16_t>();
+
+        auto server = new distributed<udp_server>;
+
+        (void)server->start().then([server = std::move(server), port] () mutable {
+            engine().at_exit([server] {
+                return server->stop();
+            });
+            return server->invoke_on_all(&udp_server::Start, port);
+        }).then([port] {
+            std::cout << "Seastar UDP server listening on port " << port << " ...\n";
+        });
+    
     });
-    server_thread.join();
-
 
     return 0;
 }

@@ -1,12 +1,12 @@
-#ifndef RTMP_HPP
-#define RTMP_HPP
+#pragma once
 
-#include "utility.hpp"
 #include <stdint.h>
 #include <vector>
+#include <boost/asio.hpp>
 
 const uint8_t RTMP_C0 = 0x03;
 
+using namespace boost;
 
 class RtmpChunk{
 public:
@@ -46,5 +46,3 @@ private:
 
 };
 
-
-#endif

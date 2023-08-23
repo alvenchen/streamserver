@@ -17,22 +17,22 @@ using namespace std::chrono_literals;
 
 namespace bpo = boost::program_options;
 
-class udp_server {
+class udp_server_test {
 private:
     udp_channel _chan;
-    timer<> _stats_timer;
-    uint64_t _n_sent {};
+    timer<> _statsTimer;
+    uint64_t _nSent {};
 public:
     void start(uint16_t port) {
-        fmt::print("start shard: {:d}\n", this_shard_id())
+        fmt::print("start shard: {:d}\n", this_shard_id());
         ipv4_addr listen_addr{port};
         _chan = make_udp_channel(listen_addr);
 
-        _stats_timer.set_callback([this] {
-            fmt::print("thread_id:{}, shard_id:{}, pps:{}\n", std::this_thread::get_id(), this_shard_id(), _n_sent);
-            _n_sent = 0;
+        _statsTimer.set_callback([this] {
+            fmt::print("thread_id:{}, shard_id:{}, pps:{}\n", std::this_thread::get_id(), this_shard_id(), _nSent);
+            _nSent = 0;
         });
-        _stats_timer.arm_periodic(1s);
+        _statsTimer.arm_periodic(1s);
 
         // Run server in background.
         (void)keep_doing([this] {
@@ -40,7 +40,7 @@ public:
                 fmt::print("receive thread_id:{}, shard_id:{}\n", std::this_thread::get_id(), this_shard_id());
                 return _chan.send(dgram.get_src(), std::move(dgram.get_data())).then([this] {
                     fmt::print("send thread_id:{}, shard_id:{}\n", std::this_thread::get_id(), this_shard_id());
-                    _n_sent++;
+                    _nSent++;
                 });
             });
         });
@@ -70,13 +70,13 @@ int main(int ac, char** av) {
         auto& opts = app.configuration();
         auto& port = opts["port"].as<uint16_t>();
 
-        auto server = new distributed<udp_server>;
+        auto server = new distributed<udp_server_test>;
 
         (void)server->start().then([server = std::move(server), port] () mutable {
             engine().at_exit([server] {
                 return server->stop();
             });
-            return server->invoke_on_all(&udp_server::start, port);
+            return server->invoke_on_all(&udp_server_test::start, port);
         }).then([port] {
             std::cout << "Seastar UDP server listening on port " << port << " ...\n";
         });
