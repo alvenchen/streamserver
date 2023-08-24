@@ -44,7 +44,6 @@ PacketNum DecodePacketNumber(uint64_t encodedPacketNum, uint32_t packetNumBytes,
 }
 
 
-
 PacketNumEncodingResult::PacketNumEncodingResult(PacketNum resultIn, uint32_t lengthIn)
     :result(resultIn), length(lengthIn){
 }

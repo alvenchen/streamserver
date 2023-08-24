@@ -1,0 +1,14 @@
+#include "quic_header.hpp"
+
+namespace quic{
+
+    HeaderForm GetHeaderForm(uint8_t headerValue){
+        if (headerValue & kHeaderFormMask) {
+            return HeaderForm::Long;
+        }
+        return HeaderForm::Short;
+    }
+
+
+
+}

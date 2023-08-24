@@ -12,6 +12,16 @@ ConnectionId::ConnectionId(const std::vector<uint8_t>& connidIn){
     }
 }
 
+bool ConnectionId::operator==(const ConnectionId& other) const {
+    return _connIDLen == other._connIDLen &&
+        memcmp(_connID.data(), other._connID.data(), _connIDLen) == 0;
+}
+
+bool ConnectionId::operator!=(const ConnectionId& other) const {
+    return !operator==(other);
+}
+
+
 uint8_t* ConnectionId::Data(){
     return _connID.data();
 }
@@ -20,13 +30,5 @@ uint8_t ConnectionId::Size() const{
     return _connIDLen;
 }
 
-bool ConnectionId::operator==(const ConnectionId& other) const {
-  return _connIDLen == other._connIDLen &&
-      memcmp(_connID.data(), other._connID.data(), _connIDLen) == 0;
-}
-
-bool ConnectionId::operator!=(const ConnectionId& other) const {
-  return !operator==(other);
-}
 
 }
