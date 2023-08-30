@@ -22,11 +22,11 @@ bool ConnectionId::operator!=(const ConnectionId& other) const {
 }
 
 
-uint8_t* ConnectionId::Data(){
+uint8_t* ConnectionId::data(){
     return _connID.data();
 }
 
-uint8_t ConnectionId::Size() const{
+uint8_t ConnectionId::size() const{
     return _connIDLen;
 }
 

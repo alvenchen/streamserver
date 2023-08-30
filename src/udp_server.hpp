@@ -29,5 +29,5 @@ public:
     future<> Stop();
 
 private:
-    int HandleUnknowPacket(packet data);
+    int handleUnknowPacket(packet data);
 };

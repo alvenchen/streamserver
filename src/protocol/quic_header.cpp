@@ -2,7 +2,7 @@
 
 namespace quic{
 
-    HeaderForm GetHeaderForm(uint8_t headerValue){
+    HeaderForm getHeaderForm(uint8_t headerValue){
         if (headerValue & kHeaderFormMask) {
             return HeaderForm::Long;
         }

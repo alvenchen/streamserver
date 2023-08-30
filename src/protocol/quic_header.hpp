@@ -48,7 +48,7 @@ constexpr uint8_t kHeaderFormMask = 0x80;
 constexpr uint32_t kMaxPacketNumEncodingSize = 4;
 constexpr uint32_t kNumInitialAckBlocksPerFrame = 32;
 
-HeaderForm GetHeaderForm(uint8_t headerValue);
+HeaderForm getHeaderForm(uint8_t headerValue);
 
 struct LongHeader {
 public:

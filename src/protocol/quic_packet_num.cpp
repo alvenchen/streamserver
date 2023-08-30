@@ -5,11 +5,11 @@ namespace quic{
 /*
     https://datatracker.ietf.org/doc/html/rfc9000#sample-packet-number-encoding
 */
-PacketNumEncodingResult EncodePacketNumber(PacketNum packetNum, PacketNum largestAckedPacketNum){
+PacketNumEncodingResult encodePacketNumber(PacketNum packetNum, PacketNum largestAckedPacketNum){
     PacketNum twiceDistance = (packetNum - largestAckedPacketNum) * 2;
     // The number of bits we need to mask all set bits in twiceDistance.
     // This is 1 + floor(log2(x)).
-    uint32_t lengthInBits = common::FindLastSet(twiceDistance);
+    uint32_t lengthInBits = common::findLastSet(twiceDistance);
     // Round up to bytes
     uint32_t lengthInBytes = lengthInBits == 0 ? 1 : (lengthInBits + 7) >> 3;
     if (lengthInBytes > 4) {
@@ -25,7 +25,7 @@ PacketNumEncodingResult EncodePacketNumber(PacketNum packetNum, PacketNum larges
 /*
     https://datatracker.ietf.org/doc/html/rfc9000#name-sample-packet-number-decodi
 */
-PacketNum DecodePacketNumber(uint64_t encodedPacketNum, uint32_t packetNumBytes, PacketNum expectedNextPacketNum){
+PacketNum decodePacketNumber(uint64_t encodedPacketNum, uint32_t packetNumBytes, PacketNum expectedNextPacketNum){
     size_t packetNumBits = 8 * packetNumBytes;
     PacketNum packetNumWin = 1ULL << packetNumBits;
     PacketNum packetNumHalfWin = packetNumWin >> 1;

@@ -9,6 +9,37 @@ namespace quic{
     template <class T>
     using SmallVec = std::vector<T>;
 
+    //generic type
+    struct QuicFrame{
+        enum class TYPE {
+            PADDING_FRAME,
+            PING_FRAME,
+            RST_STREAM_FRAME,
+
+        };
+
+        ~QuicFrame();
+        QuicFrame(QuicFrame&& other) noexcept;
+        QuicFrame& operator=(QuicFrame&& other) noexcept;
+        QuicFrame(PaddingFrame&& in);
+        QuicFrame(PingFrame&& in);
+
+        TYPE type();
+
+        PaddingFrame* paddingFrame();
+        PingFrame* pingFrame();
+
+    private:
+        void destroy();
+
+        TYPE _type;
+        union{
+            PaddingFrame padding;
+            PingFrame ping;
+
+        };
+    };
+
     struct PaddingFrame {
         // How many contiguous padding frames this represents.
         uint16_t numFrames{1};

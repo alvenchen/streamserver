@@ -13,7 +13,7 @@ void UDPServer::Start(uint16_t port){
         return _listenChan.receive().then([this] (udp_datagram dgram) {
             //TODO  dispatch
             
-            HandleUnknowPacket(std::move(dgram.get_data()));
+            handleUnknowPacket(std::move(dgram.get_data()));
         });
     });
 }
@@ -28,7 +28,7 @@ future<> UDPServer::Stop(){
 private function
 */
 
-int UDPServer::HandleUnknowPacket(packet p){
+int UDPServer::handleUnknowPacket(packet p){
     p.get_header();
 
     return 0;

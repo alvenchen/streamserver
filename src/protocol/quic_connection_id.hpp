@@ -11,19 +11,19 @@ struct ConnectionId {
     bool operator!=(const ConnectionId& other) const;
 
 
-    uint8_t* Data();
-    uint8_t Size() const;    
+    uint8_t* data();
+    uint8_t size() const;    
     //std::string Hex() const;
 
     /**
      * Create an connection without any checks for tests.
      */
-    static ConnectionId CreateWithoutChecks(const std::vector<uint8_t>& connidIn);
+    static ConnectionId createWithoutChecks(const std::vector<uint8_t>& connidIn);
 
     /**
      * Create a random ConnectionId with the given length.
      */
-    static ConnectionId CreateRandom(size_t len);
+    static ConnectionId createRandom(size_t len);
 
 private:
     ConnectionId() = default;

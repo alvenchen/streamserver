@@ -1,3 +1,11 @@
+/*
+naming rule :
+    functions : little camel-case
+    class/struct : big camel-case
+
+
+*/
+
 #pragma once
 
 #include <cstdint>
@@ -28,7 +36,7 @@ namespace common{
     // sorting stable.
     // See http://stepanovpapers.com/notes.pdf for details.
     template <typename T, typename... Ts>
-    constexpr T constexpr_max(T a, Ts... ts) {
+    constexpr T constexprMax(T a, Ts... ts) {
         T list[] = {ts..., a}; // 0-length arrays are illegal
         for (auto i = 0u; i < sizeof...(Ts); ++i) {
             a = list[i] < a ? a : list[i];
@@ -37,7 +45,7 @@ namespace common{
     }
 
     template <typename T>
-    inline constexpr unsigned int FindLastSet(T const v){
+    inline constexpr unsigned int findLastSet(T const v){
         using U0 = unsigned int;
         using U1 = unsigned long int;
         using U2 = unsigned long long int;
@@ -49,7 +57,7 @@ namespace common{
         // If X is a power of two X - Y = 1 + ((X - 1) ^ Y). Doing this transformation
         // allows GCC to remove its own xor that it adds to implement clz using bsr.
         // clang-format off
-        constexpr auto size = constexpr_max(sizeof(T), sizeof(U0));
+        constexpr auto size = constexprMax(sizeof(T), sizeof(U0));
         return v ? 1u + static_cast<unsigned int>((8u * size - 1u) ^ (
             sizeof(T) <= sizeof(U0) ? __builtin_clz(bits_to_unsigned<U0>(v)) :
             sizeof(T) <= sizeof(U1) ? __builtin_clzl(bits_to_unsigned<U1>(v)) :

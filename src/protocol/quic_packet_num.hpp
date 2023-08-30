@@ -14,7 +14,7 @@ namespace quic{
         PacketNumEncodingResult(PacketNum resultIn, uint32_t lengthIn);
     };
 
-    PacketNumEncodingResult EncodePacketNumber(PacketNum packetNum, PacketNum largestAckedPacketNum);
-    PacketNum DecodePacketNumber(uint64_t encodedPacketNum, uint32_t packetNumBytes, PacketNum expectedNextPacketNum);
+    PacketNumEncodingResult encodePacketNumber(PacketNum packetNum, PacketNum largestAckedPacketNum);
+    PacketNum decodePacketNumber(uint64_t encodedPacketNum, uint32_t packetNumBytes, PacketNum expectedNextPacketNum);
 
 }

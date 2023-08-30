@@ -21,17 +21,17 @@ public:
     /*
         check data format, return len of processed datas
     */
-    long OnRecvDatas(asio::streambuf::const_buffers_type bufs);
+    long onRecvDatas(asio::streambuf::const_buffers_type bufs);
 
-    int ShouldSendDatas();
+    int shouldSendDatas();
 
 private:
-    bool CheckC0(asio::streambuf::const_buffers_type &bufs);
-    bool CheckC1(asio::streambuf::const_buffers_type &bufs);
-    bool CheckC2(asio::streambuf::const_buffers_type &bufs);
-    bool CreateS0();
-    bool CreateS1();
-    bool CreateS2();
+    bool checkC0(asio::streambuf::const_buffers_type &bufs);
+    bool checkC1(asio::streambuf::const_buffers_type &bufs);
+    bool checkC2(asio::streambuf::const_buffers_type &bufs);
+    bool createS0();
+    bool createS1();
+    bool createS2();
 
 private:
     enum RTMP_STATUS{

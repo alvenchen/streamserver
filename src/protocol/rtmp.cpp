@@ -7,14 +7,14 @@ Rtmp::Rtmp(std::size_t streamBufSize){
 }
 
 
-long Rtmp::OnRecvDatas(asio::streambuf::const_buffers_type bufs){
+long Rtmp::onRecvDatas(asio::streambuf::const_buffers_type bufs){
 
     switch (_status)
     {
     case RTMP_INIT:
         //_protocolCache.insert(_protocolCache.end(), asio::buffers_begin(bufs), asio::buffers_end(bufs));
         
-        if(!CheckC0(bufs)){
+        if(!checkC0(bufs)){
             return -1;
         }
     
@@ -33,7 +33,7 @@ long Rtmp::OnRecvDatas(asio::streambuf::const_buffers_type bufs){
     return consume;
 }
 
-bool Rtmp::CheckC0(asio::streambuf::const_buffers_type &bufs){
+bool Rtmp::checkC0(asio::streambuf::const_buffers_type &bufs){
     auto it = asio::buffers_begin(bufs);
     if(it == asio::buffers_end(bufs)){
         return false;
@@ -47,7 +47,7 @@ bool Rtmp::CheckC0(asio::streambuf::const_buffers_type &bufs){
     return false;
 }
 
-bool Rtmp::CreateS0(){
+bool Rtmp::createS0(){
 
     return true;
 }
