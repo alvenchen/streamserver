@@ -1,9 +1,10 @@
 #pragma once
 
+#include <optional>
 #include "../common.hpp"
 #include "quic_constants.hpp"
 #include "quic_packet_num.hpp"
-#include <optional>
+#include <common/IntervalSet.h>
 
 namespace quic{
     template <class T>
@@ -136,6 +137,25 @@ namespace quic{
             return false;
         }
     };
+
+    struct WriteAckFrame {
+        // Since we don't need this to be an IntervalSet, they are stored directly
+        // in a vector, in reverse order.
+        // TODO should this be a small_vector?
+        using AckBlockVec = std::vector<Interval<PacketNum>>;
+        AckBlockVec ackBlocks;
+        // Delay in sending ack from time that packet was received.
+        std::chrono::microseconds ackDelay{0us};
+        FrameType frameType = FrameType::ACK;
+        std::optional<std::chrono::microseconds> maybeLatestRecvdPacketTime;
+        std::optional<PacketNum> maybeLatestRecvdPacketNum;
+        RecvdPacketsTimestampsRangeVec recvdPacketsTimestampRanges;
+        bool operator==(const WriteAckFrame& /*rhs*/) const {
+            // Can't compare ackBlocks, function is just here to appease compiler.
+            return false;
+        }
+    };
+
 
 
 }
