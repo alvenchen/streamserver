@@ -1,6 +1,6 @@
 #pragma once
 
-#include "../common.hpp"
+#include "../common/common.hpp"
 
 namespace quic {
 constexpr size_t kMaxConnectionIdSize = 20;
