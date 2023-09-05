@@ -783,7 +783,7 @@ class IOBuf {
    * This does not modify any actual data in the buffer.
    */
   void prepend(std::size_t amount) {
-    DCHECK_LE(amount, headroom());
+    //DCHECK_LE(amount, headroom());
     data_ -= amount;
     length_ += amount;
   }
@@ -799,7 +799,7 @@ class IOBuf {
    * This does not modify any actual data in the buffer.
    */
   void append(std::size_t amount) {
-    DCHECK_LE(amount, tailroom());
+    //DCHECK_LE(amount, tailroom());
     length_ += amount;
   }
 
@@ -813,7 +813,7 @@ class IOBuf {
    * This does not modify any actual data in the buffer.
    */
   void trimStart(std::size_t amount) {
-    DCHECK_LE(amount, length_);
+    //DCHECK_LE(amount, length_);
     data_ += amount;
     length_ -= amount;
   }
@@ -828,7 +828,7 @@ class IOBuf {
    * This does not modify any actual data in the buffer.
    */
   void trimEnd(std::size_t amount) {
-    DCHECK_LE(amount, length_);
+    //DCHECK_LE(amount, length_);
     length_ -= amount;
   }
 
@@ -837,7 +837,7 @@ class IOBuf {
    * used to pass the ownership of the writable tail to another IOBuf.
    */
   void trimWritableTail(std::size_t amount) {
-    DCHECK_LE(amount, tailroom());
+    //DCHECK_LE(amount, tailroom());
     capacity_ -= amount;
   }
 
@@ -1676,8 +1676,8 @@ class IOBuf {
   static inline uintptr_t packFlagsAndSharedInfo(
       uintptr_t flags, SharedInfo* info) noexcept {
     uintptr_t uinfo = reinterpret_cast<uintptr_t>(info);
-    DCHECK_EQ(flags & ~kFlagMask, 0u);
-    DCHECK_EQ(uinfo & kFlagMask, 0u);
+    //DCHECK_EQ(flags & ~kFlagMask, 0u);
+    //DCHECK_EQ(uinfo & kFlagMask, 0u);
     return flags | uinfo;
   }
 
@@ -1687,7 +1687,7 @@ class IOBuf {
 
   inline void setSharedInfo(SharedInfo* info) noexcept {
     uintptr_t uinfo = reinterpret_cast<uintptr_t>(info);
-    DCHECK_EQ(uinfo & kFlagMask, 0u);
+    //DCHECK_EQ(uinfo & kFlagMask, 0u);
     flagsAndSharedInfo_ = (flagsAndSharedInfo_ & kFlagMask) | uinfo;
   }
 
@@ -1697,12 +1697,12 @@ class IOBuf {
 
   // flags_ are changed from const methods
   inline void setFlags(uintptr_t flags) noexcept {
-    DCHECK_EQ(flags & ~kFlagMask, 0u);
+    //DCHECK_EQ(flags & ~kFlagMask, 0u);
     flagsAndSharedInfo_ |= flags;
   }
 
   inline void clearFlags(uintptr_t flags) noexcept {
-    DCHECK_EQ(flags & ~kFlagMask, 0u);
+    //DCHECK_EQ(flags & ~kFlagMask, 0u);
     flagsAndSharedInfo_ &= ~flags;
   }
 

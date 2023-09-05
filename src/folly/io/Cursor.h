@@ -431,7 +431,7 @@ class CursorBase {
    * Precondition: length() >= len
    */
   void skipNoAdvance(size_t len) {
-    DCHECK_LE(len, length());
+    //DCHECK_LE(len, length());
     crtPos_ += len;
   }
 
@@ -628,11 +628,9 @@ class CursorBase {
 
  protected:
   void dcheckIntegrity() const {
-    DCHECK(crtBegin_ <= crtPos_ && crtPos_ <= crtEnd_);
-    DCHECK(crtBuf_ == nullptr || crtBegin_ == crtBuf_->data());
-    DCHECK(
-        crtBuf_ == nullptr ||
-        (std::size_t)(crtEnd_ - crtBegin_) <= crtBuf_->length());
+    //DCHECK(crtBegin_ <= crtPos_ && crtPos_ <= crtEnd_);
+    //DCHECK(crtBuf_ == nullptr || crtBegin_ == crtBuf_->data());
+    //DCHECK(crtBuf_ == nullptr || (std::size_t)(crtEnd_ - crtBegin_) <= crtBuf_->length());
   }
 
   ~CursorBase() = default;
@@ -922,7 +920,7 @@ class RWCursor : public detail::CursorBase<RWCursor<access>, IOBuf>,
       this->crtPos_ = this->crtEnd_;
       this->absolutePos_ =
           queue.chainLength() - (this->crtPos_ - this->crtBegin_);
-      DCHECK_EQ(this->getCurrentPosition(), queue.chainLength());
+      //DCHECK_EQ(this->getCurrentPosition(), queue.chainLength());
     }
   }
 

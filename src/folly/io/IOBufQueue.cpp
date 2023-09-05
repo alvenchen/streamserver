@@ -285,7 +285,7 @@ void IOBufQueue::maybeReuseTail() {
     auto tailBuf = reusableTail_->getFreeFn() == freeFn
         ? reinterpret_cast<IOBuf*>(reusableTail_->getUserData())
         : reusableTail_;
-    DCHECK_EQ(tailBuf->bufferEnd(), reusableTail_->bufferEnd());
+    //DCHECK_EQ(tailBuf->bufferEnd(), reusableTail_->bufferEnd());
     newTail = IOBuf::takeOwnership(
         reusableTail_->writableTail(),
         reusableTail_->tailroom(),

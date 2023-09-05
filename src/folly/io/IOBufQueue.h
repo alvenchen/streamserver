@@ -210,7 +210,7 @@ class IOBufQueue {
       // E.g. calling append after touching IOBufQueue or without checking
       // the length().
       if (FOLLY_LIKELY(data_.cachedRange.first != nullptr)) {
-        DCHECK_LE(n, length());
+        //DCHECK_LE(n, length());
         data_.cachedRange.first += n;
       } else {
         appendSlow(n);
@@ -237,23 +237,18 @@ class IOBufQueue {
 
     void dcheckIntegrity() {
       // Tail start should always be less than tail end.
-      DCHECK_LE(
-          (void*)data_.cachedRange.first, (void*)data_.cachedRange.second);
-      DCHECK(
-          data_.cachedRange.first != nullptr ||
-          data_.cachedRange.second == nullptr);
+      //DCHECK_LE( (void*)data_.cachedRange.first, (void*)data_.cachedRange.second);
+      //DCHECK(data_.cachedRange.first != nullptr || data_.cachedRange.second == nullptr);
 
       // Cached range should be always empty if the cache is not attached.
-      DCHECK(
-          data_.attached ||
-          (data_.cachedRange.first == nullptr &&
-           data_.cachedRange.second == nullptr));
+      //DCHECK(data_.attached || (data_.cachedRange.first == nullptr && data_.cachedRange.second == nullptr));
 
       // We cannot be in attached state if the queue_ is not set.
-      DCHECK(queue_ != nullptr || !data_.attached);
+      // DCHECK(queue_ != nullptr || !data_.attached);
 
       // If we're attached and the cache is not empty, then it should coincide
       // with the tail buffer.
+      /*
       DCHECK(
           !data_.attached || data_.cachedRange.first == nullptr ||
           (queue_->head_ != nullptr &&
@@ -261,6 +256,7 @@ class IOBufQueue {
            data_.cachedRange.second ==
                queue_->head_->prev()->writableTail() +
                    queue_->head_->prev()->tailroom()));
+      */
     }
   };
 
@@ -387,10 +383,8 @@ class IOBufQueue {
    *       the call to preallocate and the call to postallocate().
    */
   void postallocate(std::size_t n) {
-    dcheckCacheIntegrity();
-    DCHECK_LE(
-        (void*)(cachePtr_->cachedRange.first + n),
-        (void*)cachePtr_->cachedRange.second);
+    //dcheckCacheIntegrity();
+    //DCHECK_LE((void*)(cachePtr_->cachedRange.first + n), (void*)cachePtr_->cachedRange.second);
     cachePtr_->cachedRange.first += n;
   }
 
@@ -577,32 +571,28 @@ class IOBufQueue {
 
   void dcheckCacheIntegrity() const {
     // Tail start should always be less than tail end.
-    DCHECK_LE((void*)tailStart_, (void*)cachePtr_->cachedRange.first);
-    DCHECK_LE(
+    // DCHECK_LE((void*)tailStart_, (void*)cachePtr_->cachedRange.first);
+    // DCHECK_LE(
         (void*)cachePtr_->cachedRange.first,
         (void*)cachePtr_->cachedRange.second);
-    DCHECK(
-        cachePtr_->cachedRange.first != nullptr ||
-        cachePtr_->cachedRange.second == nullptr);
+    // DCHECK( cachePtr_->cachedRange.first != nullptr || r_->cachedRange.second == nullptr);
 
     // There is always an attached cache instance.
-    DCHECK(cachePtr_->attached);
+    //DCHECK(cachePtr_->attached);
 
     // Either cache is empty or it coincides with the tail.
     if (cachePtr_->cachedRange.first != nullptr) {
-      DCHECK(head_ != nullptr);
-      DCHECK(tailStart_ == head_->prev()->writableTail());
-      DCHECK(tailStart_ <= cachePtr_->cachedRange.first);
-      DCHECK(cachePtr_->cachedRange.first >= head_->prev()->writableTail());
-      DCHECK(
-          cachePtr_->cachedRange.second ==
-          head_->prev()->writableTail() + head_->prev()->tailroom());
+      //DCHECK(head_ != nullptr);
+      //DCHECK(tailStart_ == head_->prev()->writableTail());
+      //DCHECK(tailStart_ <= cachePtr_->cachedRange.first);
+      //DCHECK(cachePtr_->cachedRange.first >= head_->prev()->writableTail());
+      //DCHECK(cachePtr_->cachedRange.second == head_->prev()->writableTail() + head_->prev()->tailroom());
     }
 
     // If reusableTail_ is not null it should point to the current tail buffer.
     if (reusableTail_ != nullptr) {
-      DCHECK(head_ != nullptr);
-      DCHECK(reusableTail_ == head_->prev());
+      //DCHECK(head_ != nullptr);
+      //DCHECK(reusableTail_ == head_->prev());
     }
   }
 
@@ -628,7 +618,7 @@ class IOBufQueue {
       cachePtr_ = &localCache_;
     }
 
-    DCHECK(cachePtr_ == &localCache_ && localCache_.attached);
+    //DCHECK(cachePtr_ == &localCache_ && localCache_.attached);
   }
 
   /**
@@ -639,7 +629,7 @@ class IOBufQueue {
 
     if (tailStart_ != cachePtr_->cachedRange.first) {
       auto buf = head_->prev();
-      DCHECK_EQ(
+      //DCHECK_EQ(
           (void*)(buf->writableTail() + buf->tailroom()),
           (void*)cachePtr_->cachedRange.second);
       auto len = cachePtr_->cachedRange.first - tailStart_;

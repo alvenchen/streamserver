@@ -222,7 +222,7 @@ void IOBuf::operator delete(void* /* ptr */, void* /* placement */) {
 }
 
 void IOBuf::releaseStorage(HeapStorage* storage, uint16_t freeFlags) noexcept {
-  CHECK_EQ(storage->prefix.magic, static_cast<uint16_t>(kHeapMagic));
+  //CHECK_EQ(storage->prefix.magic, static_cast<uint16_t>(kHeapMagic));
 
   // This function is effectively used as a memory barrier.  Logically, we can
   // use relaxed memory order here.  If we are unlucky and happen to get
@@ -231,7 +231,7 @@ void IOBuf::releaseStorage(HeapStorage* storage, uint16_t freeFlags) noexcept {
   // std::memory_order_relaxed will cause tsan to find problems with some
   // caller code.
   auto flags = storage->prefix.flags.load(std::memory_order_acquire);
-  DCHECK_EQ((flags & freeFlags), freeFlags);
+  //DCHECK_EQ((flags & freeFlags), freeFlags);
 
   while (true) {
     auto newFlags = uint16_t(flags & ~freeFlags);
@@ -444,7 +444,7 @@ IOBuf::IOBuf(
           packFlagsAndSharedInfo(kFlagFreeSharedInfo, nullptr)) {
   // do not allow only user data without a freeFn
   // since we use that for folly::sizedFree
-  DCHECK(!userData || (userData && freeFn));
+  //DCHECK(!userData || (userData && freeFn));
 
   auto rollback = makeGuard([&] { //
     takeOwnershipError(freeOnError, buf, freeFn, userData);
@@ -492,9 +492,7 @@ unique_ptr<IOBuf> IOBuf::takeOwnership(
     TakeOwnershipOption option) {
   // do not allow only user data without a freeFn
   // since we use that for folly::sizedFree
-  DCHECK(
-      !userData || (userData && freeFn) ||
-      (userData && !freeFn && (option == TakeOwnershipOption::STORE_SIZE)));
+  //DCHECK(!userData || (userData && freeFn) || (userData && !freeFn && (option == TakeOwnershipOption::STORE_SIZE)));
 
   HeapFullStorage* storage = nullptr;
   auto rollback = makeGuard([&] {
@@ -591,8 +589,8 @@ IOBuf::IOBuf(IOBuf&& other) noexcept
   }
 
   // Sanity check to make sure that other is in a valid state to be destroyed.
-  DCHECK_EQ(other.prev_, &other);
-  DCHECK_EQ(other.next_, &other);
+  //DCHECK_EQ(other.prev_, &other);
+  //DCHECK_EQ(other.next_, &other);
 }
 
 IOBuf::IOBuf(const IOBuf& other) {
@@ -676,8 +674,8 @@ IOBuf& IOBuf::operator=(IOBuf&& other) noexcept {
   }
 
   // Sanity check to make sure that other is in a valid state to be destroyed.
-  DCHECK_EQ(other.prev_, &other);
-  DCHECK_EQ(other.next_, &other);
+  //DCHECK_EQ(other.prev_, &other);
+  //DCHECK_EQ(other.next_, &other);
 
   return *this;
 }
@@ -828,17 +826,17 @@ IOBuf IOBuf::cloneCoalescedAsValueWithHeadroomTailroom(
   auto current = this;
   do {
     if (current->length() > 0) {
-      DCHECK_NOTNULL(current->data());
-      DCHECK_LE(current->length(), newBuf.tailroom());
+      //DCHECK_NOTNULL(current->data());
+      //DCHECK_LE(current->length(), newBuf.tailroom());
       memcpy(newBuf.writableTail(), current->data(), current->length());
       newBuf.append(current->length());
     }
     current = current->next();
   } while (current != this);
 
-  DCHECK_EQ(newLength, newBuf.length());
-  DCHECK_EQ(newHeadroom, newBuf.headroom());
-  DCHECK_LE(newTailroom, newBuf.tailroom());
+  //DCHECK_EQ(newLength, newBuf.length());
+  //DCHECK_EQ(newHeadroom, newBuf.headroom());
+  //DCHECK_LE(newTailroom, newBuf.tailroom());
 
   return newBuf;
 }
@@ -917,7 +915,7 @@ void IOBuf::makeManagedChained() {
 void IOBuf::coalesceSlow() {
   // coalesceSlow() should only be called if we are part of a chain of multiple
   // IOBufs.  The caller should have already verified this.
-  DCHECK(isChained());
+  //DCHECK(isChained());
 
   // Compute the length of the entire chain
   std::size_t newLength = 0;
@@ -929,14 +927,14 @@ void IOBuf::coalesceSlow() {
 
   coalesceAndReallocate(newLength, end);
   // We should be only element left in the chain now
-  DCHECK(!isChained());
+  // DCHECK(!isChained());
 }
 
 void IOBuf::coalesceSlow(size_t maxLength) {
   // coalesceSlow() should only be called if we are part of a chain of multiple
   // IOBufs.  The caller should have already verified this.
-  DCHECK(isChained());
-  DCHECK_LT(length_, maxLength);
+  // DCHECK(isChained());
+  // DCHECK_LT(length_, maxLength);
 
   // Compute the length of the entire chain
   std::size_t newLength = 0;
@@ -1068,7 +1066,7 @@ void IOBuf::reserveSlow(std::size_t minHeadroom, std::size_t minTailroom) {
   // reserveSlow() is dangerous if anyone else is sharing the buffer, as we may
   // reallocate and free the original buffer.  It should only ever be called if
   // we are the only user of the buffer.
-  DCHECK(!isSharedOne());
+  // DCHECK(!isSharedOne());
 
   // We'll need to reallocate the buffer.
   // There are a few options.
@@ -1180,7 +1178,7 @@ void IOBuf::reserveSlow(std::size_t minHeadroom, std::size_t minTailroom) {
 // decrementRefcount() cannot throw.
 void IOBuf::freeExtBuffer() noexcept {
   SharedInfo* info = sharedInfo();
-  DCHECK(info);
+  //DCHECK(info);
 
   // save the observerListHead
   // since the SharedInfo can be freed

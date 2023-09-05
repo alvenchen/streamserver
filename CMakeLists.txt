@@ -51,10 +51,10 @@ target_include_directories(LiveServer PUBLIC ${OPENSSL_INCLUDE_DIR})
 
 # DoubleConversion
 list(APPEND CMAKE_PREFIX_PATH "/double-conversion")
-list(APPEND CMAKE_MODULE_PATH "/double-conversion")
-find_package(DoubleConversion MODULE REQUIRED)
+list(APPEND CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR})
+find_package(double-conversion REQUIRED)
 target_link_libraries(LiveServer PRIVATE double-conversion)
-
+target_include_directories(LiveServer PUBLIC "/double-conversion")
 ##############################################################
 #for test
 
