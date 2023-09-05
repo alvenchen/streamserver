@@ -572,9 +572,7 @@ class IOBufQueue {
   void dcheckCacheIntegrity() const {
     // Tail start should always be less than tail end.
     // DCHECK_LE((void*)tailStart_, (void*)cachePtr_->cachedRange.first);
-    // DCHECK_LE(
-        (void*)cachePtr_->cachedRange.first,
-        (void*)cachePtr_->cachedRange.second);
+    // DCHECK_LE((void*)cachePtr_->cachedRange.first, (void*)cachePtr_->cachedRange.second);
     // DCHECK( cachePtr_->cachedRange.first != nullptr || r_->cachedRange.second == nullptr);
 
     // There is always an attached cache instance.
@@ -629,9 +627,7 @@ class IOBufQueue {
 
     if (tailStart_ != cachePtr_->cachedRange.first) {
       auto buf = head_->prev();
-      //DCHECK_EQ(
-          (void*)(buf->writableTail() + buf->tailroom()),
-          (void*)cachePtr_->cachedRange.second);
+      //DCHECK_EQ((void*)(buf->writableTail() + buf->tailroom()), (void*)cachePtr_->cachedRange.second);
       auto len = cachePtr_->cachedRange.first - tailStart_;
       buf->append(len);
       chainLength_ += len;

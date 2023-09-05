@@ -14,30 +14,18 @@
  * limitations under the License.
  */
 
-#pragma once
+#include <folly/portability/Builtins.h>
 
-#ifndef FOLLY_NO_CONFIG
-#include <folly/folly-config.h>
-#endif
+#ifdef _WIN32
+#include <folly/portability/Windows.h>
 
-#if __has_include(<features.h>)
-#include <features.h> // @manual
-#endif
-
-#if __has_include(<bits/c++config.h>)
-#include <bits/c++config.h> // @manual
-#endif
-
-#if __has_include(<__config>)
-#include <__config> // @manual
-#endif
-
-#ifdef __ANDROID__
-#include <android/api-level.h> // @manual
-#endif
-
-#ifdef __APPLE__
-#include <Availability.h> // @manual
-#include <AvailabilityMacros.h> // @manual
-#include <TargetConditionals.h> // @manual
+namespace folly {
+namespace portability {
+namespace detail {
+void call_flush_instruction_cache_self_pid(void* begin, size_t size) {
+  FlushInstructionCache(GetCurrentProcess(), begin, size);
+}
+} // namespace detail
+} // namespace portability
+} // namespace folly
 #endif

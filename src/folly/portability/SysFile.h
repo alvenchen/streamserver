@@ -16,28 +16,12 @@
 
 #pragma once
 
-#ifndef FOLLY_NO_CONFIG
-#include <folly/folly-config.h>
-#endif
-
-#if __has_include(<features.h>)
-#include <features.h> // @manual
-#endif
-
-#if __has_include(<bits/c++config.h>)
-#include <bits/c++config.h> // @manual
-#endif
-
-#if __has_include(<__config>)
-#include <__config> // @manual
-#endif
-
-#ifdef __ANDROID__
-#include <android/api-level.h> // @manual
-#endif
-
-#ifdef __APPLE__
-#include <Availability.h> // @manual
-#include <AvailabilityMacros.h> // @manual
-#include <TargetConditionals.h> // @manual
+#ifndef _WIN32
+#include <sys/file.h>
+#else
+#define LOCK_SH 1
+#define LOCK_EX 2
+#define LOCK_NB 4
+#define LOCK_UN 8
+extern "C" int flock(int fd, int operation);
 #endif
