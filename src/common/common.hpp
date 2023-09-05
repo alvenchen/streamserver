@@ -16,8 +16,9 @@ naming rule :
 #include <stdexcept>
 #include <cstring>
 #include <utility>
+#include <chrono>
 
-using namespace std::chrono_literals;
+using namespace std::literals::chrono_literals;
 
 namespace common{
 

@@ -7,7 +7,7 @@
 
 #pragma once
 
-#include "common/IntervalSet.h"
+#include <folly/Optional.h>
 
 namespace quic {
 

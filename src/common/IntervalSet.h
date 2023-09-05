@@ -13,8 +13,7 @@
 #include <limits>
 #include <queue>
 #include <stdexcept>
-
-#include <common/IntervalSet-inl.h>
+#include <folly/Likely.h>
 
 
 namespace quic {
@@ -134,3 +133,4 @@ public:
 };
 
 } // namespace quic
+#include <common/IntervalSet-inl.h>

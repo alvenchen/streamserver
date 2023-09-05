@@ -30,6 +30,8 @@ namespace quic{
                 new (&ping) PingFrame(std::move(other.ping));
                 break;
         }
+        _type = other._type;
+        return *this;
     }
 
     QuicFrame::QuicFrame(PaddingFrame &&in)
@@ -39,10 +41,10 @@ namespace quic{
 
     QuicFrame::QuicFrame(PingFrame &&in)
         :_type(QuicFrame::TYPE::PING_FRAME){
-        new (&padding) PingFrame(std::move(in));
+        new (&ping) PingFrame(std::move(in));
     }
 
-    void QuicFrame::destroy() noexcept {
+    void QuicFrame::destroy(){
         switch (_type) {
             case QuicFrame::TYPE::PADDING_FRAME:
                 padding.~PaddingFrame();

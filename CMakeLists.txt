@@ -16,6 +16,8 @@ file(GLOB SRC
      ${CMAKE_CURRENT_SOURCE_DIR}/src/folly/*.cpp
      ${CMAKE_CURRENT_SOURCE_DIR}/src/folly/*/*.hpp
      ${CMAKE_CURRENT_SOURCE_DIR}/src/folly/*/*.cpp
+     ${CMAKE_CURRENT_SOURCE_DIR}/src/common/*/*.hpp
+     ${CMAKE_CURRENT_SOURCE_DIR}/src/common/*/*.cpp
 )
 
 add_executable(LiveServer ${SRC})
@@ -47,13 +49,14 @@ find_package (OpenSSL REQUIRED)
 message(${OPENSSL_INCLUDE_DIR})
 target_compile_definitions(LiveServer PUBLIC HAVE_OPENSSL)
 target_link_libraries(LiveServer PUBLIC ${OPENSSL_LIBRARIES})
+message(${OPENSSL_LIBRARIES})
 target_include_directories(LiveServer PUBLIC ${OPENSSL_INCLUDE_DIR})
 
 # DoubleConversion
 list(APPEND CMAKE_PREFIX_PATH "/double-conversion")
 list(APPEND CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR})
 find_package(double-conversion REQUIRED)
-target_link_libraries(LiveServer PRIVATE double-conversion)
+target_link_libraries(LiveServer PRIVATE /double-conversion/libdouble-conversion.a)
 target_include_directories(LiveServer PUBLIC "/double-conversion")
 ##############################################################
 #for test
