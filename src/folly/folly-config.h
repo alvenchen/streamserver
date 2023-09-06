@@ -38,7 +38,8 @@
 #define FOLLY_GFLAGS_NAMESPACE @FOLLY_GFLAGS_NAMESPACE@
 
 #define FOLLY_HAVE_LIBGLOG 0
-//#define FOLLY_USE_JEMALLOC 0
+#define FOLLY_USE_JEMALLOC 1
+//#define FOLLY_ASSUME_NO_JEMALLOC
 
 #if __has_include(<features.h>)
 #include <features.h>

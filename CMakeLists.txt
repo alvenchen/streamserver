@@ -58,6 +58,11 @@ list(APPEND CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR})
 find_package(double-conversion REQUIRED)
 target_link_libraries(LiveServer PRIVATE /double-conversion/libdouble-conversion.a)
 target_include_directories(LiveServer PUBLIC "/double-conversion")
+
+
+# jemalloc
+target_link_libraries(LiveServer PRIVATE /usr/local/lib/libjemalloc.a)
+target_include_directories(LiveServer PUBLIC "/usr/local/include")
 ##############################################################
 #for test
 
