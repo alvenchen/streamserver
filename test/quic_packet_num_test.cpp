@@ -15,7 +15,7 @@ int main(int ac, char** av) {
 
     PacketNum packetN = 0xac5c02;
     PacketNum ackN = 0xabe8b3;
-    PacketNumEncodingResult packetNumEncoded = EncodePacketNumber(packetN, ackN);
+    PacketNumEncodingResult packetNumEncoded = encodePacketNumber(packetN, ackN);
 
     fmt::print("The answer is 0x{:x}, len:{}\n", packetNumEncoded.result, packetNumEncoded.length);
     
