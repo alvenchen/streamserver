@@ -3,6 +3,7 @@
 #include "../common/common.hpp"
 #include "quic_header.hpp"
 #include "quic_frame.hpp"
+#include "../common/BufUtil.h"
 
 namespace quic{
 

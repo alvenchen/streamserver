@@ -9,6 +9,7 @@
 #include "quic_connection_id.hpp"
 #include "quic_packet_num.hpp"
 #include "quic_constants.hpp"
+#include "../folly/io/Cursor.h"
 
 namespace quic {
 
@@ -26,12 +27,12 @@ enum class PacketNumberSpace : uint8_t {
 };
 
 struct LongHeaderInvariant {
-    QuicVersion _version;
-    ConnectionId _srcConnId;
-    ConnectionId _dstConnId;
+    QuicVersion version;
+    ConnectionId srcConnId;
+    ConnectionId dstConnId;
 
     LongHeaderInvariant(QuicVersion ver, ConnectionId scid, ConnectionId dcid)
-        :_version(ver),_srcConnId(std::move(scid)),_dstConnId(std::move(dcid)){
+        :version(ver),srcConnId(std::move(scid)),dstConnId(std::move(dcid)){
     }
 };
 
@@ -100,7 +101,6 @@ public:
         return typeToPacketNumberSpace(_longHeaderType);
     }
 
-    ProtectionType getProtectionType() const;
     bool hasToken() const;
     const std::string& getToken() const;
     // Note this is defined in the header so it is inlined for performance.
@@ -110,11 +110,67 @@ public:
 
     void setPacketNumber(PacketNum packetNum);
 
+    ProtectionType getProtectionType() const;
+
  private:
     PacketNum _packetSequenceNum{0};
     Types _longHeaderType;
     LongHeaderInvariant _invariant;
     std::string _token;
+};
+
+
+
+struct ShortHeaderInvariant {
+    ConnectionId destinationConnId;
+
+    explicit ShortHeaderInvariant(ConnectionId dcid);
+};
+
+
+
+struct ShortHeader {
+public:
+    virtual ~ShortHeader() = default;
+
+    // There is also a spin bit which is 0x20 that we don't currently implement.
+    static constexpr uint8_t kFixedBitMask = 0x40;
+    static constexpr uint8_t kReservedBitsMask = 0x18;
+    static constexpr uint8_t kKeyPhaseMask = 0x04;
+    static constexpr uint8_t kPacketNumLenMask = 0x03;
+    static constexpr uint8_t kTypeBitsMask = 0x1F;
+
+    /**
+     * The constructor for reading a packet.
+     */
+    ShortHeader(ProtectionType protectionType, ConnectionId connId);
+
+    /**
+     * The constructor for writing a packet.
+     */
+    ShortHeader(ProtectionType protectionType, ConnectionId connId, PacketNum packetNum);
+
+    PacketNumberSpace getPacketNumberSpace() const {
+        return PacketNumberSpace::AppData;
+    }
+    PacketNum getPacketSequenceNum() const {
+        return packetSequenceNum_;
+    }
+    const ConnectionId& getConnectionId() const;
+
+    void setPacketNumber(PacketNum packetNum);
+
+    ProtectionType getProtectionType() const;
+private:
+    ShortHeader() = delete;
+    //bool readInitialByte(uint8_t initalByte);
+    //bool readConnectionId(folly::io::Cursor& cursor);
+    //bool readPacketNum(PacketNum largestReceivedPacketNum, folly::io::Cursor& cursor);
+
+private:
+    PacketNum packetSequenceNum_{0};
+    ProtectionType protectionType_;
+    ConnectionId connectionId_;
 };
 
 }
