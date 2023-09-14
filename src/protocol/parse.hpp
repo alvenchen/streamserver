@@ -4,9 +4,37 @@
 #include "quic_header.hpp"
 #include "quic_frame.hpp"
 #include "../common/BufUtil.h"
+#include "transport_settings.h"
 
 namespace quic{
 
-    //QuicFrame parseFrame(BufQueue& queue, const PacketHeader& header, const CodecParameters& params);
+    /**
+     * Connection level parameters needed by the codec to decode the packet
+     * successfully.
+     */
+    struct CodecParameters {
+        // This must not be set to zero.
+        uint8_t peerAckDelayExponent{kDefaultAckDelayExponent};
+        QuicVersion version{QuicVersion::QUIC_V1};
+        folly::Optional<AckReceiveTimestampsConfig> maybeAckReceiveTimestampsConfig =
+            folly::none;
+
+        CodecParameters() = default;
+
+        CodecParameters(
+            uint8_t peerAckDelayExponentIn,
+            QuicVersion versionIn,
+            folly::Optional<AckReceiveTimestampsConfig>
+                maybeAckReceiveTimestampsConfigIn)
+            : peerAckDelayExponent(peerAckDelayExponentIn),
+            version(versionIn),
+            maybeAckReceiveTimestampsConfig(maybeAckReceiveTimestampsConfigIn) {}
+
+        CodecParameters(uint8_t peerAckDelayExponentIn, QuicVersion versionIn)
+            : peerAckDelayExponent(peerAckDelayExponentIn), version(versionIn) {}
+    };
+
+
+    QuicFrame parseFrame(BufQueue& queue, const PacketHeader& header, const CodecParameters& params);
 
 }

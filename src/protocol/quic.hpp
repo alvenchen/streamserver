@@ -1,10 +1,10 @@
 #include <cstdint>
 
-/*
-    It contains fields that are only needed for IETF draft Header.
+
+namespace quic{
+    using StreamId = uint64_t;
+    using StreamGroupId = uint64_t;
 
 
-*/
-struct header{
-    uint32_t i;
-};
+}
+

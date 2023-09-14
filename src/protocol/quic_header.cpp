@@ -105,4 +105,146 @@ void ShortHeader::setPacketNumber(PacketNum packetNum) {
 }
 
 
+
+
+PacketHeader::PacketHeader(ShortHeader&& shortHeaderIn)
+    : headerForm_(HeaderForm::Short) {
+    new (&shortHeader) ShortHeader(std::move(shortHeaderIn));
+}
+
+PacketHeader::PacketHeader(LongHeader&& longHeaderIn)
+    : headerForm_(HeaderForm::Long) {
+    new (&longHeader) LongHeader(std::move(longHeaderIn));
+}
+
+PacketHeader::PacketHeader(const PacketHeader& other)
+    : headerForm_(other.headerForm_) {
+    switch (other.headerForm_) {
+        case HeaderForm::Long:
+            new (&longHeader) LongHeader(other.longHeader);
+            break;
+        case HeaderForm::Short:
+            new (&shortHeader) ShortHeader(other.shortHeader);
+            break;
+    }
+}
+
+PacketHeader::PacketHeader(PacketHeader&& other) noexcept
+    : headerForm_(other.headerForm_) {
+    switch (other.headerForm_) {
+        case HeaderForm::Long:
+            new (&longHeader) LongHeader(std::move(other.longHeader));
+            break;
+        case HeaderForm::Short:
+            new (&shortHeader) ShortHeader(std::move(other.shortHeader));
+            break;
+    }
+}
+
+PacketHeader& PacketHeader::operator=(PacketHeader&& other) noexcept {
+    destroyHeader();
+    switch (other.headerForm_) {
+        case HeaderForm::Long:
+            new (&longHeader) LongHeader(std::move(other.longHeader));
+            break;
+        case HeaderForm::Short:
+            new (&shortHeader) ShortHeader(std::move(other.shortHeader));
+            break;
+    }
+    headerForm_ = other.headerForm_;
+    return *this;
+}
+
+PacketHeader& PacketHeader::operator=(const PacketHeader& other) {
+    destroyHeader();
+    switch (other.headerForm_) {
+        case HeaderForm::Long:
+            new (&longHeader) LongHeader(other.longHeader);
+            break;
+        case HeaderForm::Short:
+            new (&shortHeader) ShortHeader(other.shortHeader);
+            break;
+    }
+    headerForm_ = other.headerForm_;
+    return *this;
+}
+
+PacketHeader::~PacketHeader() {
+    destroyHeader();
+}
+
+void PacketHeader::destroyHeader() {
+    switch (headerForm_) {
+        case HeaderForm::Long:
+            longHeader.~LongHeader();
+            break;
+        case HeaderForm::Short:
+            shortHeader.~ShortHeader();
+            break;
+    }
+}
+
+LongHeader* PacketHeader::asLong() {
+    switch (headerForm_) {
+        case HeaderForm::Long:
+            return &longHeader;
+        case HeaderForm::Short:
+            return nullptr;
+        default:
+            folly::assume_unreachable();
+    }
+}
+
+ShortHeader* PacketHeader::asShort() {
+    switch (headerForm_) {
+        case HeaderForm::Long:
+            return nullptr;
+        case HeaderForm::Short:
+            return &shortHeader;
+        default:
+            folly::assume_unreachable();
+    }
+}
+
+const LongHeader* PacketHeader::asLong() const {
+    switch (headerForm_) {
+        case HeaderForm::Long:
+            return &longHeader;
+        case HeaderForm::Short:
+            return nullptr;
+        default:
+            folly::assume_unreachable();
+    }
+}
+
+const ShortHeader* PacketHeader::asShort() const {
+    switch (headerForm_) {
+        case HeaderForm::Long:
+            return nullptr;
+        case HeaderForm::Short:
+            return &shortHeader;
+        default:
+            folly::assume_unreachable();
+    }
+}
+
+HeaderForm PacketHeader::getHeaderForm() const {
+    return headerForm_;
+}
+
+ProtectionType PacketHeader::getProtectionType() const {
+    switch (headerForm_) {
+        case HeaderForm::Long:
+            return longHeader.getProtectionType();
+        case HeaderForm::Short:
+            return shortHeader.getProtectionType();
+        default:
+            folly::assume_unreachable();
+    }
+}
+
+
+
+
+
 }

@@ -173,4 +173,63 @@ private:
     ConnectionId connectionId_;
 };
 
+
+
+struct PacketHeader {
+    ~PacketHeader();
+
+    /* implicit */ PacketHeader(LongHeader&& longHeader);
+    /* implicit */ PacketHeader(ShortHeader&& shortHeader);
+
+    PacketHeader(PacketHeader&& other) noexcept;
+    PacketHeader(const PacketHeader& other);
+
+    PacketHeader& operator=(PacketHeader&& other) noexcept;
+    PacketHeader& operator=(const PacketHeader& other);
+
+    LongHeader* asLong();
+    ShortHeader* asShort();
+
+    const LongHeader* asLong() const;
+    const ShortHeader* asShort() const;
+
+    // Note this is defined in the header so it is inlined for performance.
+    PacketNum getPacketSequenceNum() const {
+        switch (headerForm_) {
+            case HeaderForm::Long:
+            return longHeader.getPacketSequenceNum();
+            case HeaderForm::Short:
+            return shortHeader.getPacketSequenceNum();
+            default:
+            folly::assume_unreachable();
+        }
+    }
+    HeaderForm getHeaderForm() const;
+    ProtectionType getProtectionType() const;
+    // Note this is defined in the header so it is inlined for performance.
+    PacketNumberSpace getPacketNumberSpace() const {
+        switch (headerForm_) {
+            case HeaderForm::Long:
+            return longHeader.getPacketNumberSpace();
+            case HeaderForm::Short:
+            return shortHeader.getPacketNumberSpace();
+            default:
+            folly::assume_unreachable();
+        }
+    }
+
+private:
+    void destroyHeader();
+
+    union {
+        LongHeader longHeader;
+        ShortHeader shortHeader;
+    };
+
+    HeaderForm headerForm_;
+};
+
+
+
+
 }
