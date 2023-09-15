@@ -5,6 +5,7 @@
 #include "quic_frame.hpp"
 #include "../common/BufUtil.h"
 #include "transport_settings.h"
+#include "quic_integer.h"
 
 namespace quic{
 
@@ -36,5 +37,13 @@ namespace quic{
 
 
     QuicFrame parseFrame(BufQueue& queue, const PacketHeader& header, const CodecParameters& params);
+
+    /**
+     * The following functions decode frames. They throw an QuicException when error
+     * occurs.
+     */
+    PaddingFrame decodePaddingFrame(folly::io::Cursor&);
+
+    PingFrame decodePingFrame(folly::io::Cursor& cursor);
 
 }
