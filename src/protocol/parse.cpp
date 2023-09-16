@@ -29,6 +29,8 @@ namespace quic{
                 return QuicFrame(decodePaddingFrame(cursor));
             case FrameType::PING:
                 return QuicFrame(decodePingFrame(cursor));
+            case FrameType::ACK:
+                return_ QuicFrame(decodeAckFrame(cursor, header, params));
             
             }
         } catch (const std::exception& e) {
@@ -65,6 +67,64 @@ namespace quic{
 
     PingFrame decodePingFrame(folly::io::Cursor&) {
         return PingFrame();
+    }
+
+    ReadAckFrame decodeAckFrame(folly::io::Cursor& cursor, const PacketHeader& header, const CodecParameters& params, FrameType frameType) {
+        ReadAckFrame frame;
+        frame.frameType = frameType;
+        auto largestAckedInt = decodeQuicInteger(cursor);
+        if (!largestAckedInt) {
+            throw QuicTransportException("Bad largest acked", quic::TransportErrorCode::FRAME_ENCODING_ERROR, quic::FrameType::ACK);
+        }
+        auto largestAcked = folly::to<PacketNum>(largestAckedInt->first);
+        auto ackDelay = decodeQuicInteger(cursor);
+        if (!ackDelay) {
+            throw QuicTransportException("Bad ack delay", quic::TransportErrorCode::FRAME_ENCODING_ERROR, quic::FrameType::ACK);
+        }
+        auto additionalAckBlocks = decodeQuicInteger(cursor);
+        if (!additionalAckBlocks) {
+            throw QuicTransportException("Bad ack block count", quic::TransportErrorCode::FRAME_ENCODING_ERROR, quic::FrameType::ACK);
+        }
+        auto firstAckBlockLen = decodeQuicInteger(cursor);
+        if (!firstAckBlockLen) {
+            throw QuicTransportException("Bad first block", quic::TransportErrorCode::FRAME_ENCODING_ERROR, quic::FrameType::ACK);
+        }
+        // Using default ack delay for long header packets. Before negotiating
+        // and ack delay, the sender has to use something, so they use the default
+        // ack delay. To keep it consistent the protocol specifies using the same
+        // ack delay for all the long header packets.
+        uint8_t ackDelayExponentToUse = (header.getHeaderForm() == HeaderForm::Long) ? kDefaultAckDelayExponent : params.peerAckDelayExponent;
+        //DCHECK_LT(ackDelayExponentToUse, sizeof(ackDelay->first) * 8);
+
+        PacketNum currentPacketNum = nextAckedPacketLen(largestAcked, firstAckBlockLen->first);
+        frame.largestAcked = largestAcked;
+
+        auto adjustedDelay = convertEncodedDurationToMicroseconds(frameType, ackDelayExponentToUse, ackDelay->first);
+
+        if (UNLIKELY(adjustedDelay > 1000 * 1000 * 1000 /* 1000s */)) {
+            //LOG(ERROR) << "Quic recvd long ack delay=" << adjustedDelay << " frame type: " << static_cast<uint64_t>(frameType);
+            adjustedDelay = 0;
+        }
+        frame.ackDelay = std::chrono::microseconds(adjustedDelay);
+
+        frame.ackBlocks.emplace_back(currentPacketNum, largestAcked);
+        for (uint64_t numBlocks = 0; numBlocks < additionalAckBlocks->first; ++numBlocks) {
+            auto currentGap = decodeQuicInteger(cursor);
+            if (!currentGap) {
+                throw QuicTransportException("Bad gap", quic::TransportErrorCode::FRAME_ENCODING_ERROR, quic::FrameType::ACK);
+            }
+            auto blockLen = decodeQuicInteger(cursor);
+            if (!blockLen) {
+                throw QuicTransportException("Bad block len", quic::TransportErrorCode::FRAME_ENCODING_ERROR, quic::FrameType::ACK);
+            }
+            PacketNum nextEndPacket = nextAckedPacketGap(currentPacketNum, currentGap->first);
+            currentPacketNum = nextAckedPacketLen(nextEndPacket, blockLen->first);
+            // We don't need to add the entry when the block length is zero since we
+            // already would have processed it in the previous iteration.
+            frame.ackBlocks.emplace_back(currentPacketNum, nextEndPacket);
+        }
+
+        return frame;
     }
 
 }

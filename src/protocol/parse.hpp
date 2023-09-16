@@ -17,19 +17,12 @@ namespace quic{
         // This must not be set to zero.
         uint8_t peerAckDelayExponent{kDefaultAckDelayExponent};
         QuicVersion version{QuicVersion::QUIC_V1};
-        folly::Optional<AckReceiveTimestampsConfig> maybeAckReceiveTimestampsConfig =
-            folly::none;
+        folly::Optional<AckReceiveTimestampsConfig> maybeAckReceiveTimestampsConfig = folly::none;
 
         CodecParameters() = default;
 
-        CodecParameters(
-            uint8_t peerAckDelayExponentIn,
-            QuicVersion versionIn,
-            folly::Optional<AckReceiveTimestampsConfig>
-                maybeAckReceiveTimestampsConfigIn)
-            : peerAckDelayExponent(peerAckDelayExponentIn),
-            version(versionIn),
-            maybeAckReceiveTimestampsConfig(maybeAckReceiveTimestampsConfigIn) {}
+        CodecParameters(uint8_t peerAckDelayExponentIn, QuicVersion versionIn, folly::Optional<AckReceiveTimestampsConfig> maybeAckReceiveTimestampsConfigIn)
+            : peerAckDelayExponent(peerAckDelayExponentIn), version(versionIn), maybeAckReceiveTimestampsConfig(maybeAckReceiveTimestampsConfigIn) {}
 
         CodecParameters(uint8_t peerAckDelayExponentIn, QuicVersion versionIn)
             : peerAckDelayExponent(peerAckDelayExponentIn), version(versionIn) {}
@@ -46,4 +39,5 @@ namespace quic{
 
     PingFrame decodePingFrame(folly::io::Cursor& cursor);
 
+    ReadAckFrame decodeAckFrame(folly::io::Cursor& cursor, const PacketHeader& header, const CodecParameters& params, FrameType frameType=FrameType::ACK);
 }
