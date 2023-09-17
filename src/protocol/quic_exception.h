@@ -32,9 +32,9 @@ namespace quic {
 
         TYPE type();
 
-        ApplicationErrorCode* ApplicationErrorCode();
-        LocalErrorCode* LocalErrorCode();
-        TransportErrorCode* TransportErrorCode();
+        ApplicationErrorCode* asApplicationErrorCode();
+        LocalErrorCode* asLocalErrorCode();
+        TransportErrorCode* asTransportErrorCode();
 
     private:
         void destroy() noexcept;
