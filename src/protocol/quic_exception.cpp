@@ -71,7 +71,7 @@ namespace quic{
         return *this;
     }
 
-    bool QuicErrorCode::operator==(QuicErrorCode&& other) const{
+    bool QuicErrorCode::operator==(const QuicErrorCode& other) const{
         if(other._type != _type){
             return false;
         }

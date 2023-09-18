@@ -29,7 +29,7 @@ namespace quic {
         QuicErrorCode(QuicErrorCode&& other) noexcept;
         QuicErrorCode& operator=(const QuicErrorCode& other) noexcept;
         QuicErrorCode& operator=(QuicErrorCode&& other) noexcept;
-        bool operator==(QuicErrorCode&& other) const;
+        bool operator==(const QuicErrorCode& other) const;
         QuicErrorCode(ApplicationErrorCode&& in);
         QuicErrorCode(LocalErrorCode&& in);
         QuicErrorCode(TransportErrorCode&& in);
