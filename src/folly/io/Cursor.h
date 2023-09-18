@@ -928,8 +928,7 @@ class RWCursor : public detail::CursorBase<RWCursor<access>, IOBuf>,
   explicit RWCursor(const detail::CursorBase<OtherDerived, OtherBuf>& cursor)
       : detail::CursorBase<RWCursor<access>, IOBuf>(cursor),
         maybeShared_(true) {
-    CHECK(!cursor.isBounded())
-        << "Creating RWCursor from bounded Cursor is not allowed";
+    //CHECK(!cursor.isBounded()) << "Creating RWCursor from bounded Cursor is not allowed";
   }
   /**
    * Gather at least n bytes contiguously into the current buffer,

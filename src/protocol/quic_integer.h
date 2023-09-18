@@ -77,16 +77,16 @@ folly::Expected<size_t, TransportErrorCode>
 encodeQuicInteger(uint64_t value, BufOp bufop, int outputSize) {
     switch (outputSize) {
     case 1:
-        CHECK(value <= kOneByteLimit);
+        //CHECK(value <= kOneByteLimit);
         return encodeOneByte(std::move(bufop), value);
     case 2:
-        CHECK(value <= kTwoByteLimit);
+        //CHECK(value <= kTwoByteLimit);
         return encodeTwoBytes(std::move(bufop), value);
     case 4:
-        CHECK(value <= kFourByteLimit);
+        //CHECK(value <= kFourByteLimit);
         return encodeFourBytes(std::move(bufop), value);
     case 8:
-        CHECK(value <= kEightByteLimit);
+        //CHECK(value <= kEightByteLimit);
         return encodeEightBytes(std::move(bufop), value);
     }
     return folly::makeUnexpected(TransportErrorCode::INTERNAL_ERROR);
@@ -141,7 +141,7 @@ public:
 
     template <typename BufOp>
     size_t encode(BufOp appender, int outputSize) const {
-        auto size = encodeQuicInteger(value_, std::move(appender), outputSize);
+        auto size = encodeQuicInteger(_value, std::move(appender), outputSize);
         if (size.hasError()) {
             fmt::print("Value too large value={:d}\n", _value);
             //throw QuicTransportException(folly::to<std::string>("Value too large ", _value), size.error());

@@ -9,6 +9,7 @@
 
 #include <folly/Optional.h>
 #include <folly/Range.h>
+#include <folly/Conv.h>
 #include "quic_constants.hpp"
 #include <stdexcept>
 #include <string>
@@ -24,8 +25,11 @@ namespace quic {
         };
 
         ~QuicErrorCode();
+        QuicErrorCode(const QuicErrorCode& other) noexcept;
         QuicErrorCode(QuicErrorCode&& other) noexcept;
+        QuicErrorCode& operator=(const QuicErrorCode& other) noexcept;
         QuicErrorCode& operator=(QuicErrorCode&& other) noexcept;
+        bool operator==(QuicErrorCode&& other) const;
         QuicErrorCode(ApplicationErrorCode&& in);
         QuicErrorCode(LocalErrorCode&& in);
         QuicErrorCode(TransportErrorCode&& in);

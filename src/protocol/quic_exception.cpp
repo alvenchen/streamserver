@@ -7,6 +7,21 @@ namespace quic{
         destroy();
     }
 
+    QuicErrorCode::QuicErrorCode(const QuicErrorCode& other) noexcept{
+        switch (other._type) {
+            case QuicErrorCode::TYPE::APP_ERR_CODE:
+                new (&appErr) ApplicationErrorCode(other.appErr);
+                break;
+            case QuicErrorCode::TYPE::LOCAL_ERR_CODE:
+                new (&localErr) LocalErrorCode(other.localErr);
+                break;
+            case QuicErrorCode::TYPE::TRANSPOORT_ERR_CODE:
+                new (&transportErr) TransportErrorCode(other.transportErr);
+                break;
+        }
+        _type = other._type;
+    }
+
     QuicErrorCode::QuicErrorCode(QuicErrorCode&& other) noexcept {
         switch (other._type) {
             case QuicErrorCode::TYPE::APP_ERR_CODE:
@@ -20,6 +35,23 @@ namespace quic{
                 break;
         }
         _type = other._type;
+    }
+
+    QuicErrorCode& QuicErrorCode::operator=(const QuicErrorCode& other) noexcept{
+        destroy();
+        switch (other._type) {
+            case QuicErrorCode::TYPE::APP_ERR_CODE:
+                new (&appErr) ApplicationErrorCode(other.appErr);
+                break;
+            case QuicErrorCode::TYPE::LOCAL_ERR_CODE:
+                new (&localErr) LocalErrorCode(other.localErr);
+                break;
+            case QuicErrorCode::TYPE::TRANSPOORT_ERR_CODE:
+                new (&transportErr) TransportErrorCode(other.transportErr);
+                break;
+        }
+        _type = other._type;
+        return *this;
     }
 
     QuicErrorCode& QuicErrorCode::operator=(QuicErrorCode&& other) noexcept{
@@ -37,6 +69,21 @@ namespace quic{
         }
         _type = other._type;
         return *this;
+    }
+
+    bool QuicErrorCode::operator==(QuicErrorCode&& other) const{
+        if(other._type != _type){
+            return false;
+        }
+        switch (other._type) {
+            case QuicErrorCode::TYPE::APP_ERR_CODE:
+                return appErr == other.appErr;
+            case QuicErrorCode::TYPE::LOCAL_ERR_CODE:
+                return localErr == other.localErr;
+            case QuicErrorCode::TYPE::TRANSPOORT_ERR_CODE:
+                return transportErr == other.transportErr;
+        }
+        return false;
     }
 
     QuicErrorCode::QuicErrorCode(ApplicationErrorCode &&in)
