@@ -40,4 +40,8 @@ namespace quic{
     PingFrame decodePingFrame(folly::io::Cursor& cursor);
 
     ReadAckFrame decodeAckFrame(folly::io::Cursor& cursor, const PacketHeader& header, const CodecParameters& params, FrameType frameType=FrameType::ACK);
+
+
+
+    uint64_t convertEncodedDurationToMicroseconds(FrameType frameType, uint8_t exponentToUse, uint64_t delay);
 }

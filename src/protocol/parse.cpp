@@ -1,6 +1,28 @@
 
 #include "parse.hpp"
 #include "../common/common.hpp"
+#include "quic_exception.h"
+#include "../folly/Conv.h"
+
+namespace{
+    quic::PacketNum nextAckedPacketGap(quic::PacketNum packetNum, uint64_t gap) {
+        // Gap cannot overflow because of the definition of quic integer encoding, so
+        // we can just add to gap.
+        uint64_t adjustedGap = gap + 2;
+        if (packetNum < adjustedGap) {
+            throw quic::QuicTransportException("Bad gap", quic::TransportErrorCode::FRAME_ENCODING_ERROR, quic::FrameType::ACK);
+        }
+        return packetNum - adjustedGap;
+    }
+
+    quic::PacketNum nextAckedPacketLen(quic::PacketNum packetNum, uint64_t ackBlockLen) {
+        // Going to allow 0 as a valid value.
+        if (packetNum < ackBlockLen) {
+            throw quic::QuicTransportException("Bad block len", quic::TransportErrorCode::FRAME_ENCODING_ERROR, quic::FrameType::ACK);
+        }
+        return packetNum - ackBlockLen;
+    }
+}
 
 namespace quic{
 
@@ -127,4 +149,20 @@ namespace quic{
         return frame;
     }
 
+    uint64_t convertEncodedDurationToMicroseconds(FrameType frameType, uint8_t exponentToUse, uint64_t delay){
+        // ackDelayExponentToUse is guaranteed to be less than the size of uint64_t
+        uint64_t delayOverflowMask = 0xFFFFFFFFFFFFFFFF;
+        uint8_t leftShift = (sizeof(delay) * 8 - exponentToUse);
+        //DCHECK_LT(leftShift, sizeof(delayOverflowMask) * 8);
+        delayOverflowMask = delayOverflowMask << leftShift;
+        if ((delay & delayOverflowMask) != 0) {
+            throw QuicTransportException("Decoded delay overflows", quic::TransportErrorCode::FRAME_ENCODING_ERROR, frameType);
+        }
+        uint64_t adjustedDelay = delay << exponentToUse;
+        if (adjustedDelay >
+            static_cast<uint64_t>(std::numeric_limits<std::chrono::microseconds::rep>::max())) {
+            throw QuicTransportException("Bad delay", quic::TransportErrorCode::FRAME_ENCODING_ERROR, frameType);
+        }
+        return adjustedDelay;
+    }
 }
