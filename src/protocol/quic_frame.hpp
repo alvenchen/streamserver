@@ -5,6 +5,7 @@
 #include "quic_constants.hpp"
 #include "quic_packet_num.hpp"
 #include <common/IntervalSet.h>
+#include "quic.hpp"
 
 namespace quic{
     template <class T>
