@@ -14,6 +14,10 @@ namespace quic{
                 break;
             case QuicFrame::TYPE::PING_FRAME:
                 new (&ping) PingFrame(std::move(other.ping));
+            case QuicFrame::TYPE::RST_STREAM_FRAME:
+                new (&rst) RstStreamFrame(std::move(other.rst));
+            case QuicFrame::TYPE::READ_ACK_FRAME:
+                new (&readAck) ReadAckFrame(std::move(other.readAck));
                 break;
         }
         _type = other._type;
@@ -28,6 +32,12 @@ namespace quic{
                 break;
             case QuicFrame::TYPE::PING_FRAME:
                 new (&ping) PingFrame(std::move(other.ping));
+                break;
+            case QuicFrame::TYPE::RST_STREAM_FRAME:
+                new (&rst) RstStreamFrame(std::move(other.rst));
+                break;
+            case QuicFrame::TYPE::READ_ACK_FRAME:
+                new (&readAck) ReadAckFrame(std::move(other.readAck));
                 break;
         }
         _type = other._type;
@@ -44,6 +54,16 @@ namespace quic{
         new (&ping) PingFrame(std::move(in));
     }
 
+    QuicFrame::QuicFrame(RstStreamFrame &&in)
+        :_type(QuicFrame::TYPE::RST_STREAM_FRAME){
+        new (&rst) RstStreamFrame(std::move(in));
+    }
+
+    QuicFrame::QuicFrame(ReadAckFrame &&in)
+        :_type(QuicFrame::TYPE::READ_ACK_FRAME){
+        new (&readAck) ReadAckFrame(std::move(in));
+    }
+
     void QuicFrame::destroy(){
         switch (_type) {
             case QuicFrame::TYPE::PADDING_FRAME:
@@ -51,6 +71,12 @@ namespace quic{
                 break;
             case QuicFrame::TYPE::PING_FRAME:
                 ping.~PingFrame();
+                break;
+            case QuicFrame::TYPE::RST_STREAM_FRAME:
+                rst.~RstStreamFrame();
+                break;
+            case QuicFrame::TYPE::READ_ACK_FRAME:
+                readAck.~ReadAckFrame();
                 break;
         }
     }
@@ -69,6 +95,20 @@ namespace quic{
     PingFrame* QuicFrame::pingFrame(){
         if(_type == QuicFrame::TYPE::PING_FRAME){
             return &ping;
+        }
+        return nullptr;
+    }
+
+    RstStreamFrame* QuicFrame::rstStreamFrame(){
+        if(_type == QuicFrame::TYPE::RST_STREAM_FRAME){
+            return &rst;
+        }
+        return nullptr;
+    }
+
+    ReadAckFrame* QuicFrame::readAckFrame(){
+        if(_type == QuicFrame::TYPE::READ_ACK_FRAME){
+            return &readAck;
         }
         return nullptr;
     }

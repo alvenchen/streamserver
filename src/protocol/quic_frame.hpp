@@ -26,6 +26,19 @@ namespace quic{
         }
     };
 
+    struct RstStreamFrame {
+        StreamId streamId;
+        ApplicationErrorCode errorCode;
+        uint64_t offset;
+
+        RstStreamFrame(StreamId streamIdIn, ApplicationErrorCode errorCodeIn, uint64_t offsetIn)
+            : streamId(streamIdIn), errorCode(errorCodeIn), offset(offsetIn) {}
+
+        bool operator==(const RstStreamFrame& rhs) const {
+            return streamId == rhs.streamId && errorCode == rhs.errorCode && offset == rhs.offset;
+        }
+    };
+
     struct ImmediateAckFrame {
         ImmediateAckFrame() = default;
         bool operator==(const ImmediateAckFrame& /*rhs*/) const {
@@ -89,7 +102,6 @@ namespace quic{
     +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
     */
     struct ReadAckFrame {
-
         PacketNum largestAcked;
         std::chrono::microseconds ackDelay{0us};
         // Only true for the special case of packet number space dropping.
@@ -132,7 +144,8 @@ namespace quic{
         enum class TYPE {
             PADDING_FRAME,
             PING_FRAME,
-            RST_STREAM_FRAME
+            RST_STREAM_FRAME,
+            READ_ACK_FRAME,
         };
 
         ~QuicFrame();
@@ -140,11 +153,15 @@ namespace quic{
         QuicFrame& operator=(QuicFrame&& other) noexcept;
         QuicFrame(PaddingFrame&& in);
         QuicFrame(PingFrame&& in);
+        QuicFrame(RstStreamFrame&& in);
+        QuicFrame(ReadAckFrame&& in);
 
         TYPE type();
 
         PaddingFrame* paddingFrame();
         PingFrame* pingFrame();
+        RstStreamFrame* rstStreamFrame();
+        ReadAckFrame* readAckFrame();
 
     private:
         void destroy() noexcept;
@@ -152,8 +169,9 @@ namespace quic{
         TYPE _type;
         union{
             PaddingFrame padding;
+            RstStreamFrame rst;
             PingFrame ping;
-
+            ReadAckFrame readAck;
         };
     };
 
