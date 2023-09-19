@@ -13,6 +13,7 @@
 #include "quic_constants.hpp"
 #include <stdexcept>
 #include <string>
+#include "fmt/format.h"
 
 namespace quic {
 
@@ -34,11 +35,11 @@ namespace quic {
         QuicErrorCode(LocalErrorCode&& in);
         QuicErrorCode(TransportErrorCode&& in);
 
-        TYPE type();
+        TYPE type() const;
 
-        ApplicationErrorCode* asApplicationErrorCode();
-        LocalErrorCode* asLocalErrorCode();
-        TransportErrorCode* asTransportErrorCode();
+        const ApplicationErrorCode* asApplicationErrorCode() const;
+        const LocalErrorCode* asLocalErrorCode() const;
+        const TransportErrorCode* asTransportErrorCode() const;
 
     private:
         void destroy() noexcept;

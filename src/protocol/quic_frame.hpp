@@ -157,7 +157,7 @@ namespace quic{
         QuicFrame(RstStreamFrame&& in);
         QuicFrame(ReadAckFrame&& in);
 
-        TYPE type();
+        TYPE type() const;
 
         PaddingFrame* paddingFrame();
         PingFrame* pingFrame();

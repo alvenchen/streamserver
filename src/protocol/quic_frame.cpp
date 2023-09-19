@@ -81,7 +81,7 @@ namespace quic{
         }
     }
 
-    QuicFrame::TYPE QuicFrame::type(){
+    QuicFrame::TYPE QuicFrame::type() const{
         return _type;
     }
 

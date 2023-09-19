@@ -101,7 +101,7 @@ namespace quic{
         new (&transportErr) TransportErrorCode(std::move(in));
     }
 
-    void QuicErrorCode::destroy(){
+    void QuicErrorCode::destroy() noexcept{
         switch (_type) {
             case QuicErrorCode::TYPE::APP_ERR_CODE:
                 appErr.~ApplicationErrorCode();
@@ -115,25 +115,25 @@ namespace quic{
         }
     }
 
-    QuicErrorCode::TYPE QuicErrorCode::type(){
+    QuicErrorCode::TYPE QuicErrorCode::type() const{
         return _type;
     }
 
-    ApplicationErrorCode* QuicErrorCode::asApplicationErrorCode(){
+    const ApplicationErrorCode* QuicErrorCode::asApplicationErrorCode() const{
         if(_type == QuicErrorCode::TYPE::APP_ERR_CODE){
             return &appErr;
         }
         return nullptr;
     }
 
-    LocalErrorCode* QuicErrorCode::asLocalErrorCode(){
+    const LocalErrorCode* QuicErrorCode::asLocalErrorCode() const{
         if(_type == QuicErrorCode::TYPE::LOCAL_ERR_CODE){
             return &localErr;
         }
         return nullptr;
     }
 
-    TransportErrorCode* QuicErrorCode::asTransportErrorCode(){
+    const TransportErrorCode* QuicErrorCode::asTransportErrorCode() const{
         if(_type == QuicErrorCode::TYPE::TRANSPOORT_ERR_CODE){
             return &transportErr;
         }
@@ -272,8 +272,7 @@ namespace quic{
         }
 
         auto codeVal = static_cast<std::underlying_type<TransportErrorCode>::type>(code);
-        if ((codeVal & static_cast<std::underlying_type<TransportErrorCode>::type>(
-                TransportErrorCode::CRYPTO_ERROR_MAX)) == codeVal) {
+        if ((codeVal & static_cast<std::underlying_type<TransportErrorCode>::type>(TransportErrorCode::CRYPTO_ERROR_MAX)) == codeVal) {
             return cryptoErrorToString(code);
         }
 
@@ -339,19 +338,20 @@ namespace quic{
     std::string cryptoErrorToString(TransportErrorCode code) {
         auto codeVal = static_cast<std::underlying_type<TransportErrorCode>::type>(code);
         auto alertDescNum = codeVal - static_cast<std::underlying_type<TransportErrorCode>::type>(TransportErrorCode::CRYPTO_ERROR);
-        return "Crypto error: " + toString(static_cast<fizz::AlertDescription>(alertDescNum));
+        
+        return "Crypto error: " + fmt::format("{}", alertDescNum);
     }
 
     std::string toString(QuicErrorCode code) {
         switch (code.type()) {
-            case QuicErrorCode::Type::ApplicationErrorCode:
+            case QuicErrorCode::TYPE::APP_ERR_CODE:
                 if (*code.asApplicationErrorCode() == GenericApplicationErrorCode::NO_ERROR) {
                     return "No Error";
                 }
                 return folly::to<std::string>(*code.asApplicationErrorCode());
-            case QuicErrorCode::Type::LocalErrorCode:
+            case QuicErrorCode::TYPE::LOCAL_ERR_CODE:
                 return toString(*code.asLocalErrorCode()).str();
-            case QuicErrorCode::Type::TransportErrorCode:
+            case QuicErrorCode::TYPE::TRANSPOORT_ERR_CODE:
                 return toString(*code.asTransportErrorCode());
         }
         folly::assume_unreachable();
@@ -360,13 +360,13 @@ namespace quic{
     std::string toString(const QuicError& error) {
         std::string err;
         switch (error.code.type()) {
-            case QuicErrorCode::Type::ApplicationErrorCode:
-                err = "ApplicationError: " + toString(*error.code.asApplicationErrorCode()) + ", ";
+            case QuicErrorCode::TYPE::APP_ERR_CODE:
+                err = "ApplicationError: " + fmt::format("{}", *error.code.asApplicationErrorCode()) + ", ";
                 break;
-            case QuicErrorCode::Type::LocalErrorCode:
+            case QuicErrorCode::TYPE::LOCAL_ERR_CODE:
                 err = "LocalError: " + folly::to<std::string>(toString(*error.code.asLocalErrorCode())) + ", ";
                 break;
-            case QuicErrorCode::Type::TransportErrorCode:
+            case QuicErrorCode::TYPE::TRANSPOORT_ERR_CODE:
                 err = "TransportError: " + toString(*error.code.asTransportErrorCode()) +", ";
         }
         if (!error.message.empty()) {
