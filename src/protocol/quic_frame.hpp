@@ -6,6 +6,8 @@
 #include "quic_packet_num.hpp"
 #include <common/IntervalSet.h>
 #include "quic.hpp"
+#include <folly/io/IOBuf.h>
+#include "quic_exception.h"
 
 namespace quic{
     template <class T>
@@ -139,14 +141,228 @@ namespace quic{
         }
     };
 
+    struct StopSendingFrame {
+        StreamId streamId;
+        ApplicationErrorCode errorCode;
 
-    //generic type
+        StopSendingFrame(StreamId streamIdIn, ApplicationErrorCode errorCodeIn)
+            : streamId(streamIdIn), errorCode(errorCodeIn) {}
+        bool operator==(const StopSendingFrame& rhs) const {
+            return streamId == rhs.streamId && errorCode == rhs.errorCode;
+        }
+    };
+
+    using Buf = std::unique_ptr<folly::IOBuf>;
+    struct ReadCryptoFrame {
+        uint64_t offset;
+        Buf data;
+
+        ReadCryptoFrame(uint64_t offsetIn, Buf dataIn)
+            : offset(offsetIn), data(std::move(dataIn)) {}
+
+        explicit ReadCryptoFrame(uint64_t offsetIn)
+            : offset(offsetIn), data(folly::IOBuf::create(0)) {}
+
+        // Stuff stored in a variant type needs to be copyable.
+        ReadCryptoFrame(const ReadCryptoFrame& other) {
+            offset = other.offset;
+            if (other.data) {
+                data = other.data->clone();
+            }
+        }
+
+        ReadCryptoFrame(ReadCryptoFrame&& other) noexcept {
+            offset = other.offset;
+            data = std::move(other.data);
+        }
+
+        ReadCryptoFrame& operator=(const ReadCryptoFrame& other) {
+            offset = other.offset;
+            if (other.data) {
+                data = other.data->clone();
+            }
+            return *this;
+        }
+
+        ReadCryptoFrame& operator=(ReadCryptoFrame&& other) {
+            offset = other.offset;
+            data = std::move(other.data);
+            return *this;
+        }
+
+        bool operator==(const ReadCryptoFrame& other) const {
+            folly::IOBufEqualTo eq;
+            return offset == other.offset && eq(data, other.data);
+        }
+    };
+
+    struct ReadNewTokenFrame {
+        Buf token;
+        ReadNewTokenFrame(Buf tokenIn) : token(std::move(tokenIn)) {}
+
+        // Stuff stored in a variant type needs to be copyable.
+        ReadNewTokenFrame(const ReadNewTokenFrame& other) {
+            if (other.token) {
+                token = other.token->clone();
+            }
+        }
+
+        ReadNewTokenFrame& operator=(const ReadNewTokenFrame& other) {
+            if (other.token) {
+                token = other.token->clone();
+            }
+            return *this;
+        }
+
+        bool operator==(const ReadNewTokenFrame& other) const {
+            folly::IOBufEqualTo eq;
+            return eq(token, other.token);
+        }
+    };
+
+    struct ReadStreamFrame {
+        StreamId streamId;
+        folly::Optional<StreamGroupId> streamGroupId;
+        uint64_t offset;
+        Buf data;
+        bool fin;
+
+        ReadStreamFrame(StreamId streamIdIn, uint64_t offsetIn, Buf dataIn, bool finIn, folly::Optional<StreamGroupId> streamGroupIdIn = folly::none)
+            : streamId(streamIdIn), streamGroupId(streamGroupIdIn), offset(offsetIn), data(std::move(dataIn)), fin(finIn) {}
+
+        ReadStreamFrame(StreamId streamIdIn, uint64_t offsetIn, bool finIn, folly::Optional<StreamGroupId> streamGroupIdIn = folly::none)
+            : streamId(streamIdIn), streamGroupId(streamGroupIdIn), offset(offsetIn), data(folly::IOBuf::create(0)), fin(finIn) {}
+
+        // Stuff stored in a variant type needs to be copyable.
+        ReadStreamFrame(const ReadStreamFrame& other) {
+            streamId = other.streamId;
+            offset = other.offset;
+            if (other.data) {
+                data = other.data->clone();
+            }
+            fin = other.fin;
+            streamGroupId = other.streamGroupId;
+        }
+
+        ReadStreamFrame(ReadStreamFrame&& other) noexcept {
+            streamId = other.streamId;
+            offset = other.offset;
+            data = std::move(other.data);
+            fin = other.fin;
+            streamGroupId = other.streamGroupId;
+        }
+
+        ReadStreamFrame& operator=(const ReadStreamFrame& other) {
+            streamId = other.streamId;
+            offset = other.offset;
+            if (other.data) {
+                data = other.data->clone();
+            }
+            fin = other.fin;
+            streamGroupId = other.streamGroupId;
+            return *this;
+        }
+
+        ReadStreamFrame& operator=(ReadStreamFrame&& other) {
+            streamId = other.streamId;
+            offset = other.offset;
+            data = std::move(other.data);
+            fin = other.fin;
+            streamGroupId = other.streamGroupId;
+            return *this;
+        }
+
+        bool operator==(const ReadStreamFrame& other) const {
+            folly::IOBufEqualTo eq;
+            return streamId == other.streamId && offset == other.offset &&
+                fin == other.fin && eq(data, other.data) &&
+                streamGroupId == other.streamGroupId;
+        }
+    };
+
+    struct MaxDataFrame {
+        uint64_t maximumData;
+        explicit MaxDataFrame(uint64_t maximumDataIn) : maximumData(maximumDataIn) {}
+        bool operator==(const MaxDataFrame& rhs) const {
+            return maximumData == rhs.maximumData;
+        }
+    };
+
+    struct MaxStreamDataFrame {
+        StreamId streamId;
+        uint64_t maximumData;
+        MaxStreamDataFrame(StreamId streamIdIn, uint64_t maximumDataIn)
+            : streamId(streamIdIn), maximumData(maximumDataIn) {}
+        bool operator==(const MaxStreamDataFrame& rhs) const {
+            return streamId == rhs.streamId && maximumData == rhs.maximumData;
+        }
+    };
+
+    struct DataBlockedFrame {
+        // the connection-level limit at which blocking occurred
+        uint64_t dataLimit;
+        explicit DataBlockedFrame(uint64_t dataLimitIn) : dataLimit(dataLimitIn) {}
+        bool operator==(const DataBlockedFrame& rhs) const {
+            return dataLimit == rhs.dataLimit;
+        }
+    };
+
+    struct StreamDataBlockedFrame {
+        StreamId streamId;
+        uint64_t dataLimit;
+        StreamDataBlockedFrame(StreamId streamIdIn, uint64_t dataLimitIn)
+            : streamId(streamIdIn), dataLimit(dataLimitIn) {}
+        bool operator==(const StreamDataBlockedFrame& rhs) const {
+            return streamId == rhs.streamId && dataLimit == rhs.dataLimit;
+        }
+    };
+
+    struct StreamsBlockedFrame {
+        uint64_t streamLimit;
+        bool isForBidirectional{false};
+        explicit StreamsBlockedFrame(uint64_t streamLimitIn, bool isBidirectionalIn)
+            : streamLimit(streamLimitIn), isForBidirectional(isBidirectionalIn) {}
+        bool isForBidirectionalStream() const {
+            return isForBidirectional;
+        }
+        bool isForUnidirectionalStream() const {
+            return !isForBidirectional;
+        }
+        bool operator==(const StreamsBlockedFrame& rhs) const {
+            return streamLimit == rhs.streamLimit;
+        }
+    };
+
+    struct ConnectionCloseFrame {
+        // Members are not const to allow this to be movable.
+        QuicErrorCode errorCode;
+        std::string reasonPhrase;
+        // Per QUIC specification: type of frame that triggered the (close) error.
+        // A value of 0 (PADDING frame) implies the frame type is unknown
+        FrameType closingFrameType;
+        
+        ConnectionCloseFrame(QuicErrorCode errorCodeIn, std::string reasonPhraseIn, FrameType closingFrameTypeIn = FrameType::PADDING)
+            : errorCode(std::move(errorCodeIn)), reasonPhrase(std::move(reasonPhraseIn)), closingFrameType(closingFrameTypeIn) {}
+
+        FrameType getClosingFrameType() const noexcept {
+            return closingFrameType;
+        }
+        bool operator==(const ConnectionCloseFrame& rhs) const {
+            return errorCode == rhs.errorCode && reasonPhrase == rhs.reasonPhrase;
+        }
+    };
+
+    // generic type
+    // https://datatracker.ietf.org/doc/html/rfc9000#Frame-Types-and-Formats
     struct QuicFrame{
         enum class TYPE {
             PADDING_FRAME,
             PING_FRAME,
             RST_STREAM_FRAME,
             READ_ACK_FRAME,
+            WRITE_ACK_FRAME,
+            IMMEDIATE_ACK_FRAME,
+            ACK_FREQUENCY_FRAME,
         };
 
         ~QuicFrame();
@@ -156,6 +372,9 @@ namespace quic{
         QuicFrame(PingFrame&& in);
         QuicFrame(RstStreamFrame&& in);
         QuicFrame(ReadAckFrame&& in);
+        QuicFrame(WriteAckFrame&& in);
+        QuicFrame(ImmediateAckFrame&& in);
+        QuicFrame(AckFrequencyFrame&& in);
 
         TYPE type() const;
 
@@ -163,6 +382,9 @@ namespace quic{
         PingFrame* pingFrame();
         RstStreamFrame* rstStreamFrame();
         ReadAckFrame* readAckFrame();
+        WriteAckFrame* writeAckFrame();
+        ImmediateAckFrame* immediateAckFrame();
+        AckFrequencyFrame* ackFrequencyFrame();
 
     private:
         void destroy() noexcept;
@@ -170,9 +392,30 @@ namespace quic{
         TYPE _type;
         union{
             PaddingFrame padding;
-            RstStreamFrame rst;
             PingFrame ping;
             ReadAckFrame readAck;
+            WriteAckFrame writeAck;
+            RstStreamFrame rst;
+            // TODO StopSendingFrame
+            ReadCryptoFrame crypto;
+            ReadNewTokenFrame readNewToken;
+            // TODO NewTokenFrame newToken;
+            ReadStreamFrame stream;
+            MaxDataFrame maxData;
+            MaxStreamDataFrame maxStreamData;
+            // TODO MaxStreamsFrame
+            DataBlockedFrame dataBlocked;
+            StreamDataBlockedFrame streamDataBlocked;
+            StreamsBlockedFrame streamBlocked;
+            // TODO NewConnectionIdFrame
+            // TODO RetireConnectionIdFrame
+            // TODO PathChallengeFrame
+            // TODO PathResponseFrame
+            ConnectionCloseFrame connClose;
+            // TODO HandshakeDoneFrame
+
+            ImmediateAckFrame immAck;
+            AckFrequencyFrame ackFrequency;
         };
     };
 

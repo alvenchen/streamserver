@@ -19,6 +19,15 @@ namespace quic{
             case QuicFrame::TYPE::READ_ACK_FRAME:
                 new (&readAck) ReadAckFrame(std::move(other.readAck));
                 break;
+            case QuicFrame::TYPE::WRITE_ACK_FRAME:
+                new (&writeAck) WriteAckFrame(std::move(other.writeAck));
+                break;
+            case QuicFrame::TYPE::IMMEDIATE_ACK_FRAME:
+                new (&immAck) ImmediateAckFrame(std::move(other.immAck));
+                break;
+            case QuicFrame::TYPE::ACK_FREQUENCY_FRAME:
+                new (&ackFrequency) AckFrequencyFrame(std::move(other.ackFrequency));
+                break;
         }
         _type = other._type;
     }
@@ -38,6 +47,15 @@ namespace quic{
                 break;
             case QuicFrame::TYPE::READ_ACK_FRAME:
                 new (&readAck) ReadAckFrame(std::move(other.readAck));
+                break;
+            case QuicFrame::TYPE::WRITE_ACK_FRAME:
+                new (&writeAck) WriteAckFrame(std::move(other.writeAck));
+                break;
+            case QuicFrame::TYPE::IMMEDIATE_ACK_FRAME:
+                new (&immAck) ImmediateAckFrame(std::move(other.immAck));
+                break;
+            case QuicFrame::TYPE::ACK_FREQUENCY_FRAME:
+                new (&ackFrequency) AckFrequencyFrame(std::move(other.ackFrequency));
                 break;
         }
         _type = other._type;
@@ -64,7 +82,22 @@ namespace quic{
         new (&readAck) ReadAckFrame(std::move(in));
     }
 
-    void QuicFrame::destroy(){
+    QuicFrame::QuicFrame(WriteAckFrame &&in)
+        :_type(QuicFrame::TYPE::WRITE_ACK_FRAME){
+        new (&writeAck) WriteAckFrame(std::move(in));
+    }
+
+    QuicFrame::QuicFrame(ImmediateAckFrame &&in)
+        :_type(QuicFrame::TYPE::IMMEDIATE_ACK_FRAME){
+        new (&immAck) ImmediateAckFrame(std::move(in));
+    }
+
+    QuicFrame::QuicFrame(AckFrequencyFrame &&in)
+        :_type(QuicFrame::TYPE::ACK_FREQUENCY_FRAME){
+        new (&ackFrequency) AckFrequencyFrame(std::move(in));
+    }
+
+    void QuicFrame::destroy() noexcept{
         switch (_type) {
             case QuicFrame::TYPE::PADDING_FRAME:
                 padding.~PaddingFrame();
@@ -77,6 +110,15 @@ namespace quic{
                 break;
             case QuicFrame::TYPE::READ_ACK_FRAME:
                 readAck.~ReadAckFrame();
+                break;
+            case QuicFrame::TYPE::WRITE_ACK_FRAME:
+                writeAck.~WriteAckFrame();
+                break;
+            case QuicFrame::TYPE::IMMEDIATE_ACK_FRAME:
+                immAck.~ImmediateAckFrame();
+                break;
+            case QuicFrame::TYPE::ACK_FREQUENCY_FRAME:
+                ackFrequency.~AckFrequencyFrame();
                 break;
         }
     }
@@ -112,6 +154,28 @@ namespace quic{
         }
         return nullptr;
     }
+
+    WriteAckFrame* QuicFrame::writeAckFrame(){
+        if(_type == QuicFrame::TYPE::WRITE_ACK_FRAME){
+            return &writeAck;
+        }
+        return nullptr;
+    }
+
+    ImmediateAckFrame* QuicFrame::immediateAckFrame(){
+        if(_type == QuicFrame::TYPE::IMMEDIATE_ACK_FRAME){
+            return &immAck;
+        }
+        return nullptr;
+    }
+
+    AckFrequencyFrame* QuicFrame::ackFrequencyFrame(){
+        if(_type == QuicFrame::TYPE::ACK_FREQUENCY_FRAME){
+            return &ackFrequency;
+        }
+        return nullptr;
+    }
+
 
 
 }
