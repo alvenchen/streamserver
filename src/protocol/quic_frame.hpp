@@ -340,7 +340,7 @@ namespace quic{
         // Per QUIC specification: type of frame that triggered the (close) error.
         // A value of 0 (PADDING frame) implies the frame type is unknown
         FrameType closingFrameType;
-        
+
         ConnectionCloseFrame(QuicErrorCode errorCodeIn, std::string reasonPhraseIn, FrameType closingFrameTypeIn = FrameType::PADDING)
             : errorCode(std::move(errorCodeIn)), reasonPhrase(std::move(reasonPhraseIn)), closingFrameType(closingFrameTypeIn) {}
 
@@ -358,9 +358,12 @@ namespace quic{
         enum class TYPE {
             PADDING_FRAME,
             PING_FRAME,
-            RST_STREAM_FRAME,
             READ_ACK_FRAME,
             WRITE_ACK_FRAME,
+            RST_STREAM_FRAME,
+            READ_CRYPTO_FRAME,
+            READ_NEW_TOKEN_FRAME,
+            READ_STREAM_FRAME,
             IMMEDIATE_ACK_FRAME,
             ACK_FREQUENCY_FRAME,
         };
@@ -370,9 +373,12 @@ namespace quic{
         QuicFrame& operator=(QuicFrame&& other) noexcept;
         QuicFrame(PaddingFrame&& in);
         QuicFrame(PingFrame&& in);
-        QuicFrame(RstStreamFrame&& in);
         QuicFrame(ReadAckFrame&& in);
         QuicFrame(WriteAckFrame&& in);
+        QuicFrame(RstStreamFrame&& in);
+        QuicFrame(ReadCryptoFrame&& in);
+        QuicFrame(ReadNewTokenFrame&& in);
+        QuicFrame(ReadStreamFrame&& in);
         QuicFrame(ImmediateAckFrame&& in);
         QuicFrame(AckFrequencyFrame&& in);
 
@@ -380,9 +386,12 @@ namespace quic{
 
         PaddingFrame* paddingFrame();
         PingFrame* pingFrame();
-        RstStreamFrame* rstStreamFrame();
         ReadAckFrame* readAckFrame();
         WriteAckFrame* writeAckFrame();
+        RstStreamFrame* rstStreamFrame();
+        ReadCryptoFrame* readCryptoFrame();
+        ReadNewTokenFrame* readNewTokenFrame();
+        ReadStreamFrame* readStreamFrame();
         ImmediateAckFrame* immediateAckFrame();
         AckFrequencyFrame* ackFrequencyFrame();
 
@@ -397,10 +406,10 @@ namespace quic{
             WriteAckFrame writeAck;
             RstStreamFrame rst;
             // TODO StopSendingFrame
-            ReadCryptoFrame crypto;
+            ReadCryptoFrame readCrypto;
             ReadNewTokenFrame readNewToken;
             // TODO NewTokenFrame newToken;
-            ReadStreamFrame stream;
+            ReadStreamFrame readStream;
             MaxDataFrame maxData;
             MaxStreamDataFrame maxStreamData;
             // TODO MaxStreamsFrame

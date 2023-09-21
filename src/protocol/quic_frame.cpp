@@ -14,13 +14,24 @@ namespace quic{
                 break;
             case QuicFrame::TYPE::PING_FRAME:
                 new (&ping) PingFrame(std::move(other.ping));
-            case QuicFrame::TYPE::RST_STREAM_FRAME:
-                new (&rst) RstStreamFrame(std::move(other.rst));
+                break;
             case QuicFrame::TYPE::READ_ACK_FRAME:
                 new (&readAck) ReadAckFrame(std::move(other.readAck));
                 break;
             case QuicFrame::TYPE::WRITE_ACK_FRAME:
                 new (&writeAck) WriteAckFrame(std::move(other.writeAck));
+                break;
+            case QuicFrame::TYPE::RST_STREAM_FRAME:
+                new (&rst) RstStreamFrame(std::move(other.rst));
+                break;
+            case QuicFrame::TYPE::READ_CRYPTO_FRAME:
+                new (&readCrypto) ReadCryptoFrame(std::move(other.readCrypto));
+                break;
+            case QuicFrame::TYPE::READ_NEW_TOKEN_FRAME:
+                new (&readNewToken) ReadNewTokenFrame(std::move(other.readNewToken));
+                break;
+            case QuicFrame::TYPE::READ_STREAM_FRAME:
+                new (&readStream) ReadStreamFrame(std::move(other.readStream));
                 break;
             case QuicFrame::TYPE::IMMEDIATE_ACK_FRAME:
                 new (&immAck) ImmediateAckFrame(std::move(other.immAck));
@@ -42,14 +53,23 @@ namespace quic{
             case QuicFrame::TYPE::PING_FRAME:
                 new (&ping) PingFrame(std::move(other.ping));
                 break;
-            case QuicFrame::TYPE::RST_STREAM_FRAME:
-                new (&rst) RstStreamFrame(std::move(other.rst));
-                break;
             case QuicFrame::TYPE::READ_ACK_FRAME:
                 new (&readAck) ReadAckFrame(std::move(other.readAck));
                 break;
             case QuicFrame::TYPE::WRITE_ACK_FRAME:
                 new (&writeAck) WriteAckFrame(std::move(other.writeAck));
+                break;
+            case QuicFrame::TYPE::RST_STREAM_FRAME:
+                new (&rst) RstStreamFrame(std::move(other.rst));
+                break;
+            case QuicFrame::TYPE::READ_CRYPTO_FRAME:
+                new (&readCrypto) ReadCryptoFrame(std::move(other.readCrypto));
+                break;
+            case QuicFrame::TYPE::READ_NEW_TOKEN_FRAME:
+                new (&readNewToken) ReadNewTokenFrame(std::move(other.readNewToken));
+                break;
+            case QuicFrame::TYPE::READ_STREAM_FRAME:
+                new (&readStream) ReadStreamFrame(std::move(other.readStream));
                 break;
             case QuicFrame::TYPE::IMMEDIATE_ACK_FRAME:
                 new (&immAck) ImmediateAckFrame(std::move(other.immAck));
@@ -72,11 +92,6 @@ namespace quic{
         new (&ping) PingFrame(std::move(in));
     }
 
-    QuicFrame::QuicFrame(RstStreamFrame &&in)
-        :_type(QuicFrame::TYPE::RST_STREAM_FRAME){
-        new (&rst) RstStreamFrame(std::move(in));
-    }
-
     QuicFrame::QuicFrame(ReadAckFrame &&in)
         :_type(QuicFrame::TYPE::READ_ACK_FRAME){
         new (&readAck) ReadAckFrame(std::move(in));
@@ -85,6 +100,26 @@ namespace quic{
     QuicFrame::QuicFrame(WriteAckFrame &&in)
         :_type(QuicFrame::TYPE::WRITE_ACK_FRAME){
         new (&writeAck) WriteAckFrame(std::move(in));
+    }
+
+    QuicFrame::QuicFrame(RstStreamFrame &&in)
+        :_type(QuicFrame::TYPE::RST_STREAM_FRAME){
+        new (&rst) RstStreamFrame(std::move(in));
+    }
+
+    QuicFrame::QuicFrame(ReadCryptoFrame &&in)
+        :_type(QuicFrame::TYPE::READ_CRYPTO_FRAME){
+        new (&readCrypto) ReadCryptoFrame(std::move(in));
+    }
+
+    QuicFrame::QuicFrame(ReadNewTokenFrame &&in)
+        :_type(QuicFrame::TYPE::READ_NEW_TOKEN_FRAME){
+        new (&readNewToken) ReadNewTokenFrame(std::move(in));
+    }
+
+    QuicFrame::QuicFrame(ReadStreamFrame &&in)
+        :_type(QuicFrame::TYPE::READ_STREAM_FRAME){
+        new (&readStream) ReadStreamFrame(std::move(in));
     }
 
     QuicFrame::QuicFrame(ImmediateAckFrame &&in)
@@ -105,14 +140,23 @@ namespace quic{
             case QuicFrame::TYPE::PING_FRAME:
                 ping.~PingFrame();
                 break;
-            case QuicFrame::TYPE::RST_STREAM_FRAME:
-                rst.~RstStreamFrame();
-                break;
             case QuicFrame::TYPE::READ_ACK_FRAME:
                 readAck.~ReadAckFrame();
                 break;
             case QuicFrame::TYPE::WRITE_ACK_FRAME:
                 writeAck.~WriteAckFrame();
+                break;
+            case QuicFrame::TYPE::RST_STREAM_FRAME:
+                rst.~RstStreamFrame();
+                break;
+            case QuicFrame::TYPE::READ_CRYPTO_FRAME:
+                readCrypto.~ReadCryptoFrame();
+                break;
+            case QuicFrame::TYPE::READ_NEW_TOKEN_FRAME:
+                readNewToken.~ReadNewTokenFrame();
+                break;
+            case QuicFrame::TYPE::READ_STREAM_FRAME:
+                readStream.~ReadStreamFrame();
                 break;
             case QuicFrame::TYPE::IMMEDIATE_ACK_FRAME:
                 immAck.~ImmediateAckFrame();
@@ -141,13 +185,6 @@ namespace quic{
         return nullptr;
     }
 
-    RstStreamFrame* QuicFrame::rstStreamFrame(){
-        if(_type == QuicFrame::TYPE::RST_STREAM_FRAME){
-            return &rst;
-        }
-        return nullptr;
-    }
-
     ReadAckFrame* QuicFrame::readAckFrame(){
         if(_type == QuicFrame::TYPE::READ_ACK_FRAME){
             return &readAck;
@@ -158,6 +195,34 @@ namespace quic{
     WriteAckFrame* QuicFrame::writeAckFrame(){
         if(_type == QuicFrame::TYPE::WRITE_ACK_FRAME){
             return &writeAck;
+        }
+        return nullptr;
+    }
+
+    RstStreamFrame* QuicFrame::rstStreamFrame(){
+        if(_type == QuicFrame::TYPE::RST_STREAM_FRAME){
+            return &rst;
+        }
+        return nullptr;
+    }
+
+    ReadCryptoFrame* QuicFrame::readCryptoFrame(){
+        if(_type == QuicFrame::TYPE::READ_CRYPTO_FRAME){
+            return &readCrypto;
+        }
+        return nullptr;
+    }
+
+    ReadNewTokenFrame* QuicFrame::readNewTokenFrame(){
+        if(_type == QuicFrame::TYPE::READ_NEW_TOKEN_FRAME){
+            return &readNewToken;
+        }
+        return nullptr;
+    }
+    
+    ReadStreamFrame* QuicFrame::readStreamFrame(){
+        if(_type == QuicFrame::TYPE::READ_STREAM_FRAME){
+            return &readStream;
         }
         return nullptr;
     }
