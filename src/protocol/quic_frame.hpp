@@ -361,6 +361,7 @@ namespace quic{
             READ_ACK_FRAME,
             WRITE_ACK_FRAME,
             RST_STREAM_FRAME,
+            STOP_SENDING_FRAME,
             READ_CRYPTO_FRAME,
             READ_NEW_TOKEN_FRAME,
             READ_STREAM_FRAME,
@@ -376,6 +377,7 @@ namespace quic{
         QuicFrame(ReadAckFrame&& in);
         QuicFrame(WriteAckFrame&& in);
         QuicFrame(RstStreamFrame&& in);
+        QuicFrame(StopSendingFrame&& in);
         QuicFrame(ReadCryptoFrame&& in);
         QuicFrame(ReadNewTokenFrame&& in);
         QuicFrame(ReadStreamFrame&& in);
@@ -389,6 +391,7 @@ namespace quic{
         ReadAckFrame* readAckFrame();
         WriteAckFrame* writeAckFrame();
         RstStreamFrame* rstStreamFrame();
+        StopSendingFrame* stopSendingFrame();
         ReadCryptoFrame* readCryptoFrame();
         ReadNewTokenFrame* readNewTokenFrame();
         ReadStreamFrame* readStreamFrame();
@@ -405,7 +408,7 @@ namespace quic{
             ReadAckFrame readAck;
             WriteAckFrame writeAck;
             RstStreamFrame rst;
-            // TODO StopSendingFrame
+            StopSendingFrame stopSend;
             ReadCryptoFrame readCrypto;
             ReadNewTokenFrame readNewToken;
             // TODO NewTokenFrame newToken;

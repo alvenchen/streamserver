@@ -24,6 +24,9 @@ namespace quic{
             case QuicFrame::TYPE::RST_STREAM_FRAME:
                 new (&rst) RstStreamFrame(std::move(other.rst));
                 break;
+            case QuicFrame::TYPE::STOP_SENDING_FRAME:
+                new (&stopSend) StopSendingFrame(std::move(other.stopSend));
+                break;
             case QuicFrame::TYPE::READ_CRYPTO_FRAME:
                 new (&readCrypto) ReadCryptoFrame(std::move(other.readCrypto));
                 break;
@@ -61,6 +64,9 @@ namespace quic{
                 break;
             case QuicFrame::TYPE::RST_STREAM_FRAME:
                 new (&rst) RstStreamFrame(std::move(other.rst));
+                break;
+            case QuicFrame::TYPE::STOP_SENDING_FRAME:
+                new (&stopSend) StopSendingFrame(std::move(other.stopSend));
                 break;
             case QuicFrame::TYPE::READ_CRYPTO_FRAME:
                 new (&readCrypto) ReadCryptoFrame(std::move(other.readCrypto));
@@ -107,6 +113,11 @@ namespace quic{
         new (&rst) RstStreamFrame(std::move(in));
     }
 
+    QuicFrame::QuicFrame(StopSendingFrame &&in)
+        :_type(QuicFrame::TYPE::STOP_SENDING_FRAME){
+        new (&stopSend) StopSendingFrame(std::move(in));
+    }
+
     QuicFrame::QuicFrame(ReadCryptoFrame &&in)
         :_type(QuicFrame::TYPE::READ_CRYPTO_FRAME){
         new (&readCrypto) ReadCryptoFrame(std::move(in));
@@ -148,6 +159,9 @@ namespace quic{
                 break;
             case QuicFrame::TYPE::RST_STREAM_FRAME:
                 rst.~RstStreamFrame();
+                break;
+            case QuicFrame::TYPE::STOP_SENDING_FRAME:
+                stopSend.~StopSendingFrame();
                 break;
             case QuicFrame::TYPE::READ_CRYPTO_FRAME:
                 readCrypto.~ReadCryptoFrame();
@@ -202,6 +216,13 @@ namespace quic{
     RstStreamFrame* QuicFrame::rstStreamFrame(){
         if(_type == QuicFrame::TYPE::RST_STREAM_FRAME){
             return &rst;
+        }
+        return nullptr;
+    }
+
+    StopSendingFrame* QuicFrame::stopSendingFrame(){
+        if(_type == QuicFrame::TYPE::STOP_SENDING_FRAME){
+            return &stopSend;
         }
         return nullptr;
     }

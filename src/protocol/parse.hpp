@@ -35,13 +35,21 @@ namespace quic{
      * The following functions decode frames. They throw an QuicException when error
      * occurs.
      */
-    PaddingFrame decodePaddingFrame(folly::io::Cursor&);
+    PaddingFrame decodePaddingFrame(folly::io::Cursor& cursor);
 
     PingFrame decodePingFrame(folly::io::Cursor& cursor);
 
     ReadAckFrame decodeAckFrame(folly::io::Cursor& cursor, const PacketHeader& header, const CodecParameters& params, FrameType frameType=FrameType::ACK);
 
+    ReadAckFrame decodeAckFrameWithECN(folly::io::Cursor& cursor, const PacketHeader& header, const CodecParameters& params);
 
+    RstStreamFrame decodeRstStreamFrame(folly::io::Cursor& cursor);
+
+    StopSendingFrame decodeStopSendingFrame(folly::io::Cursor& cursor);
+
+    ReadCryptoFrame decodeCryptoFrame(folly::io::Cursor& cursor);
+
+    ReadNewTokenFrame decodeNewTokenFrame(folly::io::Cursor& cursor);
 
     uint64_t convertEncodedDurationToMicroseconds(FrameType frameType, uint8_t exponentToUse, uint64_t delay);
 }
