@@ -36,6 +36,9 @@ namespace quic{
             case QuicFrame::TYPE::READ_STREAM_FRAME:
                 new (&readStream) ReadStreamFrame(std::move(other.readStream));
                 break;
+            case QuicFrame::TYPE::MAX_DATA_FRAME:
+                new (&maxData) MaxDataFrame(std::move(other.maxData));
+                break;
             case QuicFrame::TYPE::IMMEDIATE_ACK_FRAME:
                 new (&immAck) ImmediateAckFrame(std::move(other.immAck));
                 break;
@@ -76,6 +79,9 @@ namespace quic{
                 break;
             case QuicFrame::TYPE::READ_STREAM_FRAME:
                 new (&readStream) ReadStreamFrame(std::move(other.readStream));
+                break;
+            case QuicFrame::TYPE::MAX_DATA_FRAME:
+                new (&maxData) MaxDataFrame(std::move(other.maxData));
                 break;
             case QuicFrame::TYPE::IMMEDIATE_ACK_FRAME:
                 new (&immAck) ImmediateAckFrame(std::move(other.immAck));
@@ -133,6 +139,11 @@ namespace quic{
         new (&readStream) ReadStreamFrame(std::move(in));
     }
 
+    QuicFrame::QuicFrame(MaxDataFrame &&in)
+        :_type(QuicFrame::TYPE::MAX_DATA_FRAME){
+        new (&maxData) MaxDataFrame(std::move(in));
+    }
+
     QuicFrame::QuicFrame(ImmediateAckFrame &&in)
         :_type(QuicFrame::TYPE::IMMEDIATE_ACK_FRAME){
         new (&immAck) ImmediateAckFrame(std::move(in));
@@ -171,6 +182,9 @@ namespace quic{
                 break;
             case QuicFrame::TYPE::READ_STREAM_FRAME:
                 readStream.~ReadStreamFrame();
+                break;
+            case QuicFrame::TYPE::MAX_DATA_FRAME:
+                maxData.~MaxDataFrame();
                 break;
             case QuicFrame::TYPE::IMMEDIATE_ACK_FRAME:
                 immAck.~ImmediateAckFrame();
@@ -247,6 +261,14 @@ namespace quic{
         }
         return nullptr;
     }
+
+    MaxDataFrame* QuicFrame::maxDataFrame(){
+        if(_type == QuicFrame::TYPE::MAX_DATA_FRAME){
+            return &maxData;
+        }
+        return nullptr;
+    }
+
 
     ImmediateAckFrame* QuicFrame::immediateAckFrame(){
         if(_type == QuicFrame::TYPE::IMMEDIATE_ACK_FRAME){

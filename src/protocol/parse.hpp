@@ -6,6 +6,7 @@
 #include "../common/BufUtil.h"
 #include "transport_settings.h"
 #include "quic_integer.h"
+#include "quic_type.hpp"
 
 namespace quic{
 
@@ -51,5 +52,12 @@ namespace quic{
 
     ReadNewTokenFrame decodeNewTokenFrame(folly::io::Cursor& cursor);
 
+    ReadStreamFrame decodeStreamFrame(BufQueue& queue, StreamTypeField frameTypeField, bool isGroupFrame = false);
+
+    MaxDataFrame decodeMaxDataFrame(folly::io::Cursor& cursor);
+
+/*
+    internal
+*/
     uint64_t convertEncodedDurationToMicroseconds(FrameType frameType, uint8_t exponentToUse, uint64_t delay);
 }

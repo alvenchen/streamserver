@@ -365,6 +365,7 @@ namespace quic{
             READ_CRYPTO_FRAME,
             READ_NEW_TOKEN_FRAME,
             READ_STREAM_FRAME,
+            MAX_DATA_FRAME,
             IMMEDIATE_ACK_FRAME,
             ACK_FREQUENCY_FRAME,
         };
@@ -381,6 +382,7 @@ namespace quic{
         QuicFrame(ReadCryptoFrame&& in);
         QuicFrame(ReadNewTokenFrame&& in);
         QuicFrame(ReadStreamFrame&& in);
+        QuicFrame(MaxDataFrame&& in);
         QuicFrame(ImmediateAckFrame&& in);
         QuicFrame(AckFrequencyFrame&& in);
 
@@ -395,6 +397,7 @@ namespace quic{
         ReadCryptoFrame* readCryptoFrame();
         ReadNewTokenFrame* readNewTokenFrame();
         ReadStreamFrame* readStreamFrame();
+        MaxDataFrame* maxDataFrame();
         ImmediateAckFrame* immediateAckFrame();
         AckFrequencyFrame* ackFrequencyFrame();
 
