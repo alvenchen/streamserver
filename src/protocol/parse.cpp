@@ -85,6 +85,8 @@ namespace quic{
                     return QuicFrame(decodeStreamFrame(queue, StreamTypeField(frameTypeInt->first), true /* isGroupFrame */));
                 case FrameType::MAX_DATA:
                     return QuicFrame(decodeMaxDataFrame(cursor));
+                case FrameType::MAX_STREAM_DATA:
+                    return QuicFrame(decodeMaxStreamDataFrame(cursor));
             }
         } catch (const std::exception& e) {
             error = true;
@@ -325,6 +327,18 @@ namespace quic{
             throw QuicTransportException("Bad Max Data", quic::TransportErrorCode::FRAME_ENCODING_ERROR, quic::FrameType::MAX_DATA);
         }
         return MaxDataFrame(maximumData->first);
+    }
+
+    MaxStreamDataFrame decodeMaxStreamDataFrame(folly::io::Cursor& cursor) {
+        auto streamId = decodeQuicInteger(cursor);
+        if (!streamId) {
+        throw QuicTransportException("Invalid streamId", quic::TransportErrorCode::FRAME_ENCODING_ERROR, quic::FrameType::MAX_STREAM_DATA);
+        }
+        auto offset = decodeQuicInteger(cursor);
+        if (!offset) {
+            throw QuicTransportException("Invalid offset", quic::TransportErrorCode::FRAME_ENCODING_ERROR, quic::FrameType::MAX_STREAM_DATA);
+        }
+        return MaxStreamDataFrame(folly::to<StreamId>(streamId->first), offset->first);
     }
 
 

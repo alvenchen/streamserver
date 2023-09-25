@@ -366,6 +366,7 @@ namespace quic{
             READ_NEW_TOKEN_FRAME,
             READ_STREAM_FRAME,
             MAX_DATA_FRAME,
+            MAX_STREAM_DATA_FRAME,
             IMMEDIATE_ACK_FRAME,
             ACK_FREQUENCY_FRAME,
         };
@@ -383,6 +384,7 @@ namespace quic{
         QuicFrame(ReadNewTokenFrame&& in);
         QuicFrame(ReadStreamFrame&& in);
         QuicFrame(MaxDataFrame&& in);
+        QuicFrame(MaxStreamDataFrame&& in);
         QuicFrame(ImmediateAckFrame&& in);
         QuicFrame(AckFrequencyFrame&& in);
 
@@ -398,6 +400,7 @@ namespace quic{
         ReadNewTokenFrame* readNewTokenFrame();
         ReadStreamFrame* readStreamFrame();
         MaxDataFrame* maxDataFrame();
+        MaxStreamDataFrame* maxStreamDataFrame();
         ImmediateAckFrame* immediateAckFrame();
         AckFrequencyFrame* ackFrequencyFrame();
 

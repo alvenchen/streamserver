@@ -56,6 +56,8 @@ namespace quic{
 
     MaxDataFrame decodeMaxDataFrame(folly::io::Cursor& cursor);
 
+    MaxStreamDataFrame decodeMaxStreamDataFrame(folly::io::Cursor& cursor);
+
 /*
     internal
 */
