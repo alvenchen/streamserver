@@ -298,6 +298,25 @@ namespace quic{
         }
     };
 
+    struct MaxStreamsFrame {
+        // A count of the cumulative number of streams
+        uint64_t maxStreams;
+        bool isForBidirectional{false};
+
+        explicit MaxStreamsFrame(uint64_t maxStreamsIn, bool isBidirectionalIn)
+            : maxStreams(maxStreamsIn), isForBidirectional(isBidirectionalIn) {}
+
+        bool isForBidirectionalStream() const {
+            return isForBidirectional;
+        }
+        bool isForUnidirectionalStream() {
+            return !isForBidirectional;
+        }
+        bool operator==(const MaxStreamsFrame& rhs) const {
+            return maxStreams == rhs.maxStreams && isForBidirectional == rhs.isForBidirectional;
+        }
+    };
+
     struct DataBlockedFrame {
         // the connection-level limit at which blocking occurred
         uint64_t dataLimit;
@@ -367,6 +386,8 @@ namespace quic{
             READ_STREAM_FRAME,
             MAX_DATA_FRAME,
             MAX_STREAM_DATA_FRAME,
+            MAX_STREAMS_FRAME,
+            DATA_BLOCKED_FRAME,
             IMMEDIATE_ACK_FRAME,
             ACK_FREQUENCY_FRAME,
         };
@@ -385,6 +406,8 @@ namespace quic{
         QuicFrame(ReadStreamFrame&& in);
         QuicFrame(MaxDataFrame&& in);
         QuicFrame(MaxStreamDataFrame&& in);
+        QuicFrame(MaxStreamsFrame&& in);
+        QuicFrame(DataBlockedFrame&& in);
         QuicFrame(ImmediateAckFrame&& in);
         QuicFrame(AckFrequencyFrame&& in);
 
@@ -401,6 +424,8 @@ namespace quic{
         ReadStreamFrame* readStreamFrame();
         MaxDataFrame* maxDataFrame();
         MaxStreamDataFrame* maxStreamDataFrame();
+        MaxStreamsFrame* maxStreamsFrame();
+        DataBlockedFrame* dataBlockedFrame();
         ImmediateAckFrame* immediateAckFrame();
         AckFrequencyFrame* ackFrequencyFrame();
 
@@ -417,20 +442,20 @@ namespace quic{
             StopSendingFrame stopSend;
             ReadCryptoFrame readCrypto;
             ReadNewTokenFrame readNewToken;
-            // TODO NewTokenFrame newToken;
+            // TODO NewTokenFrame newToken; //
             ReadStreamFrame readStream;
             MaxDataFrame maxData;
             MaxStreamDataFrame maxStreamData;
-            // TODO MaxStreamsFrame
+            MaxStreamsFrame maxStreams; //
             DataBlockedFrame dataBlocked;
             StreamDataBlockedFrame streamDataBlocked;
             StreamsBlockedFrame streamBlocked;
-            // TODO NewConnectionIdFrame
-            // TODO RetireConnectionIdFrame
-            // TODO PathChallengeFrame
-            // TODO PathResponseFrame
+            // TODO NewConnectionIdFrame; //
+            // TODO RetireConnectionIdFrame; //
+            // TODO PathChallengeFrame; //
+            // TODO PathResponseFrame; //
             ConnectionCloseFrame connClose;
-            // TODO HandshakeDoneFrame
+            // TODO HandshakeDoneFrame; //
 
             ImmediateAckFrame immAck;
             AckFrequencyFrame ackFrequency;

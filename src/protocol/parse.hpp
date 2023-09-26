@@ -58,6 +58,12 @@ namespace quic{
 
     MaxStreamDataFrame decodeMaxStreamDataFrame(folly::io::Cursor& cursor);
 
+    MaxStreamsFrame decodeBiDiMaxStreamsFrame(folly::io::Cursor& cursor);
+
+    MaxStreamsFrame decodeUniMaxStreamsFrame(folly::io::Cursor& cursor);
+
+    DataBlockedFrame decodeDataBlockedFrame(folly::io::Cursor& cursor);
+    
 /*
     internal
 */

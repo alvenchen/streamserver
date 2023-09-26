@@ -87,6 +87,12 @@ namespace quic{
                     return QuicFrame(decodeMaxDataFrame(cursor));
                 case FrameType::MAX_STREAM_DATA:
                     return QuicFrame(decodeMaxStreamDataFrame(cursor));
+                case FrameType::MAX_STREAMS_BIDI:
+                    return QuicFrame(decodeBiDiMaxStreamsFrame(cursor));
+                case FrameType::MAX_STREAMS_UNI:
+                    return QuicFrame(decodeUniMaxStreamsFrame(cursor));
+                case FrameType::DATA_BLOCKED:
+                    return QuicFrame(decodeDataBlockedFrame(cursor));
             }
         } catch (const std::exception& e) {
             error = true;
@@ -339,6 +345,30 @@ namespace quic{
             throw QuicTransportException("Invalid offset", quic::TransportErrorCode::FRAME_ENCODING_ERROR, quic::FrameType::MAX_STREAM_DATA);
         }
         return MaxStreamDataFrame(folly::to<StreamId>(streamId->first), offset->first);
+    }
+
+    MaxStreamsFrame decodeBiDiMaxStreamsFrame(folly::io::Cursor& cursor) {
+        auto streamCount = decodeQuicInteger(cursor);
+        if (!streamCount || streamCount->first > kMaxMaxStreams) {
+            throw QuicTransportException("Invalid Bi-directional streamId", quic::TransportErrorCode::FRAME_ENCODING_ERROR, quic::FrameType::MAX_STREAMS_BIDI);
+        }
+        return MaxStreamsFrame(streamCount->first, true /* isBidirectional*/);
+    }
+
+    MaxStreamsFrame decodeUniMaxStreamsFrame(folly::io::Cursor& cursor) {
+        auto streamCount = decodeQuicInteger(cursor);
+        if (!streamCount || streamCount->first > kMaxMaxStreams) {
+            throw QuicTransportException("Invalid Uni-directional streamId", quic::TransportErrorCode::FRAME_ENCODING_ERROR, quic::FrameType::MAX_STREAMS_UNI);
+        }
+        return MaxStreamsFrame(streamCount->first, false /* isUnidirectional */);
+    }
+
+    DataBlockedFrame decodeDataBlockedFrame(folly::io::Cursor& cursor) {
+        auto dataLimit = decodeQuicInteger(cursor);
+        if (!dataLimit) {
+            throw QuicTransportException("Bad offset", quic::TransportErrorCode::FRAME_ENCODING_ERROR, quic::FrameType::DATA_BLOCKED);
+        }
+        return DataBlockedFrame(dataLimit->first);
     }
 
 

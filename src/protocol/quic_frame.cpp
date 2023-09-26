@@ -42,6 +42,12 @@ namespace quic{
             case QuicFrame::TYPE::MAX_STREAM_DATA_FRAME:
                 new (&maxStreamData) MaxStreamDataFrame(std::move(other.maxStreamData));
                 break;
+            case QuicFrame::TYPE::MAX_STREAMS_FRAME:
+                new (&maxStreams) MaxStreamsFrame(std::move(other.maxStreams));
+                break;
+            case QuicFrame::TYPE::DATA_BLOCKED_FRAME:
+                new (&dataBlocked) DataBlockedFrame(std::move(other.dataBlocked));
+                break;
             case QuicFrame::TYPE::IMMEDIATE_ACK_FRAME:
                 new (&immAck) ImmediateAckFrame(std::move(other.immAck));
                 break;
@@ -88,6 +94,12 @@ namespace quic{
                 break;
             case QuicFrame::TYPE::MAX_STREAM_DATA_FRAME:
                 new (&maxStreamData) MaxStreamDataFrame(std::move(other.maxStreamData));
+                break;
+            case QuicFrame::TYPE::MAX_STREAMS_FRAME:
+                new (&maxStreams) MaxStreamsFrame(std::move(other.maxStreams));
+                break;
+            case QuicFrame::TYPE::DATA_BLOCKED_FRAME:
+                new (&dataBlocked) DataBlockedFrame(std::move(other.dataBlocked));
                 break;
             case QuicFrame::TYPE::IMMEDIATE_ACK_FRAME:
                 new (&immAck) ImmediateAckFrame(std::move(other.immAck));
@@ -155,6 +167,11 @@ namespace quic{
         new (&maxStreamData) MaxStreamDataFrame(std::move(in));
     }
 
+    QuicFrame::QuicFrame(DataBlockedFrame &&in)
+        :_type(QuicFrame::TYPE::DATA_BLOCKED_FRAME){
+        new (&dataBlocked) DataBlockedFrame(std::move(in));
+    }
+
     QuicFrame::QuicFrame(ImmediateAckFrame &&in)
         :_type(QuicFrame::TYPE::IMMEDIATE_ACK_FRAME){
         new (&immAck) ImmediateAckFrame(std::move(in));
@@ -199,6 +216,12 @@ namespace quic{
                 break;
             case QuicFrame::TYPE::MAX_STREAM_DATA_FRAME:
                 maxStreamData.~MaxStreamDataFrame();
+                break;
+            case QuicFrame::TYPE::MAX_STREAMS_FRAME:
+                maxStreams.~MaxStreamsFrame();
+                break;
+            case QuicFrame::TYPE::DATA_BLOCKED_FRAME:
+                dataBlocked.~DataBlockedFrame();
                 break;
             case QuicFrame::TYPE::IMMEDIATE_ACK_FRAME:
                 immAck.~ImmediateAckFrame();
@@ -286,6 +309,20 @@ namespace quic{
     MaxStreamDataFrame* QuicFrame::maxStreamDataFrame(){
         if(_type == QuicFrame::TYPE::MAX_STREAM_DATA_FRAME){
             return &maxStreamData;
+        }
+        return nullptr;
+    }
+
+    MaxStreamsFrame* QuicFrame::maxStreamsFrame(){
+        if(_type == QuicFrame::TYPE::MAX_STREAMS_FRAME){
+            return &maxStreams;
+        }
+        return nullptr;
+    }
+
+    DataBlockedFrame* QuicFrame::dataBlockedFrame(){
+        if(_type == QuicFrame::TYPE::DATA_BLOCKED_FRAME){
+            return &dataBlocked;
         }
         return nullptr;
     }
