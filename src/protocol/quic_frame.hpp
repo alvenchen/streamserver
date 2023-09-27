@@ -8,6 +8,7 @@
 #include "quic.hpp"
 #include <folly/io/IOBuf.h>
 #include "quic_exception.h"
+#include "quic_connection_id.hpp"
 
 namespace quic{
     template <class T>
@@ -352,6 +353,32 @@ namespace quic{
         }
     };
 
+    struct NewConnectionIdFrame {
+        uint64_t sequenceNumber;
+        uint64_t retirePriorTo;
+        ConnectionId connectionId;
+        StatelessResetToken token;
+
+        NewConnectionIdFrame(uint64_t sequenceNumberIn, uint64_t retirePriorToIn, ConnectionId connectionIdIn,
+            StatelessResetToken tokenIn)
+            : sequenceNumber(sequenceNumberIn), retirePriorTo(retirePriorToIn), connectionId(connectionIdIn),
+                token(std::move(tokenIn)) {}
+
+        bool operator==(const NewConnectionIdFrame& rhs) const {
+            return sequenceNumber == rhs.sequenceNumber && retirePriorTo == rhs.retirePriorTo &&
+                connectionId == rhs.connectionId && token == rhs.token;
+        }
+    };
+
+    struct RetireConnectionIdFrame {
+        uint64_t sequenceNumber;
+        explicit RetireConnectionIdFrame(uint64_t sequenceNumberIn) : sequenceNumber(sequenceNumberIn) {}
+
+        bool operator==(const RetireConnectionIdFrame& rhs) const {
+            return sequenceNumber == rhs.sequenceNumber;
+        }
+    };
+
     struct ConnectionCloseFrame {
         // Members are not const to allow this to be movable.
         QuicErrorCode errorCode;
@@ -388,6 +415,10 @@ namespace quic{
             MAX_STREAM_DATA_FRAME,
             MAX_STREAMS_FRAME,
             DATA_BLOCKED_FRAME,
+            STREAM_DATA_BLOCKED_FRAME,
+            STREAMS_BLOCKED_FRAME,
+            NEW_CONNECTION_ID_FRAME,
+            RETIRE_CONNECTION_ID_FRAME,
             IMMEDIATE_ACK_FRAME,
             ACK_FREQUENCY_FRAME,
         };
@@ -408,6 +439,10 @@ namespace quic{
         QuicFrame(MaxStreamDataFrame&& in);
         QuicFrame(MaxStreamsFrame&& in);
         QuicFrame(DataBlockedFrame&& in);
+        QuicFrame(StreamDataBlockedFrame&& in);
+        QuicFrame(StreamsBlockedFrame&& in);
+        QuicFrame(NewConnectionIdFrame&& in);
+        QuicFrame(RetireConnectionIdFrame&& in);
         QuicFrame(ImmediateAckFrame&& in);
         QuicFrame(AckFrequencyFrame&& in);
 
@@ -426,6 +461,10 @@ namespace quic{
         MaxStreamDataFrame* maxStreamDataFrame();
         MaxStreamsFrame* maxStreamsFrame();
         DataBlockedFrame* dataBlockedFrame();
+        StreamDataBlockedFrame* streamDataBlockedFrame();
+        StreamsBlockedFrame* streamsBlockedFrame();
+        NewConnectionIdFrame* newConnectionIdFrame();
+        RetireConnectionIdFrame* retireConnectionIdFrame();
         ImmediateAckFrame* immediateAckFrame();
         AckFrequencyFrame* ackFrequencyFrame();
 
@@ -449,9 +488,9 @@ namespace quic{
             MaxStreamsFrame maxStreams; //
             DataBlockedFrame dataBlocked;
             StreamDataBlockedFrame streamDataBlocked;
-            StreamsBlockedFrame streamBlocked;
-            // TODO NewConnectionIdFrame; //
-            // TODO RetireConnectionIdFrame; //
+            StreamsBlockedFrame streamsBlocked;
+            NewConnectionIdFrame newConnID; //
+            RetireConnectionIdFrame retireConnID; //
             // TODO PathChallengeFrame; //
             // TODO PathResponseFrame; //
             ConnectionCloseFrame connClose;

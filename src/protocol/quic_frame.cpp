@@ -48,6 +48,18 @@ namespace quic{
             case QuicFrame::TYPE::DATA_BLOCKED_FRAME:
                 new (&dataBlocked) DataBlockedFrame(std::move(other.dataBlocked));
                 break;
+            case QuicFrame::TYPE::STREAM_DATA_BLOCKED_FRAME:
+                new (&streamDataBlocked) StreamDataBlockedFrame(std::move(other.streamDataBlocked));
+                break;
+            case QuicFrame::TYPE::STREAMS_BLOCKED_FRAME:
+                new (&streamsBlocked) StreamsBlockedFrame(std::move(other.streamsBlocked));
+                break;
+            case QuicFrame::TYPE::NEW_CONNECTION_ID_FRAME:
+                new (&newConnID) NewConnectionIdFrame(std::move(other.newConnID));
+                break;
+            case QuicFrame::TYPE::RETIRE_CONNECTION_ID_FRAME:
+                new (&retireConnID) RetireConnectionIdFrame(std::move(other.retireConnID));
+                break;
             case QuicFrame::TYPE::IMMEDIATE_ACK_FRAME:
                 new (&immAck) ImmediateAckFrame(std::move(other.immAck));
                 break;
@@ -100,6 +112,18 @@ namespace quic{
                 break;
             case QuicFrame::TYPE::DATA_BLOCKED_FRAME:
                 new (&dataBlocked) DataBlockedFrame(std::move(other.dataBlocked));
+                break;
+            case QuicFrame::TYPE::STREAM_DATA_BLOCKED_FRAME:
+                new (&streamDataBlocked) StreamDataBlockedFrame(std::move(other.streamDataBlocked));
+                break;
+            case QuicFrame::TYPE::STREAMS_BLOCKED_FRAME:
+                new (&streamsBlocked) StreamsBlockedFrame(std::move(other.streamsBlocked));
+                break;
+            case QuicFrame::TYPE::NEW_CONNECTION_ID_FRAME:
+                new (&newConnID) NewConnectionIdFrame(std::move(other.newConnID));
+                break;
+            case QuicFrame::TYPE::RETIRE_CONNECTION_ID_FRAME:
+                new (&retireConnID) RetireConnectionIdFrame(std::move(other.retireConnID));
                 break;
             case QuicFrame::TYPE::IMMEDIATE_ACK_FRAME:
                 new (&immAck) ImmediateAckFrame(std::move(other.immAck));
@@ -172,6 +196,26 @@ namespace quic{
         new (&dataBlocked) DataBlockedFrame(std::move(in));
     }
 
+    QuicFrame::QuicFrame(StreamDataBlockedFrame &&in)
+        :_type(QuicFrame::TYPE::STREAM_DATA_BLOCKED_FRAME){
+        new (&streamDataBlocked) StreamDataBlockedFrame(std::move(in));
+    }
+
+    QuicFrame::QuicFrame(StreamsBlockedFrame &&in)
+        :_type(QuicFrame::TYPE::STREAMS_BLOCKED_FRAME){
+        new (&streamsBlocked) StreamsBlockedFrame(std::move(in));
+    }
+
+    QuicFrame::QuicFrame(NewConnectionIdFrame &&in)
+        :_type(QuicFrame::TYPE::NEW_CONNECTION_ID_FRAME){
+        new (&newConnID) NewConnectionIdFrame(std::move(in));
+    }
+
+    QuicFrame::QuicFrame(RetireConnectionIdFrame &&in)
+        :_type(QuicFrame::TYPE::RETIRE_CONNECTION_ID_FRAME){
+        new (&retireConnID) RetireConnectionIdFrame(std::move(in));
+    }
+
     QuicFrame::QuicFrame(ImmediateAckFrame &&in)
         :_type(QuicFrame::TYPE::IMMEDIATE_ACK_FRAME){
         new (&immAck) ImmediateAckFrame(std::move(in));
@@ -222,6 +266,18 @@ namespace quic{
                 break;
             case QuicFrame::TYPE::DATA_BLOCKED_FRAME:
                 dataBlocked.~DataBlockedFrame();
+                break;
+            case QuicFrame::TYPE::STREAM_DATA_BLOCKED_FRAME:
+                streamDataBlocked.~StreamDataBlockedFrame();
+                break;
+            case QuicFrame::TYPE::STREAMS_BLOCKED_FRAME:
+                streamsBlocked.~StreamsBlockedFrame();
+                break;
+            case QuicFrame::TYPE::NEW_CONNECTION_ID_FRAME:
+                newConnID.~NewConnectionIdFrame();
+                break;
+            case QuicFrame::TYPE::RETIRE_CONNECTION_ID_FRAME:
+                retireConnID.~RetireConnectionIdFrame();
                 break;
             case QuicFrame::TYPE::IMMEDIATE_ACK_FRAME:
                 immAck.~ImmediateAckFrame();
@@ -323,6 +379,34 @@ namespace quic{
     DataBlockedFrame* QuicFrame::dataBlockedFrame(){
         if(_type == QuicFrame::TYPE::DATA_BLOCKED_FRAME){
             return &dataBlocked;
+        }
+        return nullptr;
+    }
+
+    StreamDataBlockedFrame* QuicFrame::streamDataBlockedFrame(){
+        if(_type == QuicFrame::TYPE::STREAM_DATA_BLOCKED_FRAME){
+            return &streamDataBlocked;
+        }
+        return nullptr;
+    }
+
+    StreamsBlockedFrame* QuicFrame::streamsBlockedFrame(){
+        if(_type == QuicFrame::TYPE::STREAMS_BLOCKED_FRAME){
+            return &streamsBlocked;
+        }
+        return nullptr;
+    }
+
+    NewConnectionIdFrame* QuicFrame::newConnectionIdFrame(){
+        if(_type == QuicFrame::TYPE::NEW_CONNECTION_ID_FRAME){
+            return &newConnID;
+        }
+        return nullptr;
+    }
+
+    RetireConnectionIdFrame* QuicFrame::retireConnectionIdFrame(){
+        if(_type == QuicFrame::TYPE::RETIRE_CONNECTION_ID_FRAME){
+            return &retireConnID;
         }
         return nullptr;
     }

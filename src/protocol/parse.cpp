@@ -93,6 +93,16 @@ namespace quic{
                     return QuicFrame(decodeUniMaxStreamsFrame(cursor));
                 case FrameType::DATA_BLOCKED:
                     return QuicFrame(decodeDataBlockedFrame(cursor));
+                case FrameType::STREAM_DATA_BLOCKED:
+                    return QuicFrame(decodeStreamDataBlockedFrame(cursor));
+                case FrameType::STREAMS_BLOCKED_BIDI:
+                    return QuicFrame(decodeBiDiStreamsBlockedFrame(cursor));
+                case FrameType::STREAMS_BLOCKED_UNI:
+                    return QuicFrame(decodeUniStreamsBlockedFrame(cursor));
+                case FrameType::NEW_CONNECTION_ID:
+                    return QuicFrame(decodeNewConnectionIdFrame(cursor));
+                case FrameType::RETIRE_CONNECTION_ID:
+                    return QuicFrame(decodeRetireConnectionIdFrame(cursor));
             }
         } catch (const std::exception& e) {
             error = true;
@@ -371,6 +381,68 @@ namespace quic{
         return DataBlockedFrame(dataLimit->first);
     }
 
+    StreamDataBlockedFrame decodeStreamDataBlockedFrame(folly::io::Cursor& cursor) {
+        auto streamId = decodeQuicInteger(cursor);
+        if (!streamId) {
+            throw QuicTransportException("Bad streamId", quic::TransportErrorCode::FRAME_ENCODING_ERROR, quic::FrameType::STREAM_DATA_BLOCKED);
+        }
+        auto dataLimit = decodeQuicInteger(cursor);
+        if (!dataLimit) {
+            throw QuicTransportException("Bad offset", quic::TransportErrorCode::FRAME_ENCODING_ERROR, quic::FrameType::STREAM_DATA_BLOCKED);
+        }
+        return StreamDataBlockedFrame(folly::to<StreamId>(streamId->first), dataLimit->first);
+    }
+
+    StreamsBlockedFrame decodeBiDiStreamsBlockedFrame(folly::io::Cursor& cursor) {
+        auto streamId = decodeQuicInteger(cursor);
+        if (!streamId) {
+            throw QuicTransportException("Bad Bi-Directional streamId", quic::TransportErrorCode::FRAME_ENCODING_ERROR, quic::FrameType::STREAMS_BLOCKED_BIDI);
+        }
+        return StreamsBlockedFrame(folly::to<StreamId>(streamId->first), true /* isBidirectional */);
+    }
+
+    StreamsBlockedFrame decodeUniStreamsBlockedFrame(folly::io::Cursor& cursor) {
+        auto streamId = decodeQuicInteger(cursor);
+        if (!streamId) {
+            throw QuicTransportException("Bad Uni-direcitonal streamId", quic::TransportErrorCode::FRAME_ENCODING_ERROR, quic::FrameType::STREAMS_BLOCKED_UNI);
+        }
+        return StreamsBlockedFrame(folly::to<StreamId>(streamId->first), false /* isBidirectional */);
+    }
+
+
+    NewConnectionIdFrame decodeNewConnectionIdFrame(folly::io::Cursor& cursor) {
+        auto sequenceNumber = decodeQuicInteger(cursor);
+        if (!sequenceNumber) {
+            throw QuicTransportException("Bad sequence", quic::TransportErrorCode::FRAME_ENCODING_ERROR, quic::FrameType::NEW_CONNECTION_ID);
+        }
+        auto retirePriorTo = decodeQuicInteger(cursor);
+        if (!retirePriorTo) {
+            throw QuicTransportException("Bad retire prior to", quic::TransportErrorCode::FRAME_ENCODING_ERROR, quic::FrameType::NEW_CONNECTION_ID);
+        }
+        if (!cursor.canAdvance(sizeof(uint8_t))) {
+            throw QuicTransportException("Not enough input bytes to read Dest. ConnectionId", quic::TransportErrorCode::FRAME_ENCODING_ERROR, quic::FrameType::NEW_CONNECTION_ID);
+        }
+        auto connIdLen = cursor.readBE<uint8_t>();
+        if (cursor.totalLength() < connIdLen) {
+            throw QuicTransportException("Bad connid", quic::TransportErrorCode::FRAME_ENCODING_ERROR, quic::FrameType::NEW_CONNECTION_ID);
+        }
+        if (connIdLen > kMaxConnectionIdSize) {
+            throw QuicTransportException("ConnectionId invalid length", quic::TransportErrorCode::FRAME_ENCODING_ERROR, quic::FrameType::NEW_CONNECTION_ID);
+        }
+        ConnectionId connId(cursor, connIdLen);
+        StatelessResetToken statelessResetToken;
+        cursor.pull(statelessResetToken.data(), statelessResetToken.size());
+        return NewConnectionIdFrame(sequenceNumber->first, retirePriorTo->first, std::move(connId), std::move(statelessResetToken));
+    }
+
+    RetireConnectionIdFrame decodeRetireConnectionIdFrame(folly::io::Cursor& cursor) {
+        auto sequenceNum = decodeQuicInteger(cursor);
+        if (!sequenceNum) {
+            // TODO change the error code
+            throw QuicTransportException("Bad sequence num", quic::TransportErrorCode::FRAME_ENCODING_ERROR, quic::FrameType::RETIRE_CONNECTION_ID);
+        }
+        return RetireConnectionIdFrame(sequenceNum->first);
+    }
 
 /*
     internal
