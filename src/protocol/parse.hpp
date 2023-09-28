@@ -44,6 +44,8 @@ namespace quic{
 
     ReadAckFrame decodeAckFrameWithECN(folly::io::Cursor& cursor, const PacketHeader& header, const CodecParameters& params);
 
+    ReadAckFrame decodeAckFrameWithReceivedTimestamps(folly::io::Cursor& cursor, const PacketHeader& header, const CodecParameters& params, FrameType frameType);
+
     RstStreamFrame decodeRstStreamFrame(folly::io::Cursor& cursor);
 
     StopSendingFrame decodeStopSendingFrame(folly::io::Cursor& cursor);
@@ -81,6 +83,18 @@ namespace quic{
     ConnectionCloseFrame decodeConnectionCloseFrame(folly::io::Cursor& cursor);
 
     ConnectionCloseFrame decodeApplicationClose(folly::io::Cursor& cursor);
+
+    HandshakeDoneFrame decodeHandshakeDoneFrame(folly::io::Cursor& cursor);
+
+    DatagramFrame decodeDatagramFrame(BufQueue& queue, bool hasLen);
+
+    KnobFrame decodeKnobFrame(folly::io::Cursor& cursor);
+
+    AckFrequencyFrame decodeAckFrequencyFrame(folly::io::Cursor& cursor);
+
+    ImmediateAckFrame decodeImmediateAckFrame(folly::io::Cursor& cursor);
+
+
 /*
     internal
 */

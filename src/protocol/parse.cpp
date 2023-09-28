@@ -111,6 +111,24 @@ namespace quic{
                     return QuicFrame(decodeConnectionCloseFrame(cursor));
                 case FrameType::CONNECTION_CLOSE_APP_ERR:
                     return QuicFrame(decodeApplicationClose(cursor));
+                case FrameType::HANDSHAKE_DONE:
+                    return QuicFrame(decodeHandshakeDoneFrame(cursor));
+                case FrameType::DATAGRAM: {
+                    consumedQueue = true;
+                    return QuicFrame(decodeDatagramFrame(queue, false /* hasLen */));
+                }
+                case FrameType::DATAGRAM_LEN: {
+                    consumedQueue = true;
+                    return QuicFrame(decodeDatagramFrame(queue, true /* hasLen */));
+                }
+                case FrameType::KNOB:
+                    return QuicFrame(decodeKnobFrame(cursor));
+                case FrameType::ACK_FREQUENCY:
+                    return QuicFrame(decodeAckFrequencyFrame(cursor));
+                case FrameType::IMMEDIATE_ACK:
+                    return QuicFrame(decodeImmediateAckFrame(cursor));
+                case FrameType::ACK_RECEIVE_TIMESTAMPS:
+                    return QuicFrame(decodeAckFrameWithReceivedTimestamps(cursor, header, params, FrameType::ACK_RECEIVE_TIMESTAMPS));
             }
         } catch (const std::exception& e) {
             error = true;
@@ -222,6 +240,55 @@ namespace quic{
             throw QuicTransportException("Bad ECT-CE value", quic::TransportErrorCode::FRAME_ENCODING_ERROR, quic::FrameType::ACK_ECN);
         }
         return readAckFrame;
+    }
+
+    ReadAckFrame decodeAckFrameWithReceivedTimestamps(folly::io::Cursor& cursor, const PacketHeader& header, const CodecParameters& params, FrameType frameType) {
+        ReadAckFrame frame;
+        frame = decodeAckFrame(cursor, header, params, frameType);
+
+        auto latestRecvdPacketNum = decodeQuicInteger(cursor);
+        if (!latestRecvdPacketNum) {
+            throw QuicTransportException("Bad latest received packet number", quic::TransportErrorCode::FRAME_ENCODING_ERROR, quic::FrameType::ACK_RECEIVE_TIMESTAMPS);
+        }
+        frame.maybeLatestRecvdPacketNum = latestRecvdPacketNum->first;
+
+        auto latestRecvdPacketTimeDelta = decodeQuicInteger(cursor);
+        if (!latestRecvdPacketTimeDelta) {
+            throw QuicTransportException("Bad receive packet timestamp delta", quic::TransportErrorCode::FRAME_ENCODING_ERROR, quic::FrameType::ACK_RECEIVE_TIMESTAMPS);
+        }
+        frame.maybeLatestRecvdPacketTime = std::chrono::microseconds(latestRecvdPacketTimeDelta->first);
+
+        auto timeStampRangeCount = decodeQuicInteger(cursor);
+        if (!timeStampRangeCount) {
+            throw QuicTransportException("Bad receive timestamps range count", quic::TransportErrorCode::FRAME_ENCODING_ERROR, quic::FrameType::ACK_RECEIVE_TIMESTAMPS);
+        }
+        for (uint64_t numRanges = 0; numRanges < timeStampRangeCount->first; numRanges++) {
+            RecvdPacketsTimestampsRange timeStampRange;
+            auto receiveTimeStampsGap = decodeQuicInteger(cursor);
+            if (!receiveTimeStampsGap) {
+                throw QuicTransportException("Bad receive timestamps gap", quic::TransportErrorCode::FRAME_ENCODING_ERROR, quic::FrameType::ACK_RECEIVE_TIMESTAMPS);
+            }
+            timeStampRange.gap = receiveTimeStampsGap->first;
+            auto receiveTimeStampsLen = decodeQuicInteger(cursor);
+            if (!receiveTimeStampsLen) {
+                throw QuicTransportException("Bad receive timestamps block length", quic::TransportErrorCode::FRAME_ENCODING_ERROR, quic::FrameType::ACK_RECEIVE_TIMESTAMPS);
+            }
+            timeStampRange.timestamp_delta_count = receiveTimeStampsLen->first;
+            uint8_t receiveTimestampsExponentToUse = (params.maybeAckReceiveTimestampsConfig)
+                ? params.maybeAckReceiveTimestampsConfig.value().receiveTimestampsExponent
+                : kDefaultReceiveTimestampsExponent;
+            for (uint64_t i = 0; i < receiveTimeStampsLen->first; i++) {
+                auto delta = decodeQuicInteger(cursor);
+                if (!delta) {
+                    throw QuicTransportException("Bad receive timestamps delta", quic::TransportErrorCode::FRAME_ENCODING_ERROR, quic::FrameType::ACK_RECEIVE_TIMESTAMPS);
+                }
+                //DCHECK_LT(receiveTimestampsExponentToUse, sizeof(delta->first) * 8);
+                auto adjustedDelta = convertEncodedDurationToMicroseconds(frameType, receiveTimestampsExponentToUse, delta->first);
+                timeStampRange.deltas.push_back(adjustedDelta);
+            }
+            frame.recvdPacketsTimestampRanges.emplace_back(timeStampRange);
+        }
+        return frame;
     }
 
     RstStreamFrame decodeRstStreamFrame(folly::io::Cursor& cursor) {
@@ -510,6 +577,74 @@ namespace quic{
         return ConnectionCloseFrame(QuicErrorCode(errorCode), std::move(reasonPhrase));
     }
 
+    HandshakeDoneFrame decodeHandshakeDoneFrame(folly::io::Cursor& /*cursor*/) {
+        return HandshakeDoneFrame();
+    }
+
+    DatagramFrame decodeDatagramFrame(BufQueue& queue, bool hasLen) {
+        folly::io::Cursor cursor(queue.front());
+        size_t length = cursor.length();
+        if (hasLen) {
+            auto decodeLength = decodeQuicInteger(cursor);
+            if (!decodeLength) {
+                throw QuicTransportException("Invalid datagram len", TransportErrorCode::FRAME_ENCODING_ERROR, FrameType::DATAGRAM_LEN);
+            }
+            length = decodeLength->first;
+            if (cursor.length() < length) {
+                throw QuicTransportException("Invalid datagram frame", TransportErrorCode::FRAME_ENCODING_ERROR, FrameType::DATAGRAM_LEN);
+            }
+            queue.trimStart(decodeLength->second);
+        }
+        return DatagramFrame(length, queue.splitAtMost(length));
+    }
+
+    KnobFrame decodeKnobFrame(folly::io::Cursor& cursor) {
+        auto knobSpace = decodeQuicInteger(cursor);
+        if (!knobSpace) {
+            throw QuicTransportException("Bad knob space", quic::TransportErrorCode::FRAME_ENCODING_ERROR, quic::FrameType::KNOB);
+        }
+        auto knobId = decodeQuicInteger(cursor);
+        if (!knobId) {
+            throw QuicTransportException("Bad knob id", quic::TransportErrorCode::FRAME_ENCODING_ERROR, quic::FrameType::KNOB);
+        }
+        auto knobLen = decodeQuicInteger(cursor);
+        if (!knobLen) {
+            throw QuicTransportException("Bad knob len", quic::TransportErrorCode::FRAME_ENCODING_ERROR, quic::FrameType::KNOB);
+        }
+        Buf knobBlob;
+        cursor.cloneAtMost(knobBlob, knobLen->first);
+        return KnobFrame(knobSpace->first, knobId->first, std::move(knobBlob));
+    }
+
+    AckFrequencyFrame decodeAckFrequencyFrame(folly::io::Cursor& cursor) {
+        auto sequenceNumber = decodeQuicInteger(cursor);
+        if (!sequenceNumber) {
+            throw QuicTransportException("Bad sequence number", quic::TransportErrorCode::FRAME_ENCODING_ERROR, quic::FrameType::ACK_FREQUENCY);
+        }
+        auto packetTolerance = decodeQuicInteger(cursor);
+        if (!packetTolerance) {
+            throw QuicTransportException("Bad packet tolerance", quic::TransportErrorCode::FRAME_ENCODING_ERROR, quic::FrameType::ACK_FREQUENCY);
+        }
+        auto updateMaxAckDelay = decodeQuicInteger(cursor);
+        if (!updateMaxAckDelay) {
+            throw QuicTransportException("Bad update max ack delay", quic::TransportErrorCode::FRAME_ENCODING_ERROR, quic::FrameType::ACK_FREQUENCY);
+        }
+        auto reorderThreshold = decodeQuicInteger(cursor);
+        if (!reorderThreshold) {
+            throw QuicTransportException("Bad reorder threshold", quic::TransportErrorCode::FRAME_ENCODING_ERROR, quic::FrameType::ACK_FREQUENCY);
+        }
+
+        AckFrequencyFrame frame;
+        frame.sequenceNumber = sequenceNumber->first;
+        frame.packetTolerance = packetTolerance->first;
+        frame.updateMaxAckDelay = updateMaxAckDelay->first;
+        frame.reorderThreshold = reorderThreshold->first;
+        return frame;
+    }
+
+    ImmediateAckFrame decodeImmediateAckFrame(folly::io::Cursor&) {
+       return ImmediateAckFrame();
+    }
 /*
     internal
 */

@@ -9,6 +9,7 @@
 #include <folly/io/IOBuf.h>
 #include "quic_exception.h"
 #include "quic_connection_id.hpp"
+#include "../common/BufUtil.h"
 
 namespace quic{
     template <class T>
@@ -422,6 +423,88 @@ namespace quic{
         }
     };
 
+    struct HandshakeDoneFrame {
+        bool operator==(const HandshakeDoneFrame& /*rhs*/) const {
+            return true;
+        }
+    };
+
+    struct DatagramFrame {
+        size_t length;
+        BufQueue data;
+
+        explicit DatagramFrame(size_t len, Buf buf)
+            : length(len), data(std::move(buf)) {
+        }
+
+        // Variant requirement:
+        DatagramFrame(const DatagramFrame& other)
+            : length(other.length),
+            data(other.data.front() ? other.data.front()->clone() : nullptr) {
+        }
+
+        bool operator==(const DatagramFrame& other) const {
+            if (length != other.length) {
+                return false;
+            }
+            if (data.empty() && other.data.empty()) {
+                return true;
+            }
+            folly::IOBufEqualTo eq;
+            return eq(*data.front(), *other.data.front());
+        }
+    };
+
+    struct NoopFrame {
+        bool operator==(const NoopFrame&) const {
+            return true;
+        }
+    };
+
+    struct KnobFrame {
+        KnobFrame(uint64_t knobSpaceIn, uint64_t idIn, Buf blobIn)
+            : knobSpace(knobSpaceIn), id(idIn), blob(std::move(blobIn)) {
+            len = blob->length();
+        }
+
+        bool operator==(const KnobFrame& rhs) const {
+            return knobSpace == rhs.knobSpace && id == rhs.id && len == rhs.len &&
+                blob->length() == rhs.blob->length() &&
+                memcmp(blob->data(), rhs.blob->data(), blob->length()) == 0;
+        }
+
+        KnobFrame& operator=(const KnobFrame& other) {
+            knobSpace = other.knobSpace;
+            id = other.id;
+            if (other.blob) {
+                blob = other.blob->clone();
+            }
+            return *this;
+        }
+
+        KnobFrame& operator=(KnobFrame&& other) noexcept {
+            knobSpace = other.knobSpace;
+            id = other.id;
+            if (other.blob) {
+                blob = std::move(other.blob);
+            }
+            return *this;
+        }
+
+        KnobFrame(const KnobFrame& other)
+            : knobSpace(other.knobSpace), id(other.id), len(other.len), blob(other.blob->clone()) {
+        }
+
+        KnobFrame(KnobFrame&& other) noexcept
+            : knobSpace(other.knobSpace), id(other.id), len(other.len), blob(std::move(other.blob)) {
+        }
+
+        uint64_t knobSpace;
+        uint64_t id;
+        uint64_t len;
+        Buf blob;
+    };
+
     // generic type
     // https://datatracker.ietf.org/doc/html/rfc9000#Frame-Types-and-Formats
     struct QuicFrame{
@@ -446,6 +529,9 @@ namespace quic{
             PATH_CHALLANGE_FRAME,
             PATH_RESPONSE_FRAME,
             CONNECTION_CLOSE_FRAME,
+            HANDSHAKE_DONE_FRAME,
+            DATAGRAM_FRAME,
+            KNOB_FRAME,
             IMMEDIATE_ACK_FRAME,
             ACK_FREQUENCY_FRAME,
         };
@@ -473,6 +559,9 @@ namespace quic{
         QuicFrame(PathChallengeFrame&& in);
         QuicFrame(PathResponseFrame&& in);
         QuicFrame(ConnectionCloseFrame&& in);
+        QuicFrame(HandshakeDoneFrame&& in);
+        QuicFrame(DatagramFrame&& in);
+        QuicFrame(KnobFrame&& in);
         QuicFrame(ImmediateAckFrame&& in);
         QuicFrame(AckFrequencyFrame&& in);
 
@@ -498,6 +587,9 @@ namespace quic{
         PathChallengeFrame* pathChallengeFrame();
         PathResponseFrame* pathResponseFrame();
         ConnectionCloseFrame* connectionCloseFrame();
+        HandshakeDoneFrame* handshakeDoneFrame();
+        DatagramFrame* datagramFrame();
+        KnobFrame* knobFrame();
         ImmediateAckFrame* immediateAckFrame();
         AckFrequencyFrame* ackFrequencyFrame();
 
@@ -527,8 +619,9 @@ namespace quic{
             PathChallengeFrame pathChallenge; //
             PathResponseFrame pathResponse; //
             ConnectionCloseFrame connClose;
-            // TODO HandshakeDoneFrame; //
-
+            HandshakeDoneFrame handshakeDone; //
+            DatagramFrame datagram; //
+            KnobFrame knob; //
             ImmediateAckFrame immAck;
             AckFrequencyFrame ackFrequency;
         };

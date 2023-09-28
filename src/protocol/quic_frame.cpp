@@ -69,6 +69,15 @@ namespace quic{
             case QuicFrame::TYPE::CONNECTION_CLOSE_FRAME:
                 new (&connClose) ConnectionCloseFrame(std::move(other.connClose));
                 break;
+            case QuicFrame::TYPE::HANDSHAKE_DONE_FRAME:
+                new (&handshakeDone) HandshakeDoneFrame(std::move(other.handshakeDone));
+                break;
+            case QuicFrame::TYPE::DATAGRAM_FRAME:
+                new (&datagram) DatagramFrame(std::move(other.datagram));
+                break;
+            case QuicFrame::TYPE::KNOB_FRAME:
+                new (&knob) KnobFrame(std::move(other.knob));
+                break;
             case QuicFrame::TYPE::IMMEDIATE_ACK_FRAME:
                 new (&immAck) ImmediateAckFrame(std::move(other.immAck));
                 break;
@@ -143,12 +152,21 @@ namespace quic{
             case QuicFrame::TYPE::CONNECTION_CLOSE_FRAME:
                 new (&connClose) ConnectionCloseFrame(std::move(other.connClose));
                 break;
+            case QuicFrame::TYPE::HANDSHAKE_DONE_FRAME:
+                new (&handshakeDone) HandshakeDoneFrame(std::move(other.handshakeDone));
+                break;
+            case QuicFrame::TYPE::DATAGRAM_FRAME:
+                new (&datagram) DatagramFrame(std::move(other.datagram));
+                break;
+            case QuicFrame::TYPE::KNOB_FRAME:
+                new (&knob) KnobFrame(std::move(other.knob));
+                break;
             case QuicFrame::TYPE::IMMEDIATE_ACK_FRAME:
                 new (&immAck) ImmediateAckFrame(std::move(other.immAck));
                 break;
             case QuicFrame::TYPE::ACK_FREQUENCY_FRAME:
                 new (&ackFrequency) AckFrequencyFrame(std::move(other.ackFrequency));
-                break;
+                break;            
         }
         _type = other._type;
         return *this;
@@ -249,6 +267,21 @@ namespace quic{
         new (&connClose) ConnectionCloseFrame(std::move(in));
     }
 
+    QuicFrame::QuicFrame(HandshakeDoneFrame &&in)
+        :_type(QuicFrame::TYPE::HANDSHAKE_DONE_FRAME){
+        new (&handshakeDone) HandshakeDoneFrame(std::move(in));
+    }
+
+    QuicFrame::QuicFrame(DatagramFrame &&in)
+        :_type(QuicFrame::TYPE::DATAGRAM_FRAME){
+        new (&datagram) DatagramFrame(std::move(in));
+    }
+
+    QuicFrame::QuicFrame(KnobFrame &&in)
+        :_type(QuicFrame::TYPE::KNOB_FRAME){
+        new (&knob) KnobFrame(std::move(in));
+    }
+
     QuicFrame::QuicFrame(ImmediateAckFrame &&in)
         :_type(QuicFrame::TYPE::IMMEDIATE_ACK_FRAME){
         new (&immAck) ImmediateAckFrame(std::move(in));
@@ -320,6 +353,15 @@ namespace quic{
                 break;
             case QuicFrame::TYPE::CONNECTION_CLOSE_FRAME:
                 connClose.~ConnectionCloseFrame();
+                break;
+            case QuicFrame::TYPE::HANDSHAKE_DONE_FRAME:
+                handshakeDone.~HandshakeDoneFrame();
+                break;
+            case QuicFrame::TYPE::DATAGRAM_FRAME:
+                datagram.~DatagramFrame();
+                break;
+            case QuicFrame::TYPE::KNOB_FRAME:
+                knob.~KnobFrame();
                 break;
             case QuicFrame::TYPE::IMMEDIATE_ACK_FRAME:
                 immAck.~ImmediateAckFrame();
@@ -474,6 +516,27 @@ namespace quic{
         return nullptr;
     }
 
+    HandshakeDoneFrame* QuicFrame::handshakeDoneFrame(){
+        if(_type == QuicFrame::TYPE::HANDSHAKE_DONE_FRAME){
+            return &handshakeDone;
+        }
+        return nullptr;
+    }
+
+    DatagramFrame* QuicFrame::datagramFrame(){
+        if(_type == QuicFrame::TYPE::DATAGRAM_FRAME){
+            return &datagram;
+        }
+        return nullptr;
+    }
+
+    KnobFrame* QuicFrame::knobFrame(){
+        if(_type == QuicFrame::TYPE::KNOB_FRAME){
+            return &knob;
+        }
+        return nullptr;
+    }
+
     ImmediateAckFrame* QuicFrame::immediateAckFrame(){
         if(_type == QuicFrame::TYPE::IMMEDIATE_ACK_FRAME){
             return &immAck;
@@ -487,7 +550,6 @@ namespace quic{
         }
         return nullptr;
     }
-
 
 
 }
