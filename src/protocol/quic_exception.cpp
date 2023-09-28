@@ -101,6 +101,21 @@ namespace quic{
         new (&transportErr) TransportErrorCode(std::move(in));
     }
 
+    QuicErrorCode::QuicErrorCode(const ApplicationErrorCode& in)
+        :_type(QuicErrorCode::TYPE::APP_ERR_CODE){
+        new (&appErr) ApplicationErrorCode(in);
+    }
+
+    QuicErrorCode::QuicErrorCode(const LocalErrorCode& in)
+        :_type(QuicErrorCode::TYPE::LOCAL_ERR_CODE){
+        new (&localErr) LocalErrorCode(in);
+    }
+
+    QuicErrorCode::QuicErrorCode(const TransportErrorCode& in)
+        :_type(QuicErrorCode::TYPE::TRANSPOORT_ERR_CODE){
+        new (&transportErr) TransportErrorCode(in);
+    }
+
     void QuicErrorCode::destroy() noexcept{
         switch (_type) {
             case QuicErrorCode::TYPE::APP_ERR_CODE:

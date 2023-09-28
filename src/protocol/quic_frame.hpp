@@ -398,6 +398,30 @@ namespace quic{
         }
     };
 
+    struct PathChallengeFrame {
+        uint64_t pathData;
+
+        explicit PathChallengeFrame(uint64_t pathDataIn) : pathData(pathDataIn) {}
+
+        bool operator==(const PathChallengeFrame& rhs) const {
+            return pathData == rhs.pathData;
+        }
+
+        bool operator!=(const PathChallengeFrame& rhs) const {
+            return !(*this == rhs);
+        }
+    };
+
+    struct PathResponseFrame {
+        uint64_t pathData;
+
+        explicit PathResponseFrame(uint64_t pathDataIn) : pathData(pathDataIn) {}
+
+        bool operator==(const PathResponseFrame& rhs) const {
+            return pathData == rhs.pathData;
+        }
+    };
+
     // generic type
     // https://datatracker.ietf.org/doc/html/rfc9000#Frame-Types-and-Formats
     struct QuicFrame{
@@ -419,6 +443,9 @@ namespace quic{
             STREAMS_BLOCKED_FRAME,
             NEW_CONNECTION_ID_FRAME,
             RETIRE_CONNECTION_ID_FRAME,
+            PATH_CHALLANGE_FRAME,
+            PATH_RESPONSE_FRAME,
+            CONNECTION_CLOSE_FRAME,
             IMMEDIATE_ACK_FRAME,
             ACK_FREQUENCY_FRAME,
         };
@@ -443,6 +470,9 @@ namespace quic{
         QuicFrame(StreamsBlockedFrame&& in);
         QuicFrame(NewConnectionIdFrame&& in);
         QuicFrame(RetireConnectionIdFrame&& in);
+        QuicFrame(PathChallengeFrame&& in);
+        QuicFrame(PathResponseFrame&& in);
+        QuicFrame(ConnectionCloseFrame&& in);
         QuicFrame(ImmediateAckFrame&& in);
         QuicFrame(AckFrequencyFrame&& in);
 
@@ -465,6 +495,9 @@ namespace quic{
         StreamsBlockedFrame* streamsBlockedFrame();
         NewConnectionIdFrame* newConnectionIdFrame();
         RetireConnectionIdFrame* retireConnectionIdFrame();
+        PathChallengeFrame* pathChallengeFrame();
+        PathResponseFrame* pathResponseFrame();
+        ConnectionCloseFrame* connectionCloseFrame();
         ImmediateAckFrame* immediateAckFrame();
         AckFrequencyFrame* ackFrequencyFrame();
 
@@ -491,8 +524,8 @@ namespace quic{
             StreamsBlockedFrame streamsBlocked;
             NewConnectionIdFrame newConnID; //
             RetireConnectionIdFrame retireConnID; //
-            // TODO PathChallengeFrame; //
-            // TODO PathResponseFrame; //
+            PathChallengeFrame pathChallenge; //
+            PathResponseFrame pathResponse; //
             ConnectionCloseFrame connClose;
             // TODO HandshakeDoneFrame; //
 

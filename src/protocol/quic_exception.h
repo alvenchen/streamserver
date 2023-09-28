@@ -34,6 +34,9 @@ namespace quic {
         QuicErrorCode(ApplicationErrorCode&& in);
         QuicErrorCode(LocalErrorCode&& in);
         QuicErrorCode(TransportErrorCode&& in);
+        QuicErrorCode(const ApplicationErrorCode& in);
+        QuicErrorCode(const LocalErrorCode& in);
+        QuicErrorCode(const TransportErrorCode& in);
 
         TYPE type() const;
 

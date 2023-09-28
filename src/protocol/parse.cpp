@@ -103,16 +103,23 @@ namespace quic{
                     return QuicFrame(decodeNewConnectionIdFrame(cursor));
                 case FrameType::RETIRE_CONNECTION_ID:
                     return QuicFrame(decodeRetireConnectionIdFrame(cursor));
+                case FrameType::PATH_CHALLENGE:
+                    return QuicFrame(decodePathChallengeFrame(cursor));
+                case FrameType::PATH_RESPONSE:
+                    return QuicFrame(decodePathResponseFrame(cursor));
+                case FrameType::CONNECTION_CLOSE:
+                    return QuicFrame(decodeConnectionCloseFrame(cursor));
+                case FrameType::CONNECTION_CLOSE_APP_ERR:
+                    return QuicFrame(decodeApplicationClose(cursor));
             }
         } catch (const std::exception& e) {
             error = true;
-            //throw QuicTransportException(fmt::format("Frame format invalid, type={}, error={}",frameTypeInt->first,e.what()),TransportErrorCode::FRAME_ENCODING_ERROR,frameType);
-            throw std::runtime_error(fmt::format("Frame format invalid, type={}, error={}",frameTypeInt->first,e.what()));
+            throw QuicTransportException(fmt::format("Frame format invalid, type={}, error={}",frameTypeInt->first,e.what()),TransportErrorCode::FRAME_ENCODING_ERROR,frameType);
+            //throw std::runtime_error(fmt::format("Frame format invalid, type={}, error={}",frameTypeInt->first,e.what()));
         }
         error = true;
 
-        //throw QuicTransportException(folly::to<std::string>("Unknown frame, type=", frameTypeInt->first),TransportErrorCode::FRAME_ENCODING_ERROR,frameType);
-        
+        throw QuicTransportException(folly::to<std::string>("Unknown frame, type=", frameTypeInt->first),TransportErrorCode::FRAME_ENCODING_ERROR,frameType);
     }
 
     PaddingFrame decodePaddingFrame(folly::io::Cursor& cursor) {
@@ -442,6 +449,65 @@ namespace quic{
             throw QuicTransportException("Bad sequence num", quic::TransportErrorCode::FRAME_ENCODING_ERROR, quic::FrameType::RETIRE_CONNECTION_ID);
         }
         return RetireConnectionIdFrame(sequenceNum->first);
+    }
+
+    PathChallengeFrame decodePathChallengeFrame(folly::io::Cursor& cursor) {
+        // just parse and ignore expected data
+        // A PATH_CHALLENGE frame contains 8 bytes
+        if (!cursor.canAdvance(sizeof(uint64_t))) {
+            throw QuicTransportException("Not enough input bytes to read path challenge frame.", quic::TransportErrorCode::FRAME_ENCODING_ERROR, quic::FrameType::PATH_CHALLENGE);
+        }
+        auto pathData = cursor.readBE<uint64_t>();
+        return PathChallengeFrame(pathData);
+    }
+
+    PathResponseFrame decodePathResponseFrame(folly::io::Cursor& cursor) {
+        // just parse and ignore expected data
+        // Its format is identical to the PATH_CHALLENGE frame
+        if (!cursor.canAdvance(sizeof(uint64_t))) {
+            throw QuicTransportException("Not enough input bytes to read path response frame.", quic::TransportErrorCode::FRAME_ENCODING_ERROR, quic::FrameType::PATH_RESPONSE);
+        }
+        auto pathData = cursor.readBE<uint64_t>();
+        return PathResponseFrame(pathData);
+    }
+
+    ConnectionCloseFrame decodeConnectionCloseFrame(folly::io::Cursor& cursor) {
+        TransportErrorCode errorCode{};
+        auto varCode = decodeQuicInteger(cursor);
+        if (varCode) {
+            errorCode = static_cast<TransportErrorCode>(varCode->first);
+        } else {
+            throw QuicTransportException("Failed to parse error code.", quic::TransportErrorCode::FRAME_ENCODING_ERROR, quic::FrameType::CONNECTION_CLOSE);
+        }
+        auto frameTypeField = decodeQuicInteger(cursor);
+        if (!frameTypeField || frameTypeField->second != sizeof(uint8_t)) {
+            throw QuicTransportException("Bad connection close triggering frame type value", quic::TransportErrorCode::FRAME_ENCODING_ERROR, quic::FrameType::CONNECTION_CLOSE);
+        }
+        FrameType triggeringFrameType = static_cast<FrameType>(frameTypeField->first);
+        auto reasonPhraseLength = decodeQuicInteger(cursor);
+        if (!reasonPhraseLength || reasonPhraseLength->first > kMaxReasonPhraseLength) {
+            throw QuicTransportException("Bad reason phrase length", quic::TransportErrorCode::FRAME_ENCODING_ERROR, quic::FrameType::CONNECTION_CLOSE);
+        }
+        auto reasonPhrase = cursor.readFixedString(folly::to<size_t>(reasonPhraseLength->first));
+        return ConnectionCloseFrame(QuicErrorCode(errorCode), std::move(reasonPhrase), triggeringFrameType);
+    }
+
+    ConnectionCloseFrame decodeApplicationClose(folly::io::Cursor& cursor) {
+        ApplicationErrorCode errorCode{};
+        auto varCode = decodeQuicInteger(cursor);
+        if (varCode) {
+            errorCode = static_cast<ApplicationErrorCode>(varCode->first);
+        } else {
+            throw QuicTransportException("Failed to parse error code.", quic::TransportErrorCode::FRAME_ENCODING_ERROR, quic::FrameType::CONNECTION_CLOSE_APP_ERR);
+        }
+
+        auto reasonPhraseLength = decodeQuicInteger(cursor);
+        if (!reasonPhraseLength || reasonPhraseLength->first > kMaxReasonPhraseLength) {
+            throw QuicTransportException("Bad reason phrase length", quic::TransportErrorCode::FRAME_ENCODING_ERROR, quic::FrameType::CONNECTION_CLOSE_APP_ERR);
+        }
+
+        auto reasonPhrase = cursor.readFixedString(folly::to<size_t>(reasonPhraseLength->first));
+        return ConnectionCloseFrame(QuicErrorCode(errorCode), std::move(reasonPhrase));
     }
 
 /*

@@ -60,6 +60,15 @@ namespace quic{
             case QuicFrame::TYPE::RETIRE_CONNECTION_ID_FRAME:
                 new (&retireConnID) RetireConnectionIdFrame(std::move(other.retireConnID));
                 break;
+            case QuicFrame::TYPE::PATH_CHALLANGE_FRAME:
+                new (&pathChallenge) PathChallengeFrame(std::move(other.pathChallenge));
+                break;
+            case QuicFrame::TYPE::PATH_RESPONSE_FRAME:
+                new (&pathResponse) PathResponseFrame(std::move(other.pathResponse));
+                break;
+            case QuicFrame::TYPE::CONNECTION_CLOSE_FRAME:
+                new (&connClose) ConnectionCloseFrame(std::move(other.connClose));
+                break;
             case QuicFrame::TYPE::IMMEDIATE_ACK_FRAME:
                 new (&immAck) ImmediateAckFrame(std::move(other.immAck));
                 break;
@@ -124,6 +133,15 @@ namespace quic{
                 break;
             case QuicFrame::TYPE::RETIRE_CONNECTION_ID_FRAME:
                 new (&retireConnID) RetireConnectionIdFrame(std::move(other.retireConnID));
+                break;
+            case QuicFrame::TYPE::PATH_CHALLANGE_FRAME:
+                new (&pathChallenge) PathChallengeFrame(std::move(other.pathChallenge));
+                break;
+            case QuicFrame::TYPE::PATH_RESPONSE_FRAME:
+                new (&pathResponse) PathResponseFrame(std::move(other.pathResponse));
+                break;
+            case QuicFrame::TYPE::CONNECTION_CLOSE_FRAME:
+                new (&connClose) ConnectionCloseFrame(std::move(other.connClose));
                 break;
             case QuicFrame::TYPE::IMMEDIATE_ACK_FRAME:
                 new (&immAck) ImmediateAckFrame(std::move(other.immAck));
@@ -216,6 +234,21 @@ namespace quic{
         new (&retireConnID) RetireConnectionIdFrame(std::move(in));
     }
 
+    QuicFrame::QuicFrame(PathChallengeFrame &&in)
+        :_type(QuicFrame::TYPE::PATH_CHALLANGE_FRAME){
+        new (&pathChallenge) PathChallengeFrame(std::move(in));
+    }
+
+    QuicFrame::QuicFrame(PathResponseFrame &&in)
+        :_type(QuicFrame::TYPE::PATH_RESPONSE_FRAME){
+        new (&pathResponse) PathResponseFrame(std::move(in));
+    }
+
+    QuicFrame::QuicFrame(ConnectionCloseFrame &&in)
+        :_type(QuicFrame::TYPE::CONNECTION_CLOSE_FRAME){
+        new (&connClose) ConnectionCloseFrame(std::move(in));
+    }
+
     QuicFrame::QuicFrame(ImmediateAckFrame &&in)
         :_type(QuicFrame::TYPE::IMMEDIATE_ACK_FRAME){
         new (&immAck) ImmediateAckFrame(std::move(in));
@@ -278,6 +311,15 @@ namespace quic{
                 break;
             case QuicFrame::TYPE::RETIRE_CONNECTION_ID_FRAME:
                 retireConnID.~RetireConnectionIdFrame();
+                break;
+            case QuicFrame::TYPE::PATH_CHALLANGE_FRAME:
+                pathChallenge.~PathChallengeFrame();
+                break;
+            case QuicFrame::TYPE::PATH_RESPONSE_FRAME:
+                pathResponse.~PathResponseFrame();
+                break;
+            case QuicFrame::TYPE::CONNECTION_CLOSE_FRAME:
+                connClose.~ConnectionCloseFrame();
                 break;
             case QuicFrame::TYPE::IMMEDIATE_ACK_FRAME:
                 immAck.~ImmediateAckFrame();
@@ -407,6 +449,27 @@ namespace quic{
     RetireConnectionIdFrame* QuicFrame::retireConnectionIdFrame(){
         if(_type == QuicFrame::TYPE::RETIRE_CONNECTION_ID_FRAME){
             return &retireConnID;
+        }
+        return nullptr;
+    }
+
+    PathChallengeFrame* QuicFrame::pathChallengeFrame(){
+        if(_type == QuicFrame::TYPE::PATH_CHALLANGE_FRAME){
+            return &pathChallenge;
+        }
+        return nullptr;
+    }
+
+    PathResponseFrame* QuicFrame::pathResponseFrame(){
+        if(_type == QuicFrame::TYPE::PATH_RESPONSE_FRAME){
+            return &pathResponse;
+        }
+        return nullptr;
+    }
+
+    ConnectionCloseFrame* QuicFrame::connectionCloseFrame(){
+        if(_type == QuicFrame::TYPE::CONNECTION_CLOSE_FRAME){
+            return &connClose;
         }
         return nullptr;
     }

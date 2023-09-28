@@ -74,6 +74,13 @@ namespace quic{
 
     RetireConnectionIdFrame decodeRetireConnectionIdFrame(folly::io::Cursor& cursor);
 
+    PathChallengeFrame decodePathChallengeFrame(folly::io::Cursor& cursor);
+
+    PathResponseFrame decodePathResponseFrame(folly::io::Cursor& cursor);
+
+    ConnectionCloseFrame decodeConnectionCloseFrame(folly::io::Cursor& cursor);
+
+    ConnectionCloseFrame decodeApplicationClose(folly::io::Cursor& cursor);
 /*
     internal
 */
