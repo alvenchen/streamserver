@@ -567,31 +567,31 @@ namespace quic{
 
         TYPE type() const;
 
-        PaddingFrame* paddingFrame();
-        PingFrame* pingFrame();
-        ReadAckFrame* readAckFrame();
-        WriteAckFrame* writeAckFrame();
-        RstStreamFrame* rstStreamFrame();
-        StopSendingFrame* stopSendingFrame();
-        ReadCryptoFrame* readCryptoFrame();
-        ReadNewTokenFrame* readNewTokenFrame();
-        ReadStreamFrame* readStreamFrame();
-        MaxDataFrame* maxDataFrame();
-        MaxStreamDataFrame* maxStreamDataFrame();
-        MaxStreamsFrame* maxStreamsFrame();
-        DataBlockedFrame* dataBlockedFrame();
-        StreamDataBlockedFrame* streamDataBlockedFrame();
-        StreamsBlockedFrame* streamsBlockedFrame();
-        NewConnectionIdFrame* newConnectionIdFrame();
-        RetireConnectionIdFrame* retireConnectionIdFrame();
-        PathChallengeFrame* pathChallengeFrame();
-        PathResponseFrame* pathResponseFrame();
-        ConnectionCloseFrame* connectionCloseFrame();
-        HandshakeDoneFrame* handshakeDoneFrame();
-        DatagramFrame* datagramFrame();
-        KnobFrame* knobFrame();
-        ImmediateAckFrame* immediateAckFrame();
-        AckFrequencyFrame* ackFrequencyFrame();
+        PaddingFrame* asPaddingFrame();
+        PingFrame* asPingFrame();
+        ReadAckFrame* asReadAckFrame();
+        WriteAckFrame* asWriteAckFrame();
+        RstStreamFrame* asRstStreamFrame();
+        StopSendingFrame* asStopSendingFrame();
+        ReadCryptoFrame* asReadCryptoFrame();
+        ReadNewTokenFrame* asReadNewTokenFrame();
+        ReadStreamFrame* asReadStreamFrame();
+        MaxDataFrame* asMaxDataFrame();
+        MaxStreamDataFrame* asMaxStreamDataFrame();
+        MaxStreamsFrame* asMaxStreamsFrame();
+        DataBlockedFrame* asDataBlockedFrame();
+        StreamDataBlockedFrame* asStreamDataBlockedFrame();
+        StreamsBlockedFrame* asStreamsBlockedFrame();
+        NewConnectionIdFrame* asNewConnectionIdFrame();
+        RetireConnectionIdFrame* asRetireConnectionIdFrame();
+        PathChallengeFrame* asPathChallengeFrame();
+        PathResponseFrame* asPathResponseFrame();
+        ConnectionCloseFrame* asConnectionCloseFrame();
+        HandshakeDoneFrame* asHandshakeDoneFrame();
+        DatagramFrame* asDatagramFrame();
+        KnobFrame* asKnobFrame();
+        ImmediateAckFrame* asImmediateAckFrame();
+        AckFrequencyFrame* asAckFrequencyFrame();
 
     private:
         void destroy() noexcept;

@@ -25,6 +25,25 @@ namespace{
 }
 
 namespace quic{
+    RegularQuicPacket decodeRegularPacket(PacketHeader&& header, const CodecParameters& params, std::unique_ptr<folly::IOBuf> packetData) {
+        RegularQuicPacket packet(std::move(header));
+        BufQueue queue;
+        queue.append(std::move(packetData));
+        if (UNLIKELY(queue.chainLength() == 0)) {
+            return packet;
+        }
+        // Parse out one packet before any conditionals.
+        packet.frames.push_back(parseFrame(queue, packet.header, params));
+        while (queue.chainLength() > 0) {
+            auto f = parseFrame(queue, packet.header, params);
+            if (packet.frames.back().asPaddingFrame() && f.asPaddingFrame()) {
+                packet.frames.back().asPaddingFrame()->numFrames++;
+            } else {
+                packet.frames.push_back(std::move(f));
+            }
+        }
+        return packet;
+    }
 
     QuicFrame parseFrame(BufQueue& queue, const PacketHeader& header, const CodecParameters& params) {
         folly::io::Cursor cursor(queue.front());

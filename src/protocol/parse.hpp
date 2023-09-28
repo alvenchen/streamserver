@@ -7,6 +7,7 @@
 #include "transport_settings.h"
 #include "quic_integer.h"
 #include "quic_type.hpp"
+#include "quic_packet.hpp"
 
 namespace quic{
 
@@ -28,6 +29,15 @@ namespace quic{
         CodecParameters(uint8_t peerAckDelayExponentIn, QuicVersion versionIn)
             : peerAckDelayExponent(peerAckDelayExponentIn), version(versionIn) {}
     };
+
+    
+    /**
+     * Decodes a single regular QUIC packet from the cursor.
+     * PacketData represents data from 1 QUIC packet.
+     * Throws with a QuicException if the data in the cursor is not a complete QUIC
+     * packet or the packet could not be decoded correctly.
+     */
+    RegularQuicPacket decodeRegularPacket(PacketHeader&& header, const CodecParameters& params, std::unique_ptr<folly::IOBuf> packetData);
 
 
     QuicFrame parseFrame(BufQueue& queue, const PacketHeader& header, const CodecParameters& params);

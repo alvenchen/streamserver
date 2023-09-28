@@ -376,175 +376,175 @@ namespace quic{
         return _type;
     }
 
-    PaddingFrame* QuicFrame::paddingFrame(){
+    PaddingFrame* QuicFrame::asPaddingFrame(){
         if(_type == QuicFrame::TYPE::PADDING_FRAME){
             return &padding;
         }
         return nullptr;
     }
 
-    PingFrame* QuicFrame::pingFrame(){
+    PingFrame* QuicFrame::asPingFrame(){
         if(_type == QuicFrame::TYPE::PING_FRAME){
             return &ping;
         }
         return nullptr;
     }
 
-    ReadAckFrame* QuicFrame::readAckFrame(){
+    ReadAckFrame* QuicFrame::asReadAckFrame(){
         if(_type == QuicFrame::TYPE::READ_ACK_FRAME){
             return &readAck;
         }
         return nullptr;
     }
 
-    WriteAckFrame* QuicFrame::writeAckFrame(){
+    WriteAckFrame* QuicFrame::asWriteAckFrame(){
         if(_type == QuicFrame::TYPE::WRITE_ACK_FRAME){
             return &writeAck;
         }
         return nullptr;
     }
 
-    RstStreamFrame* QuicFrame::rstStreamFrame(){
+    RstStreamFrame* QuicFrame::asRstStreamFrame(){
         if(_type == QuicFrame::TYPE::RST_STREAM_FRAME){
             return &rst;
         }
         return nullptr;
     }
 
-    StopSendingFrame* QuicFrame::stopSendingFrame(){
+    StopSendingFrame* QuicFrame::asStopSendingFrame(){
         if(_type == QuicFrame::TYPE::STOP_SENDING_FRAME){
             return &stopSend;
         }
         return nullptr;
     }
 
-    ReadCryptoFrame* QuicFrame::readCryptoFrame(){
+    ReadCryptoFrame* QuicFrame::asReadCryptoFrame(){
         if(_type == QuicFrame::TYPE::READ_CRYPTO_FRAME){
             return &readCrypto;
         }
         return nullptr;
     }
 
-    ReadNewTokenFrame* QuicFrame::readNewTokenFrame(){
+    ReadNewTokenFrame* QuicFrame::asReadNewTokenFrame(){
         if(_type == QuicFrame::TYPE::READ_NEW_TOKEN_FRAME){
             return &readNewToken;
         }
         return nullptr;
     }
     
-    ReadStreamFrame* QuicFrame::readStreamFrame(){
+    ReadStreamFrame* QuicFrame::asReadStreamFrame(){
         if(_type == QuicFrame::TYPE::READ_STREAM_FRAME){
             return &readStream;
         }
         return nullptr;
     }
 
-    MaxDataFrame* QuicFrame::maxDataFrame(){
+    MaxDataFrame* QuicFrame::asMaxDataFrame(){
         if(_type == QuicFrame::TYPE::MAX_DATA_FRAME){
             return &maxData;
         }
         return nullptr;
     }
 
-    MaxStreamDataFrame* QuicFrame::maxStreamDataFrame(){
+    MaxStreamDataFrame* QuicFrame::asMaxStreamDataFrame(){
         if(_type == QuicFrame::TYPE::MAX_STREAM_DATA_FRAME){
             return &maxStreamData;
         }
         return nullptr;
     }
 
-    MaxStreamsFrame* QuicFrame::maxStreamsFrame(){
+    MaxStreamsFrame* QuicFrame::asMaxStreamsFrame(){
         if(_type == QuicFrame::TYPE::MAX_STREAMS_FRAME){
             return &maxStreams;
         }
         return nullptr;
     }
 
-    DataBlockedFrame* QuicFrame::dataBlockedFrame(){
+    DataBlockedFrame* QuicFrame::asDataBlockedFrame(){
         if(_type == QuicFrame::TYPE::DATA_BLOCKED_FRAME){
             return &dataBlocked;
         }
         return nullptr;
     }
 
-    StreamDataBlockedFrame* QuicFrame::streamDataBlockedFrame(){
+    StreamDataBlockedFrame* QuicFrame::asStreamDataBlockedFrame(){
         if(_type == QuicFrame::TYPE::STREAM_DATA_BLOCKED_FRAME){
             return &streamDataBlocked;
         }
         return nullptr;
     }
 
-    StreamsBlockedFrame* QuicFrame::streamsBlockedFrame(){
+    StreamsBlockedFrame* QuicFrame::asStreamsBlockedFrame(){
         if(_type == QuicFrame::TYPE::STREAMS_BLOCKED_FRAME){
             return &streamsBlocked;
         }
         return nullptr;
     }
 
-    NewConnectionIdFrame* QuicFrame::newConnectionIdFrame(){
+    NewConnectionIdFrame* QuicFrame::asNewConnectionIdFrame(){
         if(_type == QuicFrame::TYPE::NEW_CONNECTION_ID_FRAME){
             return &newConnID;
         }
         return nullptr;
     }
 
-    RetireConnectionIdFrame* QuicFrame::retireConnectionIdFrame(){
+    RetireConnectionIdFrame* QuicFrame::asRetireConnectionIdFrame(){
         if(_type == QuicFrame::TYPE::RETIRE_CONNECTION_ID_FRAME){
             return &retireConnID;
         }
         return nullptr;
     }
 
-    PathChallengeFrame* QuicFrame::pathChallengeFrame(){
+    PathChallengeFrame* QuicFrame::asPathChallengeFrame(){
         if(_type == QuicFrame::TYPE::PATH_CHALLANGE_FRAME){
             return &pathChallenge;
         }
         return nullptr;
     }
 
-    PathResponseFrame* QuicFrame::pathResponseFrame(){
+    PathResponseFrame* QuicFrame::asPathResponseFrame(){
         if(_type == QuicFrame::TYPE::PATH_RESPONSE_FRAME){
             return &pathResponse;
         }
         return nullptr;
     }
 
-    ConnectionCloseFrame* QuicFrame::connectionCloseFrame(){
+    ConnectionCloseFrame* QuicFrame::asConnectionCloseFrame(){
         if(_type == QuicFrame::TYPE::CONNECTION_CLOSE_FRAME){
             return &connClose;
         }
         return nullptr;
     }
 
-    HandshakeDoneFrame* QuicFrame::handshakeDoneFrame(){
+    HandshakeDoneFrame* QuicFrame::asHandshakeDoneFrame(){
         if(_type == QuicFrame::TYPE::HANDSHAKE_DONE_FRAME){
             return &handshakeDone;
         }
         return nullptr;
     }
 
-    DatagramFrame* QuicFrame::datagramFrame(){
+    DatagramFrame* QuicFrame::asDatagramFrame(){
         if(_type == QuicFrame::TYPE::DATAGRAM_FRAME){
             return &datagram;
         }
         return nullptr;
     }
 
-    KnobFrame* QuicFrame::knobFrame(){
+    KnobFrame* QuicFrame::asKnobFrame(){
         if(_type == QuicFrame::TYPE::KNOB_FRAME){
             return &knob;
         }
         return nullptr;
     }
 
-    ImmediateAckFrame* QuicFrame::immediateAckFrame(){
+    ImmediateAckFrame* QuicFrame::asImmediateAckFrame(){
         if(_type == QuicFrame::TYPE::IMMEDIATE_ACK_FRAME){
             return &immAck;
         }
         return nullptr;
     }
 
-    AckFrequencyFrame* QuicFrame::ackFrequencyFrame(){
+    AckFrequencyFrame* QuicFrame::asAckFrequencyFrame(){
         if(_type == QuicFrame::TYPE::ACK_FREQUENCY_FRAME){
             return &ackFrequency;
         }
