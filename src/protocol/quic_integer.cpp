@@ -5,7 +5,7 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-#include "quic_integer.h"
+#include "quic_integer.hpp"
 #include "../common/common.hpp"
 
 namespace quic {

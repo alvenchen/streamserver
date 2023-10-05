@@ -683,4 +683,13 @@ namespace quic{
         }
         return adjustedDelay;
     }
+
+/*
+    parse header
+*/
+    size_t parsePacketNumberLength(uint8_t initialByte) {
+        static_assert(LongHeader::kPacketNumLenMask == ShortHeader::kPacketNumLenMask, "Expected both pn masks are the same");
+        return (initialByte & LongHeader::kPacketNumLenMask) + 1;
+    }
+
 }

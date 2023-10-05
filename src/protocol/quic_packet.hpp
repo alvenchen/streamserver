@@ -26,11 +26,10 @@ struct RegularPacket {
  * include 0-RTT, 1-RTT Phase 0 and 1-RTT Phase 1 packets.
  */
 struct RegularQuicPacket : public RegularPacket {
-    using Vec = SmallVec<QuicFrame>;
+    using Vec = SmallVec<QuicFrame, 4>;
     Vec frames;
 
     explicit RegularQuicPacket(PacketHeader&& headerIn) : RegularPacket(std::move(headerIn)) {
-        frames.reserve(4);
     }
 };
 

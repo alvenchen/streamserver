@@ -10,10 +10,11 @@
 #include "quic_exception.h"
 #include "quic_connection_id.hpp"
 #include "../common/BufUtil.h"
+#include "quic_header.hpp"
 
 namespace quic{
-    template <class T>
-    using SmallVec = std::vector<T>;
+    template <class T, size_t N>
+    using SmallVec = std::vector<T, N>;
 
     //Frame type
     struct PaddingFrame {
@@ -113,7 +114,7 @@ namespace quic{
         bool implicit{false};
         // Should have at least 1 block.
         // These are ordered in descending order by start packet.
-        using Vec = SmallVec<AckBlock>;
+        using Vec = SmallVec<AckBlock, kNumInitialAckBlocksPerFrame>;
         Vec ackBlocks;
         FrameType frameType = FrameType::ACK;
         std::optional<std::chrono::microseconds> maybeLatestRecvdPacketTime;

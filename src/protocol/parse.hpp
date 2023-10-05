@@ -5,7 +5,7 @@
 #include "quic_frame.hpp"
 #include "../common/BufUtil.h"
 #include "transport_settings.h"
-#include "quic_integer.h"
+#include "quic_integer.hpp"
 #include "quic_type.hpp"
 #include "quic_packet.hpp"
 
@@ -109,4 +109,12 @@ namespace quic{
     internal
 */
     uint64_t convertEncodedDurationToMicroseconds(FrameType frameType, uint8_t exponentToUse, uint64_t delay);
+
+
+/*
+    parse header
+*/
+    size_t parsePacketNumberLength(uint8_t initialByte);
+
+
 }
