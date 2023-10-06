@@ -6,10 +6,19 @@
 #include "quic_packet_num.hpp"
 #include "quic_constants.hpp"
 #include "../folly/io/Cursor.h"
-#include "quic_header.hpp"
 #include "quic_frame.hpp"
+#include "quic_header.hpp"
 
 namespace quic {
+
+struct RetryPacket {
+    RetryPacket(LongHeader&& longHeaderIn, Buf integrityTagIn, uint8_t initialByteIn)
+        : header(std::move(longHeaderIn)), integrityTag(std::move(integrityTagIn)), initialByte(initialByteIn) {}
+
+    LongHeader header;
+    Buf integrityTag;
+    uint8_t initialByte;
+};
 
 struct RegularPacket {
     PacketHeader header;
@@ -33,6 +42,16 @@ struct RegularQuicPacket : public RegularPacket {
     }
 };
 
+struct VersionNegotiationPacket {
+    uint8_t packetType;
+    ConnectionId sourceConnectionId;
+    ConnectionId destinationConnectionId;
+    std::vector<QuicVersion> versions;
+
+    VersionNegotiationPacket(uint8_t packetTypeIn, ConnectionId sourceConnectionIdIn, ConnectionId destinationConnectionIdIn)
+        : packetType(packetTypeIn), sourceConnectionId(sourceConnectionIdIn), destinationConnectionId(destinationConnectionIdIn) {
+    }
+};
 
 
 }

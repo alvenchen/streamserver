@@ -7,6 +7,7 @@
 #include "quic_packet_num.hpp"
 #include "quic.hpp"
 #include "quic_frame.hpp"
+#include "quic_connection_id.hpp"
 
 namespace quic{
     
@@ -41,5 +42,11 @@ private:
     uint8_t field_;
 };
 
+struct StatelessReset {
+    StatelessResetToken token;
+
+    explicit StatelessReset(StatelessResetToken tokenIn)
+        : token(std::move(tokenIn)) {}
+};
 
 } // namespace quic

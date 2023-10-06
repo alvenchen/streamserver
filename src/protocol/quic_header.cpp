@@ -55,19 +55,6 @@ ProtectionType LongHeader::getProtectionType() const {
     return longHeaderTypeToProtectionType(getHeaderType());
 }
 
-ProtectionType longHeaderTypeToProtectionType(
-    LongHeader::Types longHeaderType) {
-    switch (longHeaderType) {
-        case LongHeader::Types::Initial:
-        case LongHeader::Types::Retry:
-            return ProtectionType::Initial;
-        case LongHeader::Types::Handshake:
-            return ProtectionType::Handshake;
-        case LongHeader::Types::ZeroRtt:
-            return ProtectionType::ZeroRtt;
-    }
-}
-
 
 /*short header*/
 ShortHeaderInvariant::ShortHeaderInvariant(ConnectionId dcid)
@@ -103,7 +90,6 @@ const ConnectionId& ShortHeader::getConnectionId() const {
 void ShortHeader::setPacketNumber(PacketNum packetNum) {
     packetSequenceNum_ = packetNum;
 }
-
 
 
 
@@ -244,7 +230,134 @@ ProtectionType PacketHeader::getProtectionType() const {
 }
 
 
+/*
+    function
+*/
+LongHeader::Types parseLongHeaderType(uint8_t initialByte) {
+    return static_cast<LongHeader::Types>((initialByte & LongHeader::kPacketTypeMask) >> LongHeader::kTypeShift);
+}
+
+folly::Expected<ParsedLongHeaderInvariant, TransportErrorCode> parseLongHeaderInvariant(uint8_t initialByte, folly::io::Cursor& cursor) {
+    size_t initialLength = cursor.totalLength();
+    if (!cursor.canAdvance(sizeof(QuicVersionType))) {
+        return folly::makeUnexpected(TransportErrorCode::FRAME_ENCODING_ERROR);
+    }
+    auto version = static_cast<QuicVersion>(cursor.readBE<QuicVersionType>());
+    if (!cursor.canAdvance(1)) {
+        return folly::makeUnexpected(TransportErrorCode::FRAME_ENCODING_ERROR);
+    }
+    uint8_t destConnIdLen = cursor.readBE<uint8_t>();
+    if (destConnIdLen > kMaxConnectionIdSize) {
+        return folly::makeUnexpected(TransportErrorCode::PROTOCOL_VIOLATION);
+    }
+    if (!cursor.canAdvance(destConnIdLen)) {
+        return folly::makeUnexpected(TransportErrorCode::FRAME_ENCODING_ERROR);
+    }
+    ConnectionId destConnId(cursor, destConnIdLen);
+    if (!cursor.canAdvance(1)) {
+        return folly::makeUnexpected(TransportErrorCode::FRAME_ENCODING_ERROR);
+    }
+    uint8_t srcConnIdLen = cursor.readBE<uint8_t>();
+    if (srcConnIdLen > kMaxConnectionIdSize) {
+        return folly::makeUnexpected(TransportErrorCode::PROTOCOL_VIOLATION);
+    }
+    if (!cursor.canAdvance(srcConnIdLen)) {
+        return folly::makeUnexpected(TransportErrorCode::FRAME_ENCODING_ERROR);
+    }
+    ConnectionId srcConnId(cursor, srcConnIdLen);
+    size_t currentLength = cursor.totalLength();
+    size_t bytesRead = initialLength - currentLength;
+ 
+    return ParsedLongHeaderInvariant(initialByte, LongHeaderInvariant(version, std::move(srcConnId), std::move(destConnId)), bytesRead);
+}
+
+folly::Expected<ParsedLongHeader, TransportErrorCode> parseLongHeaderVariants(LongHeader::Types type,
+    ParsedLongHeaderInvariant parsedLongHeaderInvariant, folly::io::Cursor& cursor, QuicNodeType nodeType) {
+    
+    if (type == LongHeader::Types::Retry) {
+        // The integrity tag is kRetryIntegrityTagLen bytes in length, and the
+        // token must be at least one byte, so the remaining length must
+        // be > kRetryIntegrityTagLen.
+        if (cursor.totalLength() <= kRetryIntegrityTagLen) {
+            return folly::makeUnexpected(TransportErrorCode::FRAME_ENCODING_ERROR);
+        }
+
+        Buf token;
+        cursor.clone(token, cursor.totalLength() - kRetryIntegrityTagLen);
+
+        return ParsedLongHeader(LongHeader(type, std::move(parsedLongHeaderInvariant.invariant), 
+            token ? token->moveToFbString().toStdString() : std::string()), PacketLength(0, 0));
+    }
+
+    // TODO Checking kMinInitialDestinationConnIdLength isn't necessary
+    // if this packet is in response to a retry.
+    if (type == LongHeader::Types::Initial && nodeType == QuicNodeType::Server &&
+        parsedLongHeaderInvariant.invariant.dstConnId.size() < kMinInitialDestinationConnIdLength) {
+
+        return folly::makeUnexpected(TransportErrorCode::FRAME_ENCODING_ERROR);
+    }
+
+    Buf token;
+    if (type == LongHeader::Types::Initial) {
+        auto tokenLen = decodeQuicInteger(cursor);
+        if (!tokenLen) {
+            return folly::makeUnexpected(TransportErrorCode::FRAME_ENCODING_ERROR);
+        }
+        if (!cursor.canAdvance(tokenLen->first)) {
+            return folly::makeUnexpected(TransportErrorCode::FRAME_ENCODING_ERROR);
+        }
+
+        if (tokenLen->first > 0) {
+            Buf tokenBuf;
+            // If tokenLen > token's actual length then the cursor will throw.
+            cursor.clone(tokenBuf, tokenLen->first);
+            token = std::move(tokenBuf);
+        }
+    }
+    auto pktLen = decodeQuicInteger(cursor);
+    if (!pktLen) {
+        return folly::makeUnexpected(TransportErrorCode::FRAME_ENCODING_ERROR);
+    }
+    if (!cursor.canAdvance(pktLen->first)) {
+        return folly::makeUnexpected(TransportErrorCode::FRAME_ENCODING_ERROR);
+    }
+    size_t packetNumLen = parsePacketNumberLength(parsedLongHeaderInvariant.initialByte);
+    if (!cursor.canAdvance(packetNumLen)) {
+        return folly::makeUnexpected(TransportErrorCode::FRAME_ENCODING_ERROR);
+    }
+    if (packetNumLen > kMaxPacketNumEncodingSize) {
+        return folly::makeUnexpected(TransportErrorCode::FRAME_ENCODING_ERROR);
+    }
+    return ParsedLongHeader(LongHeader(type, std::move(parsedLongHeaderInvariant.invariant), 
+        token ? token->moveToFbString().toStdString() : std::string()), PacketLength(pktLen->first, pktLen->second));
+}
 
 
+ProtectionType longHeaderTypeToProtectionType(
+    LongHeader::Types longHeaderType) {
+    switch (longHeaderType) {
+        case LongHeader::Types::Initial:
+        case LongHeader::Types::Retry:
+            return ProtectionType::Initial;
+        case LongHeader::Types::Handshake:
+            return ProtectionType::Handshake;
+        case LongHeader::Types::ZeroRtt:
+            return ProtectionType::ZeroRtt;
+    }
+}
+
+PacketNumberSpace protectionTypeToPacketNumberSpace(ProtectionType protectionType) {
+    switch (protectionType) {
+        case ProtectionType::Initial:
+            return PacketNumberSpace::Initial;
+        case ProtectionType::Handshake:
+            return PacketNumberSpace::Handshake;
+        case ProtectionType::ZeroRtt:
+        case ProtectionType::KeyPhaseZero:
+        case ProtectionType::KeyPhaseOne:
+            return PacketNumberSpace::AppData;
+    }
+    folly::assume_unreachable();
+}
 
 }

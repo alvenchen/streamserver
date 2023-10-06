@@ -45,6 +45,18 @@ namespace quic{
         return packet;
     }
 
+    folly::Optional<VersionNegotiationPacket> decodeVersionNegotiation(const ParsedLongHeaderInvariant& longHeaderInvariant, folly::io::Cursor& cursor) {
+        auto cursorLength = cursor.totalLength();
+        if (cursorLength < sizeof(QuicVersionType) || cursorLength % sizeof(QuicVersionType)) {
+            return folly::none;
+        }
+        VersionNegotiationPacket packet(longHeaderInvariant.initialByte, longHeaderInvariant.invariant.srcConnId, longHeaderInvariant.invariant.dstConnId);
+        while (!cursor.isAtEnd()) {
+            packet.versions.push_back(static_cast<QuicVersion>(cursor.readBE<QuicVersionType>()));
+        }
+        return packet;
+    }
+
     QuicFrame parseFrame(BufQueue& queue, const PacketHeader& header, const CodecParameters& params) {
         folly::io::Cursor cursor(queue.front());
         auto frameTypeInt = decodeQuicInteger(cursor);
@@ -156,7 +168,7 @@ namespace quic{
         }
         error = true;
 
-        throw QuicTransportException(folly::to<std::string>("Unknown frame, type=", frameTypeInt->first),TransportErrorCode::FRAME_ENCODING_ERROR,frameType);
+        throw QuicTransportException(fmt::format("Frame format invalid, type={}",frameTypeInt->first),TransportErrorCode::FRAME_ENCODING_ERROR,frameType);
     }
 
     PaddingFrame decodePaddingFrame(folly::io::Cursor& cursor) {
@@ -691,5 +703,58 @@ namespace quic{
         static_assert(LongHeader::kPacketNumLenMask == ShortHeader::kPacketNumLenMask, "Expected both pn masks are the same");
         return (initialByte & LongHeader::kPacketNumLenMask) + 1;
     }
+
+    
+/**
+ * Returns the packet number and the length of the packet number
+ */
+std::pair<PacketNum, size_t> parsePacketNumber(uint8_t initialByte, folly::ByteRange packetNumberRange, PacketNum expectedNextPacketNum) {
+    size_t packetNumLen = parsePacketNumberLength(initialByte);
+    uint32_t encodedPacketNum = 0;
+    memcpy(reinterpret_cast<char*>(&encodedPacketNum) + sizeof(uint32_t) - packetNumLen, packetNumberRange.data(), packetNumLen);
+    uint32_t bigEncodedPacketNum = folly::Endian::big(encodedPacketNum);
+
+    return std::make_pair(decodePacketNumber(bigEncodedPacketNum, packetNumLen, expectedNextPacketNum), packetNumLen);
+}
+
+folly::Expected<ShortHeaderInvariant, TransportErrorCode>parseShortHeaderInvariants(uint8_t initialByte, folly::io::Cursor& cursor, size_t dstConnIdSize) {
+    if (getHeaderForm(initialByte) != HeaderForm::Short) {
+        return folly::makeUnexpected(TransportErrorCode::FRAME_ENCODING_ERROR);
+    }
+    // TODO(t39154014, yangchi): read the length from the connection state in
+    // draft-17
+    if (dstConnIdSize > kMaxConnectionIdSize) {
+        return folly::makeUnexpected(TransportErrorCode::PROTOCOL_VIOLATION);
+    }
+    if (!cursor.canAdvance(dstConnIdSize)) {
+        return folly::makeUnexpected(TransportErrorCode::FRAME_ENCODING_ERROR);
+    }
+    ConnectionId connId(cursor, dstConnIdSize);
+    
+    return ShortHeaderInvariant(std::move(connId));
+}
+
+
+folly::Expected<ShortHeader, TransportErrorCode> parseShortHeader(uint8_t initialByte, folly::io::Cursor& cursor, size_t dstConnIdSize) {
+    if (getHeaderForm(initialByte) != HeaderForm::Short) {
+        return folly::makeUnexpected(TransportErrorCode::FRAME_ENCODING_ERROR);
+    }
+    if (!(initialByte & ShortHeader::kFixedBitMask)) {
+        // Specs doesn't say which error code to use
+        return folly::makeUnexpected(TransportErrorCode::FRAME_ENCODING_ERROR);
+    }
+    if (initialByte & ShortHeader::kReservedBitsMask) {
+        // Specs asks this to be PROTOCOL_VIOLATION
+        return folly::makeUnexpected(TransportErrorCode::PROTOCOL_VIOLATION);
+    }
+    auto invariant = parseShortHeaderInvariants(initialByte, cursor, dstConnIdSize);
+    if (!invariant) {
+        return folly::makeUnexpected(TransportErrorCode::FRAME_ENCODING_ERROR);
+    }
+    auto protectionType = initialByte & ShortHeader::kKeyPhaseMask ? ProtectionType::KeyPhaseOne : ProtectionType::KeyPhaseZero;
+    
+    return ShortHeader(protectionType, std::move(invariant->destinationConnId));
+}
+
 
 }

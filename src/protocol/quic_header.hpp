@@ -9,7 +9,9 @@
 #include "quic_connection_id.hpp"
 #include "quic_packet_num.hpp"
 #include "quic_constants.hpp"
+#include "parse.hpp"
 #include "../folly/io/Cursor.h"
+#include "../folly/Expected.h"
 
 namespace quic {
 
@@ -229,7 +231,44 @@ private:
     HeaderForm headerForm_;
 };
 
+struct PacketLength {
+    // The length of the packet payload (including packet number)
+    uint64_t packetLength;
+    // Length of the length field.
+    size_t lengthLength;
 
+    PacketLength(uint64_t packetLengthIn, size_t lengthLengthIn) : packetLength(packetLengthIn), lengthLength(lengthLengthIn) {
+    }
+};
 
+struct ParsedLongHeader {
+    LongHeader header;
+    PacketLength packetLength;
 
-}
+    ParsedLongHeader(LongHeader headerIn, PacketLength packetLengthIn)
+        : header(std::move(headerIn)), packetLength(packetLengthIn) {}
+};
+
+struct ParsedLongHeaderResult {
+    bool isVersionNegotiation;
+    folly::Optional<ParsedLongHeader> parsedLongHeader;
+
+    ParsedLongHeaderResult(bool isVersionNegotiationIn, folly::Optional<ParsedLongHeader> parsedLongHeaderIn)
+        : isVersionNegotiation(isVersionNegotiationIn), parsedLongHeader(std::move(parsedLongHeaderIn)){
+    }
+};
+
+/*
+    function
+*/
+LongHeader::Types parseLongHeaderType(uint8_t initialByte);
+
+folly::Expected<ParsedLongHeaderInvariant, TransportErrorCode> parseLongHeaderInvariant(uint8_t initalByte, folly::io::Cursor& cursor);
+
+// nodeType: Determine if we allow 0-len dst connection ids.
+folly::Expected<ParsedLongHeader, TransportErrorCode> parseLongHeaderVariants(LongHeader::Types type, ParsedLongHeaderInvariant longHeaderInvariant, folly::io::Cursor& cursor, QuicNodeType nodeType = QuicNodeType::Server);
+
+ProtectionType longHeaderTypeToProtectionType(LongHeader::Types type);
+PacketNumberSpace protectionTypeToPacketNumberSpace(ProtectionType type);
+
+} // namesoace quic

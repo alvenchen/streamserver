@@ -30,6 +30,16 @@ namespace quic{
             : peerAckDelayExponent(peerAckDelayExponentIn), version(versionIn) {}
     };
 
+    struct ParsedLongHeaderInvariant {
+        uint8_t initialByte;
+        LongHeaderInvariant invariant;
+        size_t invariantLength;
+
+        ParsedLongHeaderInvariant(uint8_t initialByteIn, LongHeaderInvariant headerInvariant, size_t length)
+            :initialByte(initialByteIn), invariant(std::move(headerInvariant)), invariantLength(length){
+        }
+     };
+
     
     /**
      * Decodes a single regular QUIC packet from the cursor.
@@ -39,6 +49,11 @@ namespace quic{
      */
     RegularQuicPacket decodeRegularPacket(PacketHeader&& header, const CodecParameters& params, std::unique_ptr<folly::IOBuf> packetData);
 
+    /**
+     * Decodes a version negotiation packet. Returns a folly::none, if it cannot
+     * decode the packet.
+     */
+    folly::Optional<VersionNegotiationPacket> decodeVersionNegotiation(const ParsedLongHeaderInvariant& longHeaderInvariant, folly::io::Cursor& cursor);
 
     QuicFrame parseFrame(BufQueue& queue, const PacketHeader& header, const CodecParameters& params);
 
@@ -116,5 +131,13 @@ namespace quic{
 */
     size_t parsePacketNumberLength(uint8_t initialByte);
 
+    /**
+     * Returns the packet number and the length of the packet number.
+     * packetNumberRange should be kMaxPacketNumEncodingSize size.
+     */
+    std::pair<PacketNum, size_t> parsePacketNumber(uint8_t initialByte, folly::ByteRange packetNumberRange, PacketNum expectedNextPacketNum);
 
+    folly::Expected<ShortHeaderInvariant, TransportErrorCode> parseShortHeaderInvariants(uint8_t initialByte, folly::io::Cursor& cursor, size_t dstConnIdSize = kDefaultConnectionIdSize);
+
+    folly::Expected<ShortHeader, TransportErrorCode> parseShortHeader(uint8_t initialByte, folly::io::Cursor& cursor, size_t dstConnIdSize = kDefaultConnectionIdSize);
 }

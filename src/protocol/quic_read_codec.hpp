@@ -18,8 +18,8 @@
 
 #include "quic_packet_num_cipher.hpp"
 #include "../common/BufUtil.h"
-#include <quic/handshake/Aead.h>
-#include <quic/state/AckStates.h>
+#include "Aead.hpp"
+#include "quic_ack.hpp"
 
 namespace quic {
 
@@ -79,7 +79,7 @@ struct CodecResult {
         Nothing none;
     };
 
-    Type type_;
+    Type _type;
 };
 
 /**
@@ -158,26 +158,26 @@ class QuicReadCodec {
 
     [[nodiscard]] std::string connIdToHex() const;
 
-    QuicNodeType nodeType_;
+    QuicNodeType _nodeType;
 
-    CodecParameters params_;
-    folly::Optional<ConnectionId> clientConnectionId_;
-    folly::Optional<ConnectionId> serverConnectionId_;
+    CodecParameters _params;
+    folly::Optional<ConnectionId> _clientConnectionId;
+    folly::Optional<ConnectionId> _serverConnectionId;
 
     // Cipher used to decrypt handshake packets.
-    std::unique_ptr<Aead> initialReadCipher_;
+    std::unique_ptr<Aead> _initialReadCipher;
 
-    std::unique_ptr<Aead> oneRttReadCipher_;
-    std::unique_ptr<Aead> zeroRttReadCipher_;
-    std::unique_ptr<Aead> handshakeReadCipher_;
+    std::unique_ptr<Aead> _oneRttReadCipher;
+    std::unique_ptr<Aead> _zeroRttReadCipher;
+    std::unique_ptr<Aead> _handshakeReadCipher;
 
-    std::unique_ptr<PacketNumberCipher> initialHeaderCipher_;
-    std::unique_ptr<PacketNumberCipher> oneRttHeaderCipher_;
-    std::unique_ptr<PacketNumberCipher> zeroRttHeaderCipher_;
-    std::unique_ptr<PacketNumberCipher> handshakeHeaderCipher_;
+    std::unique_ptr<PacketNumberCipher> _initialHeaderCipher;
+    std::unique_ptr<PacketNumberCipher> _oneRttHeaderCipher;
+    std::unique_ptr<PacketNumberCipher> _zeroRttHeaderCipher;
+    std::unique_ptr<PacketNumberCipher> _handshakeHeaderCipher;
 
-    folly::Optional<StatelessResetToken> statelessResetToken_;
-    folly::Optional<TimePoint> handshakeDoneTime_;
+    folly::Optional<StatelessResetToken> _statelessResetToken;
+    folly::Optional<TimePoint> _handshakeDoneTime;
 };
 
 } // namespace quic

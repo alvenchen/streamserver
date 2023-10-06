@@ -9,6 +9,10 @@ constexpr size_t kMaxConnectionIdSize = 20;
 constexpr uint8_t kStatelessResetTokenLength = 16;
 using StatelessResetToken = std::array<uint8_t, kStatelessResetTokenLength>;
 
+// Minimum required length (in bytes) for the destination connection-id
+// on inbound initial packets.
+constexpr size_t kMinInitialDestinationConnIdLength = 8;
+
 struct ConnectionId {
     explicit ConnectionId(const std::vector<uint8_t>& connidIn);
     explicit ConnectionId(folly::io::Cursor& cursor, size_t len);
