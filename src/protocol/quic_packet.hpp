@@ -5,11 +5,17 @@
 #include "quic_connection_id.hpp"
 #include "quic_packet_num.hpp"
 #include "quic_constants.hpp"
-#include "../folly/io/Cursor.h"
 #include "quic_frame.hpp"
 #include "quic_header.hpp"
 
 namespace quic {
+
+struct RegularPacket {
+    PacketHeader header;
+
+    explicit RegularPacket(PacketHeader&& headerIn)
+      : header(std::move(headerIn)) {}
+};
 
 struct RetryPacket {
     RetryPacket(LongHeader&& longHeaderIn, Buf integrityTagIn, uint8_t initialByteIn)
@@ -20,12 +26,6 @@ struct RetryPacket {
     uint8_t initialByte;
 };
 
-struct RegularPacket {
-    PacketHeader header;
-
-    explicit RegularPacket(PacketHeader&& headerIn)
-      : header(std::move(headerIn)) {}
-};
 
 /**
  * A representation of a regular packet that is read from the network.
@@ -52,6 +52,5 @@ struct VersionNegotiationPacket {
         : packetType(packetTypeIn), sourceConnectionId(sourceConnectionIdIn), destinationConnectionId(destinationConnectionIdIn) {
     }
 };
-
 
 }

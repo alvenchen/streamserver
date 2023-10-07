@@ -3,6 +3,7 @@
 #include <optional>
 #include "../common/common.hpp"
 #include "quic_constants.hpp"
+#include "quic_header.hpp"
 #include "quic_packet_num.hpp"
 #include <common/IntervalSet.h>
 #include "quic.hpp"
@@ -10,7 +11,7 @@
 #include "quic_exception.h"
 #include "quic_connection_id.hpp"
 #include "../common/BufUtil.h"
-#include "quic_header.hpp"
+
 
 namespace quic{
     template <class T, size_t N>
@@ -122,7 +123,7 @@ namespace quic{
         bool implicit{false};
         // Should have at least 1 block.
         // These are ordered in descending order by start packet.
-        using Vec = SmallVec<AckBlock, kNumInitialAckBlocksPerFrame>;
+        using Vec = SmallVec<AckBlock, 32>;
         Vec ackBlocks;
         FrameType frameType = FrameType::ACK;
         std::optional<std::chrono::microseconds> maybeLatestRecvdPacketTime;
@@ -163,7 +164,6 @@ namespace quic{
         }
     };
 
-    using Buf = std::unique_ptr<folly::IOBuf>;
     struct ReadCryptoFrame {
         uint64_t offset;
         Buf data;

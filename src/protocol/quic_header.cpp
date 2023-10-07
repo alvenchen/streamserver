@@ -238,8 +238,7 @@ LongHeader::Types parseLongHeaderType(uint8_t initialByte) {
 }
 
 
-ProtectionType longHeaderTypeToProtectionType(
-    LongHeader::Types longHeaderType) {
+ProtectionType longHeaderTypeToProtectionType(LongHeader::Types longHeaderType) {
     switch (longHeaderType) {
         case LongHeader::Types::Initial:
         case LongHeader::Types::Retry:

@@ -12,6 +12,7 @@
 #include "parse.hpp"
 #include "../folly/io/Cursor.h"
 #include "../folly/Expected.h"
+#include "../common/BufUtil.h"
 
 namespace quic {
 
@@ -258,6 +259,10 @@ struct ParsedLongHeaderResult {
     }
 };
 
+
+
+
+
 /*
     function
 */
@@ -266,4 +271,4 @@ LongHeader::Types parseLongHeaderType(uint8_t initialByte);
 ProtectionType longHeaderTypeToProtectionType(LongHeader::Types type);
 PacketNumberSpace protectionTypeToPacketNumberSpace(ProtectionType type);
 
-} // namesoace quic
+} // namespace quic
