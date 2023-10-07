@@ -52,6 +52,7 @@ std::string ConnectionId::Hex() const{
     std::string output;
     
     output.resize(2 * _connIDLen);
+    size_t j = 0;
     for (size_t i = 0; i < _connIDLen; ++i) {
         int ch = _connID[i];
         output[j++] = hexValues[(ch >> 4) & 0xf];
