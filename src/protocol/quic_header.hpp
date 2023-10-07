@@ -263,11 +263,6 @@ struct ParsedLongHeaderResult {
 */
 LongHeader::Types parseLongHeaderType(uint8_t initialByte);
 
-folly::Expected<ParsedLongHeaderInvariant, TransportErrorCode> parseLongHeaderInvariant(uint8_t initialByte, folly::io::Cursor& cursor);
-
-// nodeType: Determine if we allow 0-len dst connection ids.
-folly::Expected<ParsedLongHeader, TransportErrorCode> parseLongHeaderVariants(LongHeader::Types type, ParsedLongHeaderInvariant longHeaderInvariant, folly::io::Cursor& cursor, QuicNodeType nodeType = QuicNodeType::Server);
-
 ProtectionType longHeaderTypeToProtectionType(LongHeader::Types type);
 PacketNumberSpace protectionTypeToPacketNumberSpace(ProtectionType type);
 

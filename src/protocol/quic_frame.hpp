@@ -14,7 +14,7 @@
 
 namespace quic{
     template <class T, size_t N>
-    using SmallVec = std::vector<T, N>;
+    using SmallVec = std::vector<T>;
 
     /**
      * Info stored on receipt of a packet for use in subsequent ACK.
