@@ -23,7 +23,7 @@ struct ConnectionId {
 
     uint8_t* data();
     uint8_t size() const;    
-    //std::string Hex() const;
+    std::string Hex() const;
 
     /**
      * Create an connection without any checks for tests.

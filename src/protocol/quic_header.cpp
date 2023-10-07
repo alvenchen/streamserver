@@ -94,18 +94,18 @@ void ShortHeader::setPacketNumber(PacketNum packetNum) {
 
 
 PacketHeader::PacketHeader(ShortHeader&& shortHeaderIn)
-    : headerForm_(HeaderForm::Short) {
+    : _headerForm(HeaderForm::Short) {
     new (&shortHeader) ShortHeader(std::move(shortHeaderIn));
 }
 
 PacketHeader::PacketHeader(LongHeader&& longHeaderIn)
-    : headerForm_(HeaderForm::Long) {
+    : _headerForm(HeaderForm::Long) {
     new (&longHeader) LongHeader(std::move(longHeaderIn));
 }
 
 PacketHeader::PacketHeader(const PacketHeader& other)
-    : headerForm_(other.headerForm_) {
-    switch (other.headerForm_) {
+    : _headerForm(other._headerForm) {
+    switch (other._headerForm) {
         case HeaderForm::Long:
             new (&longHeader) LongHeader(other.longHeader);
             break;
@@ -116,8 +116,8 @@ PacketHeader::PacketHeader(const PacketHeader& other)
 }
 
 PacketHeader::PacketHeader(PacketHeader&& other) noexcept
-    : headerForm_(other.headerForm_) {
-    switch (other.headerForm_) {
+    : _headerForm(other._headerForm) {
+    switch (other._headerForm) {
         case HeaderForm::Long:
             new (&longHeader) LongHeader(std::move(other.longHeader));
             break;
@@ -129,7 +129,7 @@ PacketHeader::PacketHeader(PacketHeader&& other) noexcept
 
 PacketHeader& PacketHeader::operator=(PacketHeader&& other) noexcept {
     destroyHeader();
-    switch (other.headerForm_) {
+    switch (other._headerForm) {
         case HeaderForm::Long:
             new (&longHeader) LongHeader(std::move(other.longHeader));
             break;
@@ -137,13 +137,13 @@ PacketHeader& PacketHeader::operator=(PacketHeader&& other) noexcept {
             new (&shortHeader) ShortHeader(std::move(other.shortHeader));
             break;
     }
-    headerForm_ = other.headerForm_;
+    _headerForm = other._headerForm;
     return *this;
 }
 
 PacketHeader& PacketHeader::operator=(const PacketHeader& other) {
     destroyHeader();
-    switch (other.headerForm_) {
+    switch (other._headerForm) {
         case HeaderForm::Long:
             new (&longHeader) LongHeader(other.longHeader);
             break;
@@ -151,7 +151,7 @@ PacketHeader& PacketHeader::operator=(const PacketHeader& other) {
             new (&shortHeader) ShortHeader(other.shortHeader);
             break;
     }
-    headerForm_ = other.headerForm_;
+    _headerForm = other._headerForm;
     return *this;
 }
 
@@ -160,7 +160,7 @@ PacketHeader::~PacketHeader() {
 }
 
 void PacketHeader::destroyHeader() {
-    switch (headerForm_) {
+    switch (_headerForm) {
         case HeaderForm::Long:
             longHeader.~LongHeader();
             break;
@@ -171,7 +171,7 @@ void PacketHeader::destroyHeader() {
 }
 
 LongHeader* PacketHeader::asLong() {
-    switch (headerForm_) {
+    switch (_headerForm) {
         case HeaderForm::Long:
             return &longHeader;
         case HeaderForm::Short:
@@ -182,7 +182,7 @@ LongHeader* PacketHeader::asLong() {
 }
 
 ShortHeader* PacketHeader::asShort() {
-    switch (headerForm_) {
+    switch (_headerForm) {
         case HeaderForm::Long:
             return nullptr;
         case HeaderForm::Short:
@@ -193,7 +193,7 @@ ShortHeader* PacketHeader::asShort() {
 }
 
 const LongHeader* PacketHeader::asLong() const {
-    switch (headerForm_) {
+    switch (_headerForm) {
         case HeaderForm::Long:
             return &longHeader;
         case HeaderForm::Short:
@@ -204,7 +204,7 @@ const LongHeader* PacketHeader::asLong() const {
 }
 
 const ShortHeader* PacketHeader::asShort() const {
-    switch (headerForm_) {
+    switch (_headerForm) {
         case HeaderForm::Long:
             return nullptr;
         case HeaderForm::Short:
@@ -215,11 +215,11 @@ const ShortHeader* PacketHeader::asShort() const {
 }
 
 HeaderForm PacketHeader::getHeaderForm() const {
-    return headerForm_;
+    return _headerForm;
 }
 
 ProtectionType PacketHeader::getProtectionType() const {
-    switch (headerForm_) {
+    switch (_headerForm) {
         case HeaderForm::Long:
             return longHeader.getProtectionType();
         case HeaderForm::Short:

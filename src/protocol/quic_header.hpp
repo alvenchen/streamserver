@@ -197,7 +197,7 @@ struct PacketHeader {
 
     // Note this is defined in the header so it is inlined for performance.
     PacketNum getPacketSequenceNum() const {
-        switch (headerForm_) {
+        switch (_headerForm) {
             case HeaderForm::Long:
             return longHeader.getPacketSequenceNum();
             case HeaderForm::Short:
@@ -210,7 +210,7 @@ struct PacketHeader {
     ProtectionType getProtectionType() const;
     // Note this is defined in the header so it is inlined for performance.
     PacketNumberSpace getPacketNumberSpace() const {
-        switch (headerForm_) {
+        switch (_headerForm) {
             case HeaderForm::Long:
             return longHeader.getPacketNumberSpace();
             case HeaderForm::Short:
@@ -228,7 +228,7 @@ private:
         ShortHeader shortHeader;
     };
 
-    HeaderForm headerForm_;
+    HeaderForm _headerForm;
 };
 
 struct PacketLength {
@@ -263,7 +263,7 @@ struct ParsedLongHeaderResult {
 */
 LongHeader::Types parseLongHeaderType(uint8_t initialByte);
 
-folly::Expected<ParsedLongHeaderInvariant, TransportErrorCode> parseLongHeaderInvariant(uint8_t initalByte, folly::io::Cursor& cursor);
+folly::Expected<ParsedLongHeaderInvariant, TransportErrorCode> parseLongHeaderInvariant(uint8_t initialByte, folly::io::Cursor& cursor);
 
 // nodeType: Determine if we allow 0-len dst connection ids.
 folly::Expected<ParsedLongHeader, TransportErrorCode> parseLongHeaderVariants(LongHeader::Types type, ParsedLongHeaderInvariant longHeaderInvariant, folly::io::Cursor& cursor, QuicNodeType nodeType = QuicNodeType::Server);

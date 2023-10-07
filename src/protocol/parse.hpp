@@ -47,7 +47,7 @@ namespace quic{
      * Throws with a QuicException if the data in the cursor is not a complete QUIC
      * packet or the packet could not be decoded correctly.
      */
-    RegularQuicPacket decodeRegularPacket(PacketHeader&& header, const CodecParameters& params, std::unique_ptr<folly::IOBuf> packetData);
+    RegularQuicPacket decodeRegularPacket(PacketHeader &&header, const CodecParameters &params, std::unique_ptr<folly::IOBuf> packetData);
 
     /**
      * Decodes a version negotiation packet. Returns a folly::none, if it cannot

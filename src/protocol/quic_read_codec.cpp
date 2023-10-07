@@ -13,6 +13,7 @@
 #include "quic_packet.hpp"
 #include "quic_header.hpp"
 #include "quic_ack.hpp"
+#include "../fizz/crypto/Utils.h"
 
 namespace {
     quic::ConnectionId zeroConnId() {
@@ -428,7 +429,7 @@ std::string QuicReadCodec::connIdToHex() const {
     const auto& serverId = _serverConnectionId.value_or(zeroConn);
     const auto& clientId = _clientConnectionId.value_or(zeroConn);
 
-    return folly::to<std::string>("server=", serverId.hex(), " ", "client=", clientId.hex());
+    return fmt::format("server=%s client=%s", serverId.Hex(), clientId.Hex());
 }
 
 CodecResult::CodecResult(RegularQuicPacket&& regularPacketIn)
