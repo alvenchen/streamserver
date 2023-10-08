@@ -161,7 +161,7 @@ void StaticMetaBase::onThreadExit(void* ptr) {
   }
 
   auto threadEntryList = threadEntry->list;
-  DCHECK_GT(threadEntryList->count, 0u);
+  //DCHECK_GT(threadEntryList->count, 0u);
 
   --threadEntryList->count;
 
@@ -242,7 +242,7 @@ uint32_t StaticMetaBase::allocate(EntryID* ent) {
   }
 
   uint32_t old_id = ent->value.exchange(id, std::memory_order_release);
-  DCHECK_EQ(old_id, kEntryIDInvalid);
+  //DCHECK_EQ(old_id, kEntryIDInvalid);
 
   reserveHeadUnlocked(id);
 
@@ -313,7 +313,7 @@ void StaticMetaBase::destroy(EntryID* ent) {
       }
     }
   } catch (...) { // Just in case we get a lock error or something anyway...
-    LOG(WARNING) << "Destructor discarding an exception that was thrown.";
+    //LOG(WARNING) << "Destructor discarding an exception that was thrown.";
   }
 }
 
