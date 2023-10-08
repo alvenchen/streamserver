@@ -11,14 +11,14 @@ HeaderForm getHeaderForm(uint8_t headerValue){
 
 
 LongHeader::LongHeader(Types type, LongHeaderInvariant invariant, std::string token)
-    : _longHeaderType(type), _invariant(std::move(invariant)), _token(std::move(token)) {
+    : _longHeaderType(type), _invariant(std::move(invariant)), _token(std::move(token)), _packetSequenceNum(0) {
 
 }
 
 LongHeader::LongHeader(Types type, const ConnectionId& srcConnId, const ConnectionId& dstConnId, 
     PacketNum packetNum, QuicVersion version, std::string token)
         : _longHeaderType(type), _invariant(LongHeaderInvariant(version, srcConnId, dstConnId)),
-        _token(std::move(token)) {
+        _token(std::move(token)), _packetSequenceNum(0) {
     setPacketNumber(packetNum);
 }
 
@@ -62,36 +62,39 @@ ShortHeaderInvariant::ShortHeaderInvariant(ConnectionId dcid)
 }
 
 ShortHeader::ShortHeader(ProtectionType protectionType, ConnectionId connId, PacketNum packetNum)
-    : protectionType_(protectionType), connectionId_(std::move(connId)) {
-    if (protectionType_ != ProtectionType::KeyPhaseZero &&
-        protectionType_ != ProtectionType::KeyPhaseOne) {
+    : _protectionType(protectionType), _connectionId(std::move(connId)), _packetSequenceNum(0) {
+    if (_protectionType != ProtectionType::KeyPhaseZero &&
+        _protectionType != ProtectionType::KeyPhaseOne) {
         throw std::logic_error("bad short header protection type");
     }
     setPacketNumber(packetNum);
 }
 
 ShortHeader::ShortHeader(ProtectionType protectionType, ConnectionId connId)
-    : protectionType_(protectionType), connectionId_(std::move(connId)) {
-    if (protectionType_ != ProtectionType::KeyPhaseZero &&
-        protectionType_ != ProtectionType::KeyPhaseOne) {
+    : _protectionType(protectionType), _connectionId(std::move(connId)), _packetSequenceNum(0) {
+    if (_protectionType != ProtectionType::KeyPhaseZero &&
+        _protectionType != ProtectionType::KeyPhaseOne) {
 
         throw std::logic_error("bad short header protection type");
     }
 }
 
 ProtectionType ShortHeader::getProtectionType() const {
-    return protectionType_;
+    return _protectionType;
 }
 
 const ConnectionId& ShortHeader::getConnectionId() const {
-    return connectionId_;
+    return _connectionId;
 }
 
 void ShortHeader::setPacketNumber(PacketNum packetNum) {
-    packetSequenceNum_ = packetNum;
+    _packetSequenceNum = packetNum;
 }
 
 
+PacketHeader::~PacketHeader() {
+    destroyHeader();
+}
 
 PacketHeader::PacketHeader(ShortHeader&& shortHeaderIn)
     : _headerForm(HeaderForm::Short) {
@@ -153,10 +156,6 @@ PacketHeader& PacketHeader::operator=(const PacketHeader& other) {
     }
     _headerForm = other._headerForm;
     return *this;
-}
-
-PacketHeader::~PacketHeader() {
-    destroyHeader();
 }
 
 void PacketHeader::destroyHeader() {

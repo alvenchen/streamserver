@@ -3,7 +3,6 @@
 #include <optional>
 #include "../common/common.hpp"
 #include "quic_constants.hpp"
-#include "quic_header.hpp"
 #include "quic_packet_num.hpp"
 #include <common/IntervalSet.h>
 #include "quic.hpp"
@@ -14,9 +13,6 @@
 
 
 namespace quic{
-    template <class T, size_t N>
-    using SmallVec = std::vector<T>;
-
     /**
      * Info stored on receipt of a packet for use in subsequent ACK.
      */

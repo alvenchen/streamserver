@@ -1,18 +1,15 @@
-/*
- 
-*/
 
 #pragma once
 
-
 #include "../common/common.hpp"
+#include "quic.hpp"
 #include "quic_connection_id.hpp"
 #include "quic_packet_num.hpp"
 #include "quic_constants.hpp"
 #include "parse.hpp"
 #include "../folly/io/Cursor.h"
-#include "../folly/Expected.h"
-#include "../common/BufUtil.h"
+#include "../folly/Optional.h"
+#include "../folly/lang/Assume.h"
 
 namespace quic {
 
@@ -116,7 +113,9 @@ public:
     ProtectionType getProtectionType() const;
 
  private:
-    PacketNum _packetSequenceNum{0};
+    LongHeader() = delete;
+
+    PacketNum _packetSequenceNum;
     Types _longHeaderType;
     LongHeaderInvariant _invariant;
     std::string _token;
@@ -153,11 +152,16 @@ public:
      */
     ShortHeader(ProtectionType protectionType, ConnectionId connId, PacketNum packetNum);
 
+    ShortHeader(const ShortHeader& other) = default;
+    ShortHeader(ShortHeader&& other) = default;
+    ShortHeader& operator=(const ShortHeader& other) = default;
+    ShortHeader& operator=(ShortHeader&& other) = default;
+
     PacketNumberSpace getPacketNumberSpace() const {
         return PacketNumberSpace::AppData;
     }
     PacketNum getPacketSequenceNum() const {
-        return packetSequenceNum_;
+        return _packetSequenceNum;
     }
     const ConnectionId& getConnectionId() const;
 
@@ -171,14 +175,14 @@ private:
     //bool readPacketNum(PacketNum largestReceivedPacketNum, folly::io::Cursor& cursor);
 
 private:
-    PacketNum packetSequenceNum_{0};
-    ProtectionType protectionType_;
-    ConnectionId connectionId_;
+    PacketNum _packetSequenceNum;
+    ProtectionType _protectionType;
+    ConnectionId _connectionId;
 };
 
 
 
-struct PacketHeader {
+struct PacketHeader {    
     ~PacketHeader();
 
     /* implicit */ PacketHeader(LongHeader&& longHeader);
@@ -200,11 +204,11 @@ struct PacketHeader {
     PacketNum getPacketSequenceNum() const {
         switch (_headerForm) {
             case HeaderForm::Long:
-            return longHeader.getPacketSequenceNum();
+                return longHeader.getPacketSequenceNum();
             case HeaderForm::Short:
-            return shortHeader.getPacketSequenceNum();
+                return shortHeader.getPacketSequenceNum();
             default:
-            folly::assume_unreachable();
+                folly::assume_unreachable();
         }
     }
     HeaderForm getHeaderForm() const;
@@ -213,16 +217,17 @@ struct PacketHeader {
     PacketNumberSpace getPacketNumberSpace() const {
         switch (_headerForm) {
             case HeaderForm::Long:
-            return longHeader.getPacketNumberSpace();
+                return longHeader.getPacketNumberSpace();
             case HeaderForm::Short:
-            return shortHeader.getPacketNumberSpace();
+                return shortHeader.getPacketNumberSpace();
             default:
-            folly::assume_unreachable();
+                folly::assume_unreachable();
         }
     }
 
 private:
     void destroyHeader();
+    PacketHeader() = delete;
 
     union {
         LongHeader longHeader;
@@ -258,10 +263,6 @@ struct ParsedLongHeaderResult {
         : isVersionNegotiation(isVersionNegotiationIn), parsedLongHeader(std::move(parsedLongHeaderIn)){
     }
 };
-
-
-
-
 
 /*
     function
