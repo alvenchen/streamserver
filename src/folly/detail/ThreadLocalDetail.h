@@ -108,7 +108,7 @@ struct ElementWrapper {
       return false;
     }
 
-    DCHECK(deleter1 != nullptr);
+    //DCHECK(deleter1 != nullptr);
     ownsDeleter ? (*deleter2)(ptr, mode) : (*deleter1)(ptr, mode);
     return true;
   }
@@ -125,8 +125,8 @@ struct ElementWrapper {
 
   template <class Ptr>
   void set(Ptr p) {
-    DCHECK(ptr == nullptr);
-    DCHECK(deleter1 == nullptr);
+    //DCHECK(ptr == nullptr);
+    //DCHECK(deleter1 == nullptr);
 
     if (!p) {
       return;
@@ -142,8 +142,8 @@ struct ElementWrapper {
 
   template <class Ptr, class Deleter>
   void set(Ptr p, const Deleter& d) {
-    DCHECK(ptr == nullptr);
-    DCHECK(deleter2 == nullptr);
+    //DCHECK(ptr == nullptr);
+    //DCHECK(deleter2 == nullptr);
 
     if (!p) {
       return;

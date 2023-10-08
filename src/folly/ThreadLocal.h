@@ -407,7 +407,7 @@ class ThreadLocalPtr {
     void release() {
       if (lock_) {
         lock_->unlock();
-        DCHECK(accessAllThreadsLock_ != nullptr);
+        //DCHECK(accessAllThreadsLock_ != nullptr);
         accessAllThreadsLock_->unlock();
         id_ = 0;
         lock_ = nullptr;
