@@ -401,10 +401,7 @@ typename CircularDeque<T>::iterator CircularDeque<T>::erase(
   // elements to fill up the hole it creates.
   auto currentSize = size();
   auto elemsRemoved = std::distance(first, last);
-  //DCHECK_GE(elemsRemoved, 0)
-      << "first=" << first.index_ << ", last=" << last.index_
-      << ", distance=" << elemsRemoved << ", maxSize=" << max_size()
-      << ", begin=" << begin_ << ", end=" << end_;
+  //DCHECK_GE(elemsRemoved, 0) << "first=" << first.index_ << ", last=" << last.index_ << ", distance=" << elemsRemoved << ", maxSize=" << max_size() << ", begin=" << begin_ << ", end=" << end_;
   auto distIfMoveFront = wrappedDistance(cbegin(), first);
   auto distIfMoveBack = wrappedDistance(last, cend());
   if (distIfMoveFront < distIfMoveBack) {
