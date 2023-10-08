@@ -69,7 +69,7 @@ target_include_directories(LiveServer PUBLIC "/double-conversion")
 
 
 # jemalloc
-target_link_libraries(LiveServer PRIVATE /usr/local/lib/libjemalloc.a)
+target_link_libraries(LiveServer PRIVATE /usr/local/lib/libjemalloc.so)
 target_include_directories(LiveServer PUBLIC "/usr/local/include")
 
 # sodium
