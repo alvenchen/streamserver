@@ -20,6 +20,7 @@
 #include "../common/BufUtil.h"
 #include "Aead.hpp"
 #include "quic_ack.hpp"
+#include "parse.hpp"
 
 namespace quic {
 

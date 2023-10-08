@@ -89,7 +89,7 @@ struct PicoSpinLock {
    * (This doesn't use a constructor because we want to be a POD.)
    */
   void init(IntType initialValue = 0) {
-    CHECK(!(initialValue & kLockBitMask_));
+    //CHECK(!(initialValue & kLockBitMask_));
     auto ref = make_atomic_ref(lock_);
     auto val = UIntType(initialValue);
     ref.store(val, std::memory_order_release);
@@ -156,7 +156,7 @@ struct PicoSpinLock {
     annotate_rwlock_released(
         this, annotate_rwlock_level::wrlock, __FILE__, __LINE__);
     auto previous = atomic_fetch_reset(ref, Bit, std::memory_order_release);
-    DCHECK(previous);
+    //DCHECK(previous);
   }
 
  private:

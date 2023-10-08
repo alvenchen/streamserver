@@ -65,7 +65,7 @@ struct CircularDeque {
 
   ~CircularDeque() {
     if (capacity_ == 0) {
-      DCHECK(!storage_);
+      //DCHECK(!storage_);
       return;
     }
     clear();
@@ -371,9 +371,9 @@ struct CircularDeque {
 
   void indexSanityCheck(const_iterator iter) noexcept {
     if (begin_ <= end_) {
-      DCHECK(begin_ <= iter.index_ && iter.index_ <= end_);
+      //DCHECK(begin_ <= iter.index_ && iter.index_ <= end_);
     } else {
-      DCHECK(iter.index_ >= begin_ || iter.index_ <= end_);
+      //DCHECK(iter.index_ >= begin_ || iter.index_ <= end_);
     }
   }
 

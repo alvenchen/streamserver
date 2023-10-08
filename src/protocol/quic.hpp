@@ -1,5 +1,6 @@
 #include <cstdint>
-
+#include <cstddef>
+#include <vector>
 
 namespace quic{
     using StreamId = uint64_t;

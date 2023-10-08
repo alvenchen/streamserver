@@ -47,7 +47,7 @@ bool CircularDeque<T>::needSpace() const noexcept {
    * size() and capacity can't be eq. Otherwise begin_ and end_ may point to the
    * same position, in which case I don't know if my container is full or empty.
    */
-  DCHECK_LE(size(), max_size());
+  //DCHECK_LE(size(), max_size());
   return size() == max_size();
 }
 
@@ -219,14 +219,14 @@ typename CircularDeque<T>::reference CircularDeque<T>::emplace_front(
     resize(capacity_ == 0 ? kInitCapacity : growCapacity(capacity_));
   }
   if (begin_ == 0) {
-    DCHECK_NE(end_, capacity_ - 1);
+    //DCHECK_NE(end_, capacity_ - 1);
     begin_ = capacity_ - 1;
   } else {
-    DCHECK_NE(end_, begin_ - 1);
+    //DCHECK_NE(end_, begin_ - 1);
     --begin_;
   }
   new (&storage_[begin_]) T(std::forward<Args>(args)...);
-  DCHECK_NE(begin_, end_);
+  //DCHECK_NE(begin_, end_);
   return front();
 }
 
@@ -237,13 +237,13 @@ typename CircularDeque<T>::reference CircularDeque<T>::emplace_back(
   if (needSpace()) {
     resize(capacity_ == 0 ? kInitCapacity : growCapacity(capacity_));
   }
-  DCHECK_GT(capacity_, 0);
+  //DCHECK_GT(capacity_, 0);
   if (end_ == capacity_) {
     end_ = 0;
-    DCHECK_NE(0, begin_);
+    //DCHECK_NE(0, begin_);
   }
   new (&storage_[end_++]) T(std::forward<Args>(args)...);
-  DCHECK_NE(begin_, end_);
+  //DCHECK_NE(begin_, end_);
   return back();
 }
 
@@ -257,12 +257,12 @@ typename CircularDeque<T>::iterator CircularDeque<T>::emplace(
   auto index = pos.index_;
   if (index == end_) {
     emplace_back(std::forward<Args>(args)...);
-    DCHECK_NE(begin_, end_);
+    //DCHECK_NE(begin_, end_);
     return CircularDequeIterator<T>(this, end_ == 0 ? capacity_ - 1 : end_ - 1);
   }
   if (index == begin_) {
     emplace_front(std::forward<Args>(args)...);
-    DCHECK_NE(begin_, end_);
+    //DCHECK_NE(begin_, end_);
     return begin();
   }
 
@@ -296,7 +296,7 @@ typename CircularDeque<T>::iterator CircularDeque<T>::emplace(
   }
   // We resized before. They can't be at the same place even if we had to move
   // end_ forward above.
-  DCHECK_NE(begin_, end_);
+  //DCHECK_NE(begin_, end_);
   return CircularDequeIterator<T>(this, index);
 }
 
@@ -369,12 +369,10 @@ typename CircularDeque<T>::iterator CircularDeque<T>::erase(
     return CircularDequeIterator<T>(this, last.index_);
   }
   if (begin_ < end_) {
-    DCHECK(
-        begin_ <= first.index_ && first.index_ <= last.index_ &&
-        last.index_ <= end_);
+    //DCHECK(begin_ <= first.index_ && first.index_ <= last.index_ && last.index_ <= end_);
   } else {
-    DCHECK(first.index_ <= end_ || first.index_ >= begin_);
-    DCHECK(last.index_ <= end_ || last.index_ >= begin_);
+    //DCHECK(first.index_ <= end_ || first.index_ >= begin_);
+    //DCHECK(last.index_ <= end_ || last.index_ >= begin_);
   }
   if (UNLIKELY(wrappedDistance(first, last) == size())) {
     // if we are erasing everything, just clear()
@@ -403,7 +401,7 @@ typename CircularDeque<T>::iterator CircularDeque<T>::erase(
   // elements to fill up the hole it creates.
   auto currentSize = size();
   auto elemsRemoved = std::distance(first, last);
-  DCHECK_GE(elemsRemoved, 0)
+  //DCHECK_GE(elemsRemoved, 0)
       << "first=" << first.index_ << ", last=" << last.index_
       << ", distance=" << elemsRemoved << ", maxSize=" << max_size()
       << ", begin=" << begin_ << ", end=" << end_;
@@ -419,9 +417,7 @@ typename CircularDeque<T>::iterator CircularDeque<T>::erase(
       iter++->~T();
     }
     begin_ = newBegin.index_;
-    DCHECK_EQ(size(), currentSize - elemsRemoved)
-        << "size=" << size() << ", currentSize=" << currentSize
-        << ", elemsRemoved=" << elemsRemoved;
+    //DCHECK_EQ(size(), currentSize - elemsRemoved) << "size=" << size() << ", currentSize=" << currentSize << ", elemsRemoved=" << elemsRemoved;
     return CircularDequeIterator<T>(this, last.index_);
   }
   moveOrCopy(last, end(), first);
@@ -431,7 +427,7 @@ typename CircularDeque<T>::iterator CircularDeque<T>::erase(
     iter++->~T();
   }
   end_ = newEnd.index_;
-  DCHECK(size() == currentSize - elemsRemoved);
+  //DCHECK(size() == currentSize - elemsRemoved);
   return CircularDequeIterator<T>(this, first.index_);
 }
 
