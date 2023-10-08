@@ -9,6 +9,7 @@ naming rule :
 #pragma once
 
 #include <cstdint>
+#include <cstddef>
 #include <string>
 #include <vector>
 #include <array>

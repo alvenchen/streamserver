@@ -227,6 +227,11 @@ namespace quic{
         new (&maxStreamData) MaxStreamDataFrame(std::move(in));
     }
 
+    QuicFrame::QuicFrame(MaxStreamsFrame&& in)
+        :_type(QuicFrame::TYPE::MAX_STREAMS_FRAME){
+        new (&maxStreams) MaxStreamsFrame(std::move(in));
+    }
+
     QuicFrame::QuicFrame(DataBlockedFrame &&in)
         :_type(QuicFrame::TYPE::DATA_BLOCKED_FRAME){
         new (&dataBlocked) DataBlockedFrame(std::move(in));

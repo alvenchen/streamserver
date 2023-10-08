@@ -16,6 +16,12 @@ file(GLOB SRC
      ${CMAKE_CURRENT_SOURCE_DIR}/src/folly/*.cpp
      ${CMAKE_CURRENT_SOURCE_DIR}/src/folly/*/*.hpp
      ${CMAKE_CURRENT_SOURCE_DIR}/src/folly/*/*.cpp
+     ${CMAKE_CURRENT_SOURCE_DIR}/src/folly/*/*/*.hpp
+     ${CMAKE_CURRENT_SOURCE_DIR}/src/folly/*/*/*.cpp
+     ${CMAKE_CURRENT_SOURCE_DIR}/src/fizz/*.hpp
+     ${CMAKE_CURRENT_SOURCE_DIR}/src/fizz/*.cpp
+     ${CMAKE_CURRENT_SOURCE_DIR}/src/fizz/*/*.hpp
+     ${CMAKE_CURRENT_SOURCE_DIR}/src/fizz/*/*.cpp
      ${CMAKE_CURRENT_SOURCE_DIR}/src/common/*/*.hpp
      ${CMAKE_CURRENT_SOURCE_DIR}/src/common/*/*.cpp
 )

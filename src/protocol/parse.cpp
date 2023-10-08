@@ -25,7 +25,7 @@ namespace{
 }
 
 namespace quic{
-    RegularQuicPacket decodeRegularPacket(PacketHeader&& header, const CodecParameters& params, std::unique_ptr<folly::IOBuf> packetData) {
+    RegularQuicPacket decodeRegularPacket(PacketHeader&& header, const CodecParameters& params, Buf packetData) {
         RegularQuicPacket packet(std::move(header));
         BufQueue queue;
         queue.append(std::move(packetData));
@@ -64,14 +64,14 @@ namespace quic{
             //throw QuicTransportException("Invalid frame-type field", TransportErrorCode::FRAME_ENCODING_ERROR);
             throw std::runtime_error("Invalid frame-type field");
         }
-        queue.trimStart(cursor - queue.front());
+        queue.trimStart(size_t(cursor - queue.front()));
         bool consumedQueue = false;
         bool error = false;
         SCOPE_EXIT {
             if (consumedQueue || error) {
                 return;
             }
-            queue.trimStart(cursor - queue.front());
+            queue.trimStart(size_t(cursor - queue.front()));
         };
         cursor.reset(queue.front());
         FrameType frameType = static_cast<FrameType>(frameTypeInt->first);
@@ -431,12 +431,12 @@ namespace quic{
                 throw QuicTransportException("Length mismatch", quic::TransportErrorCode::FRAME_ENCODING_ERROR, frameType);
             }
             // If dataLength > data's actual length then the cursor will throw.
-            queue.trimStart(cursor - queue.front());
-            data = queue.splitAtMost(dataLength->first);
+            queue.trimStart(size_t(cursor - queue.front()));
+            data = queue.splitAtMost(size_t(dataLength->first));
         } else {
             // Missing Data Length field doesn't mean no data. It means the rest of the
             // frame are all data.
-            queue.trimStart(cursor - queue.front());
+            queue.trimStart(size_t(cursor - queue.front()));
             data = queue.move();
         }
         return ReadStreamFrame(folly::to<StreamId>(streamId->first), offset, std::move(data), fin, groupId);
