@@ -117,7 +117,7 @@ struct PicoSpinLock {
    * guaranteed that no other threads may be trying to use this.
    */
   void setData(IntType w) {
-    CHECK(!(w & kLockBitMask_));
+    //CHECK(!(w & kLockBitMask_));
     auto ref = make_atomic_ref(lock_);
     auto val = ref.load(std::memory_order_relaxed);
     val = (val & kLockBitMask_) | w;

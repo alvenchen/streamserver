@@ -160,6 +160,7 @@ CodecResult QuicReadCodec::parseLongHeaderPacket(BufQueue& queue, const AckState
         case ProtectionType::KeyPhaseZero:
         case ProtectionType::KeyPhaseOne:
             //CHECK(false) << "one rtt protection type in long header";
+            break;
     }
     if (!headerCipher || !cipher) {
         return CodecResult(CipherUnavailable(std::move(currentPacketData), protectionType));
