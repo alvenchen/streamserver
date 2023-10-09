@@ -205,6 +205,7 @@ CodecResult QuicReadCodec::parseLongHeaderPacket(BufQueue& queue, const AckState
     }
 
     Buf decrypted;
+    //TODO pure virtual
     auto decryptAttempt = cipher->tryDecrypt(std::move(encryptedData), headerData.get(), packetNum.first);
     if (!decryptAttempt) {
         return CodecResult(Nothing());
