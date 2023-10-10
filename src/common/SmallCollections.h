@@ -12,13 +12,6 @@
 
 namespace quic {
 
-#if !FOLLY_MOBILE || _WIN32
-template <class T, std::size_t N, class... Policy>
-using SmallVec = folly::small_vector<T, N, Policy...>;
-#else
-template <class T, std::size_t N, class... Policy>
-using SmallVec = std::vector<T>;
-#endif
 
 template <class T, size_t N>
 using InlineMapVec = folly::small_vector<T, N>;

@@ -11,7 +11,6 @@
 #include <string>
 
 #include <folly/SocketAddress.h>
-//#include "../protocol/quic_constants.hpp"
 #include "../congestion_control/congestion_control.h"
 
 namespace quic {

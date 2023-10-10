@@ -119,32 +119,15 @@ struct OutstandingPacketMetadata {
     // was sent.
     std::chrono::microseconds totalAppLimitedTimeUsecs{0};
 
-    OutstandingPacketMetadata(
-        TimePoint timeIn,
-        uint32_t encodedSizeIn,
-        uint32_t encodedBodySizeIn,
-        bool isHandshakeIn,
-        uint64_t totalBytesSentIn,
-        uint64_t totalBodyBytesSentIn,
-        uint64_t inflightBytesIn,
-        uint64_t packetsInflightIn,
-        const LossState& lossStateIn,
-        uint64_t writeCount,
-        DetailsPerStream detailsPerStream,
-        std::chrono::microseconds totalAppLimitedTimeUsecsIn = 0us)
-            : time(timeIn),
-            encodedSize(encodedSizeIn),
-            encodedBodySize(encodedBodySizeIn),
-            isHandshake(isHandshakeIn),
-            totalBytesSent(totalBytesSentIn),
-            totalBodyBytesSent(totalBodyBytesSentIn),
-            inflightBytes(inflightBytesIn),
-            packetsInflight(packetsInflightIn),
-            totalPacketsSent(lossStateIn.totalPacketsSent),
+    OutstandingPacketMetadata(TimePoint timeIn, uint32_t encodedSizeIn, uint32_t encodedBodySizeIn,
+        bool isHandshakeIn, uint64_t totalBytesSentIn, uint64_t totalBodyBytesSentIn,
+        uint64_t inflightBytesIn, uint64_t packetsInflightIn, const LossState& lossStateIn,
+        uint64_t writeCount, DetailsPerStream detailsPerStream, std::chrono::microseconds totalAppLimitedTimeUsecsIn = 0us)
+            : time(timeIn), encodedSize(encodedSizeIn), encodedBodySize(encodedBodySizeIn),
+            isHandshake(isHandshakeIn), totalBytesSent(totalBytesSentIn), totalBodyBytesSent(totalBodyBytesSentIn),
+            inflightBytes(inflightBytesIn), packetsInflight(packetsInflightIn), totalPacketsSent(lossStateIn.totalPacketsSent), 
             totalAckElicitingPacketsSent(lossStateIn.totalAckElicitingPacketsSent),
-            writeCount(writeCount),
-            detailsPerStream(std::move(detailsPerStream)),
-            totalAppLimitedTimeUsecs(totalAppLimitedTimeUsecsIn) {}
+            writeCount(writeCount), detailsPerStream(std::move(detailsPerStream)), totalAppLimitedTimeUsecs(totalAppLimitedTimeUsecsIn) {}
 };
 
 // Data structure to represent outstanding retransmittable packets
@@ -168,17 +151,10 @@ struct OutstandingPacket {
     // Total acked bytes on this connection when last acked packet is acked,
     // including the last acked packet.
     uint64_t totalBytesAcked;
-    LastAckedPacketInfo(
-        TimePoint sentTimeIn,
-        TimePoint ackTimeIn,
-        TimePoint adjustedAckTimeIn,
-        uint64_t totalBytesSentIn,
-        uint64_t totalBytesAckedIn)
-        : sentTime(sentTimeIn),
-            ackTime(ackTimeIn),
-            adjustedAckTime(adjustedAckTimeIn),
-            totalBytesSent(totalBytesSentIn),
-            totalBytesAcked(totalBytesAckedIn) {}
+    LastAckedPacketInfo(TimePoint sentTimeIn, TimePoint ackTimeIn,
+        TimePoint adjustedAckTimeIn, uint64_t totalBytesSentIn, uint64_t totalBytesAckedIn)
+        : sentTime(sentTimeIn), ackTime(ackTimeIn), adjustedAckTime(adjustedAckTimeIn),
+            totalBytesSent(totalBytesSentIn), totalBytesAcked(totalBytesAckedIn) {}
     };
     folly::Optional<LastAckedPacketInfo> lastAckedPacketInfo;
 
@@ -208,33 +184,15 @@ struct OutstandingPacket {
 
     protected:
     OutstandingPacket(
-        RegularQuicWritePacket packetIn,
-        TimePoint timeIn,
-        uint32_t encodedSizeIn,
-        uint32_t encodedBodySizeIn,
-        bool isHandshakeIn,
-        uint64_t totalBytesSentIn,
-        uint64_t totalBodyBytesSentIn,
-        uint64_t inflightBytesIn,
-        uint64_t packetsInflightIn,
-        const LossState& lossStateIn,
-        uint64_t writeCount,
-        Metadata::DetailsPerStream detailsPerStream,
-        std::chrono::microseconds totalAppLimitedTimeUsecs = 0us)
-        : packet(std::move(packetIn)),
-        metadata(OutstandingPacketMetadata(
-            timeIn,
-            encodedSizeIn,
-            encodedBodySizeIn,
-            isHandshakeIn,
-            totalBytesSentIn,
-            totalBodyBytesSentIn,
-            inflightBytesIn,
-            packetsInflightIn,
-            lossStateIn,
-            writeCount,
-            std::move(detailsPerStream),
-            totalAppLimitedTimeUsecs)) {}
+        RegularQuicWritePacket packetIn, TimePoint timeIn, uint32_t encodedSizeIn,
+        uint32_t encodedBodySizeIn, bool isHandshakeIn, uint64_t totalBytesSentIn, uint64_t totalBodyBytesSentIn,
+        uint64_t inflightBytesIn, uint64_t packetsInflightIn, const LossState& lossStateIn,
+        uint64_t writeCount, Metadata::DetailsPerStream detailsPerStream, std::chrono::microseconds totalAppLimitedTimeUsecs = 0us)
+            : packet(std::move(packetIn)),
+            metadata(OutstandingPacketMetadata(timeIn, encodedSizeIn, encodedBodySizeIn,
+                isHandshakeIn, totalBytesSentIn, totalBodyBytesSentIn, inflightBytesIn,
+                packetsInflightIn, lossStateIn, writeCount, std::move(detailsPerStream), totalAppLimitedTimeUsecs)) {
+    }
 
     OutstandingPacket(OutstandingPacket&&) = default;
 
@@ -245,66 +203,48 @@ struct OutstandingPacketWrapper : OutstandingPacket {
     std::function<void(const quic::OutstandingPacketWrapper&)> packetDestroyFn_ =
         nullptr;
 
-    OutstandingPacketWrapper(
-        RegularQuicWritePacket packetIn,
-        TimePoint timeIn,
-        uint32_t encodedSizeIn,
-        uint32_t encodedBodySizeIn,
-        bool isHandshakeIn,
-        uint64_t totalBytesSentIn,
-        uint64_t totalBodyBytesSentIn,
-        uint64_t inflightBytesIn,
-        uint64_t packetsInflightIn,
-        const LossState& lossStateIn,
-        uint64_t writeCount,
-        Metadata::DetailsPerStream detailsPerStream,
-        std::chrono::microseconds totalAppLimitedTimeUsecs = 0us,
-        std::function<void(const quic::OutstandingPacketWrapper&)>
-            packetDestroyFn = nullptr)
+    OutstandingPacketWrapper(RegularQuicWritePacket packetIn, TimePoint timeIn,
+        uint32_t encodedSizeIn, uint32_t encodedBodySizeIn, bool isHandshakeIn,
+        uint64_t totalBytesSentIn, uint64_t totalBodyBytesSentIn, uint64_t inflightBytesIn,
+        uint64_t packetsInflightIn, const LossState& lossStateIn, uint64_t writeCount,
+        Metadata::DetailsPerStream detailsPerStream, std::chrono::microseconds totalAppLimitedTimeUsecs = 0us,
+        std::function<void(const quic::OutstandingPacketWrapper&)> packetDestroyFn = nullptr)
         : OutstandingPacket(
-            std::move(packetIn),
-            timeIn,
-            encodedSizeIn,
-            encodedBodySizeIn,
-            isHandshakeIn,
-            totalBytesSentIn,
-            totalBodyBytesSentIn,
-            inflightBytesIn,
-            packetsInflightIn,
-            lossStateIn,
-            writeCount,
-            std::move(detailsPerStream),
-            totalAppLimitedTimeUsecs),
-        packetDestroyFn_(std::move(packetDestroyFn)) {}
+            std::move(packetIn), timeIn, encodedSizeIn, encodedBodySizeIn,
+            isHandshakeIn, totalBytesSentIn, totalBodyBytesSentIn, inflightBytesIn,
+            packetsInflightIn, lossStateIn, writeCount, std::move(detailsPerStream),
+            totalAppLimitedTimeUsecs), packetDestroyFn_(std::move(packetDestroyFn)) {
+    }
 
     OutstandingPacketWrapper(const OutstandingPacketWrapper& source) = delete;
     OutstandingPacketWrapper& operator=(const OutstandingPacketWrapper&) = delete;
 
     OutstandingPacketWrapper(OutstandingPacketWrapper&& rhs) noexcept
         : OutstandingPacket(std::move(static_cast<OutstandingPacket&>(rhs))) {
-    packetDestroyFn_ = rhs.packetDestroyFn_;
-    rhs.packetDestroyFn_ = nullptr;
+    
+        packetDestroyFn_ = rhs.packetDestroyFn_;
+        rhs.packetDestroyFn_ = nullptr;
     }
 
     OutstandingPacketWrapper& operator=(OutstandingPacketWrapper&& rhs) noexcept {
-    // If this->packetDestroyFn_ is populated, then this OutstandingPacket is
-    // populated. We must call packetDestroyFn_(this) first, before moving the
-    // rest of the fields from the source packet (rhs).
+        // If this->packetDestroyFn_ is populated, then this OutstandingPacket is
+        // populated. We must call packetDestroyFn_(this) first, before moving the
+        // rest of the fields from the source packet (rhs).
 
-    if (this != &rhs && packetDestroyFn_ != nullptr) {
-        packetDestroyFn_(*this);
-    }
+        if (this != &rhs && packetDestroyFn_ != nullptr) {
+            packetDestroyFn_(*this);
+        }
 
-    packetDestroyFn_ = rhs.packetDestroyFn_;
-    rhs.packetDestroyFn_ = nullptr;
-    OutstandingPacket::operator=(std::move(rhs));
-    return *this;
+        packetDestroyFn_ = rhs.packetDestroyFn_;
+        rhs.packetDestroyFn_ = nullptr;
+        OutstandingPacket::operator=(std::move(rhs));
+        return *this;
     }
 
     ~OutstandingPacketWrapper() {
-    if (packetDestroyFn_) {
-        packetDestroyFn_(*this);
-    }
+        if (packetDestroyFn_) {
+            packetDestroyFn_(*this);
+        }
     }
 };
 

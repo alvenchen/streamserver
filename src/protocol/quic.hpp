@@ -2,6 +2,8 @@
 #include <cstddef>
 #include <vector>
 
+#pragma once
+
 namespace quic{
     using StreamId = uint64_t;
     using StreamGroupId = uint64_t;

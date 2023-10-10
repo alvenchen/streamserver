@@ -12,6 +12,16 @@ file(GLOB SRC
      ${CMAKE_CURRENT_SOURCE_DIR}/src/*.cpp
      ${CMAKE_CURRENT_SOURCE_DIR}/src/protocol/*.hpp
      ${CMAKE_CURRENT_SOURCE_DIR}/src/protocol/*.cpp
+     ${CMAKE_CURRENT_SOURCE_DIR}/src/state/*.hpp
+     ${CMAKE_CURRENT_SOURCE_DIR}/src/state/*.cpp
+     ${CMAKE_CURRENT_SOURCE_DIR}/src/congestion_control/*.hpp
+     ${CMAKE_CURRENT_SOURCE_DIR}/src/congestion_control/*.cpp
+     ${CMAKE_CURRENT_SOURCE_DIR}/src/client/*.hpp
+     ${CMAKE_CURRENT_SOURCE_DIR}/src/client/*.cpp
+     ${CMAKE_CURRENT_SOURCE_DIR}/src/api/*.hpp
+     ${CMAKE_CURRENT_SOURCE_DIR}/src/api/*.cpp
+     ${CMAKE_CURRENT_SOURCE_DIR}/src/observer/*.hpp
+     ${CMAKE_CURRENT_SOURCE_DIR}/src/observer/*.cpp
      ${CMAKE_CURRENT_SOURCE_DIR}/src/folly/*.hpp
      ${CMAKE_CURRENT_SOURCE_DIR}/src/folly/*.cpp
      ${CMAKE_CURRENT_SOURCE_DIR}/src/folly/*/*.hpp
