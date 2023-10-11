@@ -42,6 +42,18 @@ struct RegularQuicPacket : public RegularPacket {
     }
 };
 
+/**
+ * A representation of a regular packet that is written to the network.
+ */
+struct RegularQuicWritePacket : public RegularPacket {
+    using Vec = std::vector<QuicWriteFrame>;
+    Vec frames;
+    bool empty{true};
+
+    explicit RegularQuicWritePacket(PacketHeader&& headerIn)
+        : RegularPacket(std::move(headerIn)) {}
+};
+
 struct VersionNegotiationPacket {
     uint8_t packetType;
     ConnectionId sourceConnectionId;

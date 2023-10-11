@@ -351,7 +351,7 @@ class QuicSocket {
   /**
    * Get the original Quic Server Connection ID chosen by client
    */
-  FOLLY_NODISCARD virtual folly::Optional<ConnectionId>
+  [[nodiscard]] virtual folly::Optional<ConnectionId>
   getClientChosenDestConnectionId() const = 0;
 
   /**
@@ -372,7 +372,7 @@ class QuicSocket {
   /**
    * Get the cert presented by peer
    */
-  FOLLY_NODISCARD virtual const std::shared_ptr<
+  [[nodiscard]] virtual const std::shared_ptr<
       const folly::AsyncTransportCertificate>
   getPeerCertificate() const {
     return nullptr;
@@ -565,7 +565,7 @@ class QuicSocket {
   /**
    * Can Knob Frames be exchanged with the peer on this connection?
    */
-  FOLLY_NODISCARD virtual bool isKnobSupported() const = 0;
+  [[nodiscard]] virtual bool isKnobSupported() const = 0;
 
   /**
    * Set stream priority.
@@ -1131,13 +1131,13 @@ class QuicSocket {
   /**
    * Get the number of pending byte events for the given stream.
    */
-  FOLLY_NODISCARD virtual size_t getNumByteEventCallbacksForStream(
+  [[nodiscard]] virtual size_t getNumByteEventCallbacksForStream(
       const StreamId streamId) const = 0;
 
   /**
    * Get the number of pending byte events of specified type for given stream.
    */
-  FOLLY_NODISCARD virtual size_t getNumByteEventCallbacksForStream(
+  [[nodiscard]] virtual size_t getNumByteEventCallbacksForStream(
       const ByteEvent::Type type,
       const StreamId streamId) const = 0;
 
@@ -1391,7 +1391,7 @@ class QuicSocket {
   /**
    * Returns varios stats of the connection.
    */
-  FOLLY_NODISCARD virtual QuicConnectionStats getConnectionsStats() const = 0;
+  [[nodiscard]] virtual QuicConnectionStats getConnectionsStats() const = 0;
 
   /**
    * ===== Datagram API =====
@@ -1420,7 +1420,7 @@ class QuicSocket {
    * Returns the maximum allowed Datagram payload size.
    * 0 means Datagram is not supported
    */
-  FOLLY_NODISCARD virtual uint16_t getDatagramSizeLimit() const = 0;
+  [[nodiscard]] virtual uint16_t getDatagramSizeLimit() const = 0;
 
   /**
    * Writes a Datagram frame. If buf is larger than the size limit returned by

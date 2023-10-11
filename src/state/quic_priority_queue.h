@@ -157,11 +157,11 @@ public:
         OrderedStreamSet streams;
         bool incremental;
         std::unique_ptr<Iterator> iterator;
-        FOLLY_NODISCARD bool empty() const {
+        [[nodiscard]] bool empty() const {
             return streams.empty();
         }
 
-        FOLLY_NODISCARD OrderedStream getOrderedStream(StreamId id) const {
+        [[nodiscard]] OrderedStream getOrderedStream(StreamId id) const {
             auto it = streamToOrderId.find(id);
             if (it == streamToOrderId.end()) {
                 return OrderedStream(id, 0);
@@ -240,11 +240,11 @@ public:
         }
     }
 
-    FOLLY_NODISCARD size_t count(StreamId id) const {
+    [[nodiscard]] size_t count(StreamId id) const {
         return writableStreamsToLevel_.count(id);
     }
 
-    FOLLY_NODISCARD bool empty() const {
+    [[nodiscard]] bool empty() const {
         return writableStreamsToLevel_.empty();
     }
 
@@ -266,7 +266,7 @@ public:
     }
 
     // Only used for testing
-    FOLLY_NODISCARD StreamId getNextScheduledStream(Priority pri) const {
+    [[nodiscard]] StreamId getNextScheduledStream(Priority pri) const {
         auto& level = levels[priority2index(pri)];
         if (!level.incremental || level.iterator->nextStreamIt == level.streams.end()) {
             //CHECK(!level.streams.empty());
@@ -275,7 +275,7 @@ public:
         return level.iterator->nextStreamIt->streamId;
     }
 
-    FOLLY_NODISCARD StreamId getNextScheduledStream() const {
+    [[nodiscard]] StreamId getNextScheduledStream() const {
         const auto& levelIter =
             std::find_if(levels.cbegin(), levels.cend(), [&](const auto& level) {
                 return !level.empty();

@@ -6,6 +6,8 @@
  */
 
 #include "BufUtil.h"
+#include <cstring>
+#include <string.h>
 
 namespace quic {
 

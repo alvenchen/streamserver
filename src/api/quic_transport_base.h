@@ -279,7 +279,7 @@ class QuicTransportBase : public QuicSocket, QuicStreamPrioritiesObserver {
   /**
    * Can Knob Frames be exchanged with the peer on this connection?
    */
-  FOLLY_NODISCARD bool isKnobSupported() const override;
+  [[nodiscard]]ool isKnobSupported() const override;
 
   /**
    * Set factory to create specific congestion controller instances
@@ -424,13 +424,13 @@ class QuicTransportBase : public QuicSocket, QuicStreamPrioritiesObserver {
   /**
    * Get the number of pending byte events for the given stream.
    */
-  FOLLY_NODISCARD size_t
+  [[nodiscard]]ize_t
   getNumByteEventCallbacksForStream(const StreamId id) const override;
 
   /**
    * Get the number of pending byte events of specified type for given stream.
    */
-  FOLLY_NODISCARD size_t getNumByteEventCallbacksForStream(
+  [[nodiscard]]ize_t getNumByteEventCallbacksForStream(
       const ByteEvent::Type type,
       const StreamId id) const override;
 
@@ -610,7 +610,7 @@ class QuicTransportBase : public QuicSocket, QuicStreamPrioritiesObserver {
 
   virtual void cancelAllAppCallbacks(const QuicError& error) noexcept;
 
-  FOLLY_NODISCARD QuicConnectionStats getConnectionsStats() const override;
+  [[nodiscard]]uicConnectionStats getConnectionsStats() const override;
 
   /**
    * Set the read callback for Datagrams
@@ -622,7 +622,7 @@ class QuicTransportBase : public QuicSocket, QuicStreamPrioritiesObserver {
    * Returns the maximum allowed Datagram payload size.
    * 0 means Datagram is not supported
    */
-  FOLLY_NODISCARD uint16_t getDatagramSizeLimit() const override;
+  [[nodiscard]]int16_t getDatagramSizeLimit() const override;
 
   /**
    * Writes a Datagram frame. If buf is larger than the size limit returned by
@@ -807,7 +807,7 @@ class QuicTransportBase : public QuicSocket, QuicStreamPrioritiesObserver {
 
   using ByteEventMap = folly::F14FastMap<StreamId, std::deque<ByteEventDetail>>;
   ByteEventMap& getByteEventMap(const ByteEvent::Type type);
-  FOLLY_NODISCARD const ByteEventMap& getByteEventMapConst(
+  [[nodiscard]]onst ByteEventMap& getByteEventMapConst(
       const ByteEvent::Type type) const;
 
   /**

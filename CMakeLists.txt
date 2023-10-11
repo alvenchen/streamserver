@@ -22,6 +22,8 @@ file(GLOB SRC
      ${CMAKE_CURRENT_SOURCE_DIR}/src/api/*.cpp
      ${CMAKE_CURRENT_SOURCE_DIR}/src/observer/*.hpp
      ${CMAKE_CURRENT_SOURCE_DIR}/src/observer/*.cpp
+     ${CMAKE_CURRENT_SOURCE_DIR}/src/handshake/*.hpp
+     ${CMAKE_CURRENT_SOURCE_DIR}/src/handshake/*.cpp
      ${CMAKE_CURRENT_SOURCE_DIR}/src/folly/*.hpp
      ${CMAKE_CURRENT_SOURCE_DIR}/src/folly/*.cpp
      ${CMAKE_CURRENT_SOURCE_DIR}/src/folly/*/*.hpp

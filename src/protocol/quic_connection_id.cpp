@@ -47,7 +47,7 @@ uint8_t ConnectionId::size() const{
     return _connIDLen;
 }
 
-std::string ConnectionId::Hex() const{
+std::string ConnectionId::hex() const{
     static char hexValues[] = "0123456789abcdef";
     std::string output;
     

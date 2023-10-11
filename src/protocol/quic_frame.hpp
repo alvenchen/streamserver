@@ -6,11 +6,10 @@
 #include "quic_packet_num.hpp"
 #include <common/IntervalSet.h>
 #include "quic.hpp"
-#include <folly/io/IOBuf.h>
 #include "quic_exception.h"
 #include "quic_connection_id.hpp"
 #include "../common/BufUtil.h"
-
+#include "quic_ack.hpp"
 
 namespace quic{
     /**
@@ -200,6 +199,33 @@ namespace quic{
         bool operator==(const ReadCryptoFrame& other) const {
             folly::IOBufEqualTo eq;
             return offset == other.offset && eq(data, other.data);
+        }
+    };
+
+    struct WriteCryptoFrame {
+        uint64_t offset;
+        uint64_t len;
+
+        WriteCryptoFrame(uint64_t offsetIn, uint64_t lenIn)
+            : offset(offsetIn), len(lenIn) {}
+
+        bool operator==(const WriteCryptoFrame& rhs) const {
+            return offset == rhs.offset && len == rhs.len;
+        }
+    };
+
+    struct NewTokenFrame {
+        Buf token;
+        explicit NewTokenFrame(Buf tokenIn) : token(std::move(tokenIn)) {}
+
+        NewTokenFrame(const NewTokenFrame& other) {
+            if (other.token) {
+                token = other.token->clone();
+            }
+        }
+        bool operator==(const NewTokenFrame& rhs) const {
+            folly::IOBufEqualTo eq;
+            return eq(token, rhs.token);
         }
     };
 
@@ -538,6 +564,95 @@ namespace quic{
         Buf blob;
     };
 
+
+    struct WriteAckFrameMetaData {
+        // ACK state.
+        const WriteAckFrameState& ackState;
+
+        // Delay in sending ack from time that packet was received.
+        std::chrono::microseconds ackDelay;
+        // The ack delay exponent to use.
+        uint8_t ackDelayExponent;
+
+        // Receive timestamps basis
+        TimePoint connTime;
+    };
+
+    struct WriteAckFrameResult {
+        uint64_t bytesWritten;
+        WriteAckFrame writeAckFrame;
+        // This includes the first ack block
+        size_t ackBlocksWritten;
+        size_t timestampRangesWritten;
+        size_t timestampsWritten;
+        WriteAckFrameResult(uint64_t bytesWrittenIn, WriteAckFrame writeAckFrameIn,
+            size_t ackBlocksWrittenIn, size_t timestampRangesWrittenIn = 0, size_t timestampsWrittenIn = 0)
+            : bytesWritten(bytesWrittenIn), writeAckFrame(std::move(writeAckFrameIn)),
+                ackBlocksWritten(ackBlocksWrittenIn), timestampRangesWritten(timestampRangesWrittenIn),
+                timestampsWritten(timestampsWrittenIn) {}
+    };
+
+
+    struct QuicSimpleFrame{
+        enum class TYPE {
+            STOP_SENDING_FRAME,
+            PATH_CHALLANGE_FRAME,
+            PATH_RESPONSE_FRAME,
+            NEW_CONNECTION_ID_FRAME,
+            MAX_STREAMS_FRAME,
+            RETIRE_CONNECTION_ID_FRAME,
+            HANDSHAKE_DONE_FRAME,
+            KNOB_FRAME,
+            ACK_FREQUENCY_FRAME,
+            NEW_TOKEN_FRAME,
+        };
+
+        ~QuicSimpleFrame();
+        QuicSimpleFrame(QuicSimpleFrame&& other) noexcept;
+        QuicSimpleFrame& operator=(QuicSimpleFrame&& other) noexcept;
+        QuicSimpleFrame(StopSendingFrame&& in);
+        QuicSimpleFrame(PathChallengeFrame&& in);
+        QuicSimpleFrame(PathResponseFrame&& in);
+        QuicSimpleFrame(NewConnectionIdFrame&& in);
+        QuicSimpleFrame(MaxStreamsFrame&& in);
+        QuicSimpleFrame(RetireConnectionIdFrame&& in);
+        QuicSimpleFrame(HandshakeDoneFrame&& in);
+        QuicSimpleFrame(KnobFrame&& in);
+        QuicSimpleFrame(AckFrequencyFrame&& in);
+        QuicSimpleFrame(NewTokenFrame&& in);
+
+        TYPE type() const;
+
+        StopSendingFrame* asStopSendingFrame();
+        PathChallengeFrame* asPathChallengeFrame();
+        PathResponseFrame* asPathResponseFrame();
+        NewConnectionIdFrame* asNewConnectionIdFrame();
+        MaxStreamsFrame* asMaxStreamsFrame();
+        RetireConnectionIdFrame* asRetireConnectionIdFrame();
+        HandshakeDoneFrame* asHandshakeDoneFrame();
+        KnobFrame* asKnobFrame();
+        AckFrequencyFrame* asAckFrequencyFrame();
+        NewTokenFrame* asNewTokenFrame();
+        
+
+    private:
+        void destroy() noexcept;
+
+        TYPE _type;
+        union{
+            StopSendingFrame stopSending;
+            PathChallengeFrame pathChallenge;
+            PathResponseFrame pathResp;
+            NewConnectionIdFrame newConnID;
+            MaxStreamsFrame maxStream;
+            RetireConnectionIdFrame retireConnID;
+            HandshakeDoneFrame handshakeDone;
+            KnobFrame knob;
+            AckFrequencyFrame ackFrequency;
+            NewTokenFrame newToken;
+        };
+    };
+
     // generic type
     // https://datatracker.ietf.org/doc/html/rfc9000#Frame-Types-and-Formats
     struct QuicFrame{
@@ -567,6 +682,7 @@ namespace quic{
             KNOB_FRAME,
             IMMEDIATE_ACK_FRAME,
             ACK_FREQUENCY_FRAME,
+            QUIC_SIMPLE_FRAME,
         };
 
         ~QuicFrame();
@@ -577,7 +693,7 @@ namespace quic{
         QuicFrame(ReadAckFrame&& in);
         QuicFrame(WriteAckFrame&& in);
         QuicFrame(RstStreamFrame&& in);
-        QuicFrame(StopSendingFrame&& in);
+        
         QuicFrame(ReadCryptoFrame&& in);
         QuicFrame(ReadNewTokenFrame&& in);
         QuicFrame(ReadStreamFrame&& in);
@@ -597,6 +713,7 @@ namespace quic{
         QuicFrame(KnobFrame&& in);
         QuicFrame(ImmediateAckFrame&& in);
         QuicFrame(AckFrequencyFrame&& in);
+        QuicFrame(QuicSimpleFrame&& in);
 
         TYPE type() const;
 
@@ -625,6 +742,7 @@ namespace quic{
         KnobFrame* asKnobFrame();
         ImmediateAckFrame* asImmediateAckFrame();
         AckFrequencyFrame* asAckFrequencyFrame();
+        QuicSimpleFrame* asQuicSimpleFrame();
 
     private:
         void destroy() noexcept;
@@ -657,9 +775,96 @@ namespace quic{
             KnobFrame knob; //
             ImmediateAckFrame immAck;
             AckFrequencyFrame ackFrequency;
+            QuicSimpleFrame quicSimple;
         };
     };
 
-    
+    struct QuicWriteFrame{
+        enum class TYPE {
+            PADDING_FRAME,
+            RST_STREAM_FRAME,
+            CONNECTION_CLOSE_FRAME,
+            MAX_DATA_FRAME,
+            MAX_STREAM_DATA_FRAME,
+            DATA_BLOCKED_FRAME,
+            STREAM_DATA_BLOCKED_FRAME,
+            STREAMS_BLOCKED_FRAME,
+
+            WRITE_ACK_FRAME,
+            WRITE_STREAM_FRAME,
+            WRITE_CRYPTO_FRAME,
+
+            PING_FRAME,
+            NOOP_FRAME,
+            DATAGRAM_FRAME,
+            IMMEDIATE_ACK_FRAME,
+            
+            QUIC_SIMPLE_FRAME,
+        };
+
+        ~QuicWriteFrame();
+        QuicWriteFrame(QuicWriteFrame&& other) noexcept;
+        QuicWriteFrame& operator=(QuicWriteFrame&& other) noexcept;
+        QuicWriteFrame(PaddingFrame&& in);
+        QuicWriteFrame(RstStreamFrame&& in);
+        QuicWriteFrame(ConnectionCloseFrame&& in);
+        QuicWriteFrame(MaxDataFrame&& in);
+        QuicWriteFrame(MaxStreamDataFrame&& in);
+        QuicWriteFrame(DataBlockedFrame&& in);
+        QuicWriteFrame(StreamDataBlockedFrame&& in);
+        QuicWriteFrame(StreamsBlockedFrame&& in);
+
+        QuicWriteFrame(WriteAckFrame&& in);
+        QuicWriteFrame(WriteStreamFrame&& in);
+        QuicWriteFrame(WriteCryptoFrame&& in);
+
+        QuicWriteFrame(PingFrame&& in);
+        QuicWriteFrame(NoopFrame&& in);
+        QuicWriteFrame(DatagramFrame&& in);
+        QuicWriteFrame(ImmediateAckFrame&& in);
+        QuicWriteFrame(QuicSimpleFrame&& in);
+
+        TYPE type() const;
+
+        PaddingFrame *asPaddingFrame();
+        RstStreamFrame *asRstStreamFrame();
+        ConnectionCloseFrame *asConnectionCloseFrame();
+        MaxDataFrame *asMaxDataFrame();
+        MaxStreamDataFrame *asMaxStreamDataFrame();
+        DataBlockedFrame *asDataBlockedFrame();
+        StreamDataBlockedFrame *asStreamDataBlockedFrame();
+        StreamsBlockedFrame *asStreamsBlockedFrame();
+        WriteAckFrame *asWriteAckFrame();
+        WriteStreamFrame *asWriteStreamFrame();
+        WriteCryptoFrame *asWriteCryptoFrame();
+        PingFrame *asPingFrame();
+        NoopFrame *asNoopFrame();
+        DatagramFrame *asDatagramFrame();
+        ImmediateAckFrame *asImmediateAckFrame();
+        QuicSimpleFrame *asQuicSimpleFrame();
+
+    private:
+        void destroy() noexcept;
+
+        TYPE _type;
+        union{
+            PaddingFrame padding;
+            RstStreamFrame rstStream;
+            ConnectionCloseFrame connClose;
+            MaxDataFrame maxData;
+            MaxStreamDataFrame maxStream;
+            DataBlockedFrame dataBlocked;
+            StreamDataBlockedFrame streamDataBlocked;
+            StreamsBlockedFrame streamBlocked;
+            WriteAckFrame writeACK;
+            WriteStreamFrame writeStream;
+            WriteCryptoFrame writeCrypto;
+            PingFrame ping;
+            NoopFrame noop;
+            DatagramFrame datagram;
+            ImmediateAckFrame immAck;
+            QuicSimpleFrame quicSimple;
+        };
+    };
 
 }

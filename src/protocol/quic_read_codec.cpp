@@ -431,7 +431,7 @@ std::string QuicReadCodec::connIdToHex() const {
     const auto& serverId = _serverConnectionId.value_or(zeroConn);
     const auto& clientId = _clientConnectionId.value_or(zeroConn);
 
-    return fmt::format("server=%s client=%s", serverId.Hex(), clientId.Hex());
+    return fmt::format("server=%s client=%s", serverId.hex(), clientId.hex());
 }
 
 CodecResult::CodecResult(RegularQuicPacket&& regularPacketIn)

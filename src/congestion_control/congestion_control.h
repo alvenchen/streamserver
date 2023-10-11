@@ -109,20 +109,20 @@ struct CongestionController {
    * Return the number of bytes that the congestion controller
    * will allow you to write.
    */
-  FOLLY_NODISCARD virtual uint64_t getWritableBytes() const = 0;
+  [[nodiscard]] virtual uint64_t getWritableBytes() const = 0;
 
   /**
    * Return the number of bytes of cwnd of the congestion
    * controller.
    */
-  FOLLY_NODISCARD virtual uint64_t getCongestionWindow() const = 0;
+  [[nodiscard]] virtual uint64_t getCongestionWindow() const = 0;
 
   /**
    * Return the congestion controller's bandwidth estimate, if available.
    *
    * Unit is bits-per-second (bps).
    */
-  FOLLY_NODISCARD virtual folly::Optional<Bandwidth> getBandwidth() const {
+  [[nodiscard]] virtual folly::Optional<Bandwidth> getBandwidth() const {
     return folly::none;
   }
 
@@ -141,7 +141,7 @@ struct CongestionController {
    */
   virtual void setAppLimited() = 0;
 
-  FOLLY_NODISCARD virtual CongestionControlType type() const = 0;
+  [[nodiscard]] virtual CongestionControlType type() const = 0;
 
   /**
    * Set the congestion controller to use only a fraction of the available
@@ -158,20 +158,20 @@ struct CongestionController {
    * Whether the congestion controller is making use of all of the available
    * bandwidth. Returns true if bandwidthUtilizationFactor < 1.0.
    */
-  FOLLY_NODISCARD virtual bool isInBackgroundMode() const = 0;
+  [[nodiscard]] virtual bool isInBackgroundMode() const = 0;
 
   /**
    * Whether the congestion controller thinks it's currently in app-limited
    * state.
    */
-  FOLLY_NODISCARD virtual bool isAppLimited() const = 0;
+  [[nodiscard]] virtual bool isAppLimited() const = 0;
 
   virtual void getStats(CongestionControllerStats& stats) const = 0;
 
   /**
    * Get current state of congestion controller.
    */
-  FOLLY_NODISCARD State getState() const {
+  [[nodiscard]] State getState() const {
     State state;
     state.congestionWindowBytes = getCongestionWindow();
     state.writableBytes = getWritableBytes();
