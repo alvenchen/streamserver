@@ -65,7 +65,7 @@ class QuicTransportBase : public QuicSocket, QuicStreamPrioritiesObserver {
 
   const folly::SocketAddress& getLocalAddress() const override;
 
-  const std::shared_ptr<QLogger> getQLogger() const;
+  //const std::shared_ptr<QLogger> getQLogger() const;
 
   // QuicSocket interface
   bool good() const override;
@@ -602,7 +602,7 @@ class QuicTransportBase : public QuicSocket, QuicStreamPrioritiesObserver {
 
   void describe(std::ostream& os) const;
 
-  virtual void setQLogger(std::shared_ptr<QLogger> qLogger);
+  //virtual void setQLogger(std::shared_ptr<QLogger> qLogger);
 
   void setLoopDetectorCallback(std::shared_ptr<LoopDetectorCallback> callback) {
     conn_->loopDetectorCallback = std::move(callback);
