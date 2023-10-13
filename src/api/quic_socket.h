@@ -24,8 +24,7 @@
 #include "../state/quic_priority_queue.h"
 #include "../state/quic_stream_group_retransmission_policy.h"
 #include "../state/quic_stream_utilities.h"
-
-#include <quic/state/StateData.h>
+#include "../state/state_data.h"
 
 #include <folly/Portability.h>
 #include <chrono>

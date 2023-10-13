@@ -10,8 +10,9 @@
 #include "../protocol/quic_constants.hpp"
 #include "../protocol/quic_exception.h"
 #include "quic_socket.h"
+#include "../protocol/quic_constants.hpp"
+#include "../protocol/quic_exception.h"
 
-#include <quic/QuicConstants.h>
 #include <quic/QuicException.h>
 #include <quic/api/QuicSocket.h>
 #include <quic/common/Events.h>
