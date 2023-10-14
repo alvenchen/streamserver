@@ -13,7 +13,7 @@
 #include "../protocol/quic.hpp"
 #include "../protocol/quic_constants.hpp"
 #include "../common/SmallCollections.h"
-#include "../congestion_control/congestion_control.h"
+#include "../congestion_control/congestion_controller.h"
 #include "../state/outstanding_packet.h"
 
 namespace quic {

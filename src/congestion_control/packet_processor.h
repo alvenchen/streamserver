@@ -9,7 +9,7 @@
 
 #include <folly/Optional.h>
 #include <folly/io/SocketOptionMap.h>
-#include "congestion_control.h"
+#include "congestion_controller.h"
 #include "../state/outstanding_packet.h"
 #include "../state/packet_event.h"
 

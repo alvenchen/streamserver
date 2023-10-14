@@ -8,7 +8,7 @@
 #pragma once
 
 #include "bandwidth.h"
-#include "congestion_control.h"
+#include "congestion_controller.h"
 #include "windowed_filter.h"
 #include "../state/state_data.h"
 #include "../state/transport_setting.h"

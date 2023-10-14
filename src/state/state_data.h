@@ -18,7 +18,7 @@
 #include "../protocol/quic_exception.h"
 
 #include "../common/BufAccessor.h"
-#include "../congestion_control/congestion_control.h"
+#include "../congestion_control/congestion_controller.h"
 #include "../congestion_control/packet_processor.h"
 #include "../handshake/handshake_layer.hpp"
 #include "../observer/SocketObserverTypes.h"
