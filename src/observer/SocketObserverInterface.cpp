@@ -52,8 +52,8 @@ SocketObserverInterface::WriteEvent::Builder::build() && {
 }
 
 SocketObserverInterface::WriteEvent::WriteEvent(const WriteEvent::BuilderFields& builderFields)
-    : outstandingPackets(*CHECK_NOTNULL(builderFields.maybeOutstandingPacketsRef.get_pointer())),
-        writeCount(*CHECK_NOTNULL(builderFields.maybeWriteCount.get_pointer())),
+    : outstandingPackets(*builderFields.maybeOutstandingPacketsRef.get_pointer()),
+        writeCount(*builderFields.maybeWriteCount.get_pointer()),
         maybeLastPacketSentTime(builderFields.maybeLastPacketSentTime),
         maybeCwndInBytes(builderFields.maybeCwndInBytes),
         maybeWritableBytes(builderFields.maybeWritableBytes) {}
