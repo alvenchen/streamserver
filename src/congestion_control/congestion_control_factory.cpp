@@ -16,8 +16,7 @@
 #include "new_reno.h"
 
 #include "static_cwnd_congestion_controller.h"
-#include <quic/congestion_control/QuicCubic.h>
-
+#include "quic_cubic.h"
 
 #include <memory>
 

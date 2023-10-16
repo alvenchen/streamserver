@@ -9,6 +9,7 @@
 
 #include <folly/Optional.h>
 #include "../protocol/quic_exception.h"
+#include "../protocol/quic_constants.hpp"
 #include "congestion_control_functions.h"
 #include "congestion_controller.h"
 #include "../state/ack_event.h"

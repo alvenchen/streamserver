@@ -15,55 +15,46 @@
 
 namespace quic {
 
-Cubic::Cubic(
-    QuicConnectionStateBase& conn,
-    uint64_t initCwndBytes,
-    uint64_t initSsthresh,
-    bool tcpFriendly,
-    bool ackTrain)
+Cubic::Cubic(QuicConnectionStateBase& conn, uint64_t initCwndBytes,
+    uint64_t initSsthresh, bool tcpFriendly, bool ackTrain)
     : conn_(conn), ssthresh_(initSsthresh) {
-  cwndBytes_ = std::min(
-      conn.transportSettings.maxCwndInMss * conn.udpSendPacketLen,
-      std::max(
-          initCwndBytes,
-          conn.transportSettings.initCwndInMss * conn.udpSendPacketLen));
-  steadyState_.tcpFriendly = tcpFriendly;
-  steadyState_.estRenoCwnd = cwndBytes_;
-  hystartState_.ackTrain = ackTrain;
-  if (conn_.qLogger) {
-    conn_.qLogger->addCongestionMetricUpdate(
+    cwndBytes_ = std::min(conn.transportSettings.maxCwndInMss * conn.udpSendPacketLen,
+        std::max(initCwndBytes, conn.transportSettings.initCwndInMss * conn.udpSendPacketLen));
+    steadyState_.tcpFriendly = tcpFriendly;
+    steadyState_.estRenoCwnd = cwndBytes_;
+    hystartState_.ackTrain = ackTrain;
+    /*
+    if (conn_.qLogger) {
+        conn_.qLogger->addCongestionMetricUpdate(
         conn_.lossState.inflightBytes,
         cwndBytes_,
         kCubicInit,
         cubicStateToString(state_).str());
-  }
+    }
+    */
 }
 
 CubicStates Cubic::state() const noexcept {
-  return state_;
+    return state_;
 }
 
 uint64_t Cubic::getWritableBytes() const noexcept {
-  return cwndBytes_ > conn_.lossState.inflightBytes
-      ? cwndBytes_ - conn_.lossState.inflightBytes
-      : 0;
+    return cwndBytes_ > conn_.lossState.inflightBytes
+        ? cwndBytes_ - conn_.lossState.inflightBytes : 0;
 }
 
-void Cubic::handoff(
-    uint64_t newCwnd,
-    uint64_t newSsthresh,
-    TimePoint lastReductionTime) noexcept {
-  cwndBytes_ = newCwnd;
-  ssthresh_ = newSsthresh;
-  if (cwndBytes_ >= ssthresh_) {
-    state_ = CubicStates::Steady;
-    steadyState_.lastMaxCwndBytes = cwndBytes_;
-    steadyState_.lastReductionTime = lastReductionTime;
-  }
+void Cubic::handoff(uint64_t newCwnd, uint64_t newSsthresh, TimePoint lastReductionTime) noexcept {
+    cwndBytes_ = newCwnd;
+    ssthresh_ = newSsthresh;
+    if (cwndBytes_ >= ssthresh_) {
+        state_ = CubicStates::Steady;
+        steadyState_.lastMaxCwndBytes = cwndBytes_;
+        steadyState_.lastReductionTime = lastReductionTime;
+    }
 }
 
 uint64_t Cubic::getCongestionWindow() const noexcept {
-  return cwndBytes_;
+    return cwndBytes_;
 }
 
 /**
@@ -74,27 +65,28 @@ uint64_t Cubic::getCongestionWindow() const noexcept {
  * we decide to just ignore app limited state right now.
  */
 void Cubic::onPersistentCongestion() {
-  auto minCwnd = conn_.transportSettings.minCwndInMss * conn_.udpSendPacketLen;
-  ssthresh_ = std::max(cwndBytes_ / 2, minCwnd);
-  cwndBytes_ = minCwnd;
-  if (steadyState_.tcpFriendly) {
-    steadyState_.estRenoCwnd = 0;
-  }
-  steadyState_.lastReductionTime.reset();
-  steadyState_.lastMaxCwndBytes.reset();
-  quiescenceStart_.reset();
-  hystartState_.found = Cubic::HystartFound::No;
-  hystartState_.inRttRound = false;
+    auto minCwnd = conn_.transportSettings.minCwndInMss * conn_.udpSendPacketLen;
+    ssthresh_ = std::max(cwndBytes_ / 2, minCwnd);
+    cwndBytes_ = minCwnd;
+    if (steadyState_.tcpFriendly) {
+        steadyState_.estRenoCwnd = 0;
+    }
+    steadyState_.lastReductionTime.reset();
+    steadyState_.lastMaxCwndBytes.reset();
+    quiescenceStart_.reset();
+    hystartState_.found = Cubic::HystartFound::No;
+    hystartState_.inRttRound = false;
 
-  state_ = CubicStates::Hystart;
-
-  if (conn_.qLogger) {
-    conn_.qLogger->addCongestionMetricUpdate(
-        conn_.lossState.inflightBytes,
-        getCongestionWindow(),
-        kPersistentCongestion,
-        cubicStateToString(state_).str());
-  }
+    state_ = CubicStates::Hystart;
+/*
+    if (conn_.qLogger) {
+        conn_.qLogger->addCongestionMetricUpdate(
+            conn_.lossState.inflightBytes,
+            getCongestionWindow(),
+            kPersistentCongestion,
+            cubicStateToString(state_).str());
+    }
+*/
 }
 
 void Cubic::onPacketSent(const OutstandingPacketWrapper& packet) {

@@ -18,10 +18,9 @@
 #include "../common/Timers.h"
 #include "../congestion_control/
 #include "../congestion_control/congestion_control_factory.h"
-
-#include <quic/congestion_control/Copa.h>
-#include <quic/congestion_control/NewReno.h>
-#include <quic/congestion_control/QuicCubic.h>
+#include "../congestion_control/copa.h"
+#include "../congestion_control/new_reno.h"
+#include "../congestion_control/quic_cubic.h"
 
 #include "../state/state_data.h"
 
