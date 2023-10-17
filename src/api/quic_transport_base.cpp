@@ -188,7 +188,7 @@ void QuicTransportBase::close(folly::Optional<QuicError> errorCode) {
 void QuicTransportBase::closeNow(folly::Optional<QuicError> errorCode) {
   DCHECK(getEventBase() && getEventBase()->isInEventBaseThread());
   FOLLY_MAYBE_UNUSED auto self = sharedGuard();
-  VLOG(4) << __func__ << " " << *this;
+  //VLOG(4) << __func__ << " " << *this;
   errorCode = maybeSetGenericAppError(errorCode);
   closeImpl(std::move(errorCode), false);
   // the drain timeout may have been scheduled by a previous close, in which
@@ -214,7 +214,7 @@ void QuicTransportBase::closeGracefully() {
   }
 
   // Stop reads and cancel all the app callbacks.
-  VLOG(10) << "Stopping read and peek loopers due to graceful close " << *this;
+  //VLOG(10) << "Stopping read and peek loopers due to graceful close " << *this;
   readLooper_->stop();
   peekLooper_->stop();
   cancelAllAppCallbacks(
@@ -347,7 +347,7 @@ void QuicTransportBase::closeImpl(
   keepaliveTimeout_.cancelTimeout();
   pingTimeout_.cancelTimeout();
 
-  VLOG(10) << "Stopping read looper due to immediate close " << *this;
+  //VLOG(10) << "Stopping read looper due to immediate close " << *this;
   readLooper_->stop();
   peekLooper_->stop();
   writeLooper_->stop();
@@ -517,13 +517,13 @@ folly::Expected<size_t, LocalErrorCode> QuicTransportBase::getStreamWriteOffset(
     auto stream = CHECK_NOTNULL(conn_->streamManager->getStream(id));
     return stream->currentWriteOffset;
   } catch (const QuicInternalException& ex) {
-    VLOG(4) << __func__ << " " << ex.what() << " " << *this;
+    //VLOG(4) << __func__ << " " << ex.what() << " " << *this;
     return folly::makeUnexpected(ex.errorCode());
   } catch (const QuicTransportException& ex) {
-    VLOG(4) << __func__ << " " << ex.what() << " " << *this;
+    //VLOG(4) << __func__ << " " << ex.what() << " " << *this;
     return folly::makeUnexpected(LocalErrorCode::TRANSPORT_ERROR);
   } catch (const std::exception& ex) {
-    VLOG(4) << __func__ << " " << ex.what() << " " << *this;
+    //VLOG(4) << __func__ << " " << ex.what() << " " << *this;
     return folly::makeUnexpected(LocalErrorCode::INTERNAL_ERROR);
   }
 }
@@ -540,13 +540,13 @@ QuicTransportBase::getStreamWriteBufferedBytes(StreamId id) const {
     auto stream = CHECK_NOTNULL(conn_->streamManager->getStream(id));
     return stream->writeBuffer.chainLength();
   } catch (const QuicInternalException& ex) {
-    VLOG(4) << __func__ << " " << ex.what() << " " << *this;
+    //VLOG(4) << __func__ << " " << ex.what() << " " << *this;
     return folly::makeUnexpected(ex.errorCode());
   } catch (const QuicTransportException& ex) {
-    VLOG(4) << __func__ << " " << ex.what() << " " << *this;
+    //VLOG(4) << __func__ << " " << ex.what() << " " << *this;
     return folly::makeUnexpected(LocalErrorCode::TRANSPORT_ERROR);
   } catch (const std::exception& ex) {
-    VLOG(4) << __func__ << " " << ex.what() << " " << *this;
+    //VLOG(4) << __func__ << " " << ex.what() << " " << *this;
     return folly::makeUnexpected(LocalErrorCode::INTERNAL_ERROR);
   }
 }
@@ -758,8 +758,7 @@ QuicTransportBase::setReadCallbackInternal(
     StreamId id,
     ReadCallback* cb,
     folly::Optional<ApplicationErrorCode> err) noexcept {
-  VLOG(4) << "Setting setReadCallback for stream=" << id << " cb=" << cb << " "
-          << *this;
+  //VLOG(4) << "Setting setReadCallback for stream=" << id << " cb=" << cb << " " << *this;
   auto readCbIt = readCallbacks_.find(id);
   if (readCbIt == readCallbacks_.end()) {
     // Don't allow initial setting of a nullptr callback.
@@ -784,7 +783,7 @@ QuicTransportBase::setReadCallbackInternal(
 
 folly::Expected<folly::Unit, LocalErrorCode> QuicTransportBase::pauseRead(
     StreamId id) {
-  VLOG(4) << __func__ << " " << *this << " stream=" << id;
+  //VLOG(4) << __func__ << " " << *this << " stream=" << id;
   return pauseOrResumeRead(id, false);
 }
 
@@ -817,7 +816,7 @@ folly::Expected<folly::Unit, LocalErrorCode> QuicTransportBase::stopSending(
 
 folly::Expected<folly::Unit, LocalErrorCode> QuicTransportBase::resumeRead(
     StreamId id) {
-  VLOG(4) << __func__ << " " << *this << " stream=" << id;
+  //VLOG(4) << __func__ << " " << *this << " stream=" << id;
   return pauseOrResumeRead(id, true);
 }
 
@@ -876,8 +875,7 @@ void QuicTransportBase::invokeReadDataAndCallbacks() {
       // we cannot peek into it as well.
       self->conn_->streamManager->peekableStreams().erase(streamId);
       peekCallbacks_.erase(streamId);
-      VLOG(10) << "invoking read error callbacks on stream=" << streamId << " "
-               << *this;
+      //VLOG(10) << "invoking read error callbacks on stream=" << streamId << " " << *this;
       if (!stream->groupId) {
         readCb->readError(streamId, QuicError(*stream->streamReadError));
       } else {
@@ -886,8 +884,7 @@ void QuicTransportBase::invokeReadDataAndCallbacks() {
       }
     } else if (
         readCb && callback->second.resumed && stream->hasReadableData()) {
-      VLOG(10) << "invoking read callbacks on stream=" << streamId << " "
-               << *this;
+      //VLOG(10) << "invoking read callbacks on stream=" << streamId << " " << *this;
       if (!stream->groupId) {
         readCb->readAvailable(streamId);
       } else {
@@ -902,7 +899,7 @@ void QuicTransportBase::invokeReadDataAndCallbacks() {
 
 void QuicTransportBase::updateReadLooper() {
   if (closeState_ != CloseState::OPEN) {
-    VLOG(10) << "Stopping read looper " << *this;
+    //VLOG(10) << "Stopping read looper " << *this;
     readLooper_->stop();
     return;
   }
@@ -920,10 +917,10 @@ void QuicTransportBase::updateReadLooper() {
       });
   if (iter != conn_->streamManager->readableStreams().end() ||
       !conn_->datagramState.readBuffer.empty()) {
-    VLOG(10) << "Scheduling read looper " << *this;
+    //VLOG(10) << "Scheduling read looper " << *this;
     readLooper_->run();
   } else {
-    VLOG(10) << "Stopping read looper " << *this;
+    //VLOG(10) << "Stopping read looper " << *this;
     readLooper_->stop();
   }
 }
@@ -945,8 +942,7 @@ folly::Expected<folly::Unit, LocalErrorCode>
 QuicTransportBase::setPeekCallbackInternal(
     StreamId id,
     PeekCallback* cb) noexcept {
-  VLOG(4) << "Setting setPeekCallback for stream=" << id << " cb=" << cb << " "
-          << *this;
+  //VLOG(4) << "Setting setPeekCallback for stream=" << id << " cb=" << cb << " " << *this;
   auto peekCbIt = peekCallbacks_.find(id);
   if (peekCbIt == peekCallbacks_.end()) {
     // Don't allow initial setting of a nullptr callback.
@@ -956,8 +952,7 @@ QuicTransportBase::setPeekCallbackInternal(
     peekCbIt = peekCallbacks_.emplace(id, PeekCallbackData(cb)).first;
   }
   if (!cb) {
-    VLOG(10) << "Resetting the peek callback to nullptr "
-             << "stream=" << id << " peekCb=" << peekCbIt->second.peekCb;
+    //VLOG(10) << "Resetting the peek callback to nullptr " << "stream=" << id << " peekCb=" << peekCbIt->second.peekCb;
   }
   peekCbIt->second.peekCb = cb;
   updatePeekLooper();
@@ -966,13 +961,13 @@ QuicTransportBase::setPeekCallbackInternal(
 
 folly::Expected<folly::Unit, LocalErrorCode> QuicTransportBase::pausePeek(
     StreamId id) {
-  VLOG(4) << __func__ << " " << *this << " stream=" << id;
+  //VLOG(4) << __func__ << " " << *this << " stream=" << id;
   return pauseOrResumePeek(id, false);
 }
 
 folly::Expected<folly::Unit, LocalErrorCode> QuicTransportBase::resumePeek(
     StreamId id) {
-  VLOG(4) << __func__ << " " << *this << " stream=" << id;
+  //VLOG(4) << __func__ << " " << *this << " stream=" << id;
   return pauseOrResumePeek(id, true);
 }
 
@@ -1014,8 +1009,7 @@ void QuicTransportBase::invokePeekDataAndCallbacks() {
       peekableStreams.begin(),
       peekableStreams.end(),
       std::back_inserter(peekableStreamsCopy));
-  VLOG(10) << __func__
-           << " peekableListCopy.size()=" << peekableStreamsCopy.size();
+  //VLOG(10) << __func__ << " peekableListCopy.size()=" << peekableStreamsCopy.size();
   for (StreamId streamId : peekableStreamsCopy) {
     auto callback = self->peekCallbacks_.find(streamId);
     // This is a likely bug. Need to think more on whether events can
@@ -1025,19 +1019,17 @@ void QuicTransportBase::invokePeekDataAndCallbacks() {
     // reads the data.
     self->conn_->streamManager->peekableStreams().erase(streamId);
     if (callback == self->peekCallbacks_.end()) {
-      VLOG(10) << " No peek callback for stream=" << streamId;
+      //VLOG(10) << " No peek callback for stream=" << streamId;
       continue;
     }
     auto peekCb = callback->second.peekCb;
     auto stream = CHECK_NOTNULL(conn_->streamManager->getStream(streamId));
     if (peekCb && stream->streamReadError) {
-      VLOG(10) << "invoking peek error callbacks on stream=" << streamId << " "
-               << *this;
+      //VLOG(10) << "invoking peek error callbacks on stream=" << streamId << " " << *this;
       peekCb->peekError(streamId, QuicError(*stream->streamReadError));
     } else if (
         peekCb && !stream->streamReadError && stream->hasPeekableData()) {
-      VLOG(10) << "invoking peek callbacks on stream=" << streamId << " "
-               << *this;
+      //VLOG(10) << "invoking peek callbacks on stream=" << streamId << " " << *this;
 
       peekDataFromQuicStream(
           *stream,

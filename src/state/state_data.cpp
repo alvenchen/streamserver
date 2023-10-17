@@ -8,6 +8,7 @@
 #include "outstanding_packet.h"
 #include "quic_stream_utilities.h"
 #include "state_data.h"
+#include <folly/Optional.h>
 
 namespace quic {
 QuicStreamState::QuicStreamState(StreamId idIn, QuicConnectionStateBase& connIn)
@@ -117,7 +118,7 @@ bool QuicConnectionStateBase::retireAndSwitchPeerConnectionIds() {
   if (replacementConnIdDataIt == end) {
     return false;
   }
-  DCHECK(currentConnIdDataIt != end);
+  //DCHECK(currentConnIdDataIt != end);
   pendingEvents.frames.push_back(
       RetireConnectionIdFrame(currentConnIdDataIt->sequenceNumber));
   mainPeerId = replacementConnIdDataIt->connId;

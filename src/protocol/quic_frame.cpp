@@ -84,6 +84,9 @@ namespace quic{
             case QuicFrame::TYPE::ACK_FREQUENCY_FRAME:
                 new (&ackFrequency) AckFrequencyFrame(std::move(other.ackFrequency));
                 break;
+            case QuicFrame::TYPE::NOOP_FRAME:
+                new (&noop) NoopFrame(std::move(other.noop));
+                break;
         }
         _type = other._type;
     }
@@ -166,7 +169,10 @@ namespace quic{
                 break;
             case QuicFrame::TYPE::ACK_FREQUENCY_FRAME:
                 new (&ackFrequency) AckFrequencyFrame(std::move(other.ackFrequency));
-                break;            
+                break;
+            case QuicFrame::TYPE::NOOP_FRAME:
+                new (&noop) NoopFrame(std::move(other.noop));
+                break;
         }
         _type = other._type;
         return *this;
@@ -297,6 +303,11 @@ namespace quic{
         new (&ackFrequency) AckFrequencyFrame(std::move(in));
     }
 
+    QuicFrame::QuicFrame(AckFrequencyFrame &&in)
+        :_type(QuicFrame::TYPE::ACK_FREQUENCY_FRAME){
+        new (&ackFrequency) AckFrequencyFrame(std::move(in));
+    }
+
     void QuicFrame::destroy() noexcept{
         switch (_type) {
             case QuicFrame::TYPE::PADDING_FRAME:
@@ -373,6 +384,9 @@ namespace quic{
                 break;
             case QuicFrame::TYPE::ACK_FREQUENCY_FRAME:
                 ackFrequency.~AckFrequencyFrame();
+                break;
+            case QuicFrame::TYPE::NOOP_FRAME:
+                noop.~NoopFrame();
                 break;
         }
     }
@@ -552,6 +566,13 @@ namespace quic{
     AckFrequencyFrame* QuicFrame::asAckFrequencyFrame(){
         if(_type == QuicFrame::TYPE::ACK_FREQUENCY_FRAME){
             return &ackFrequency;
+        }
+        return nullptr;
+    }
+
+    NoopFrame* QuicFrame::asNoopFrame(){
+        if(_type == QuicFrame::TYPE::NOOP_FRAME){
+            return &noop;
         }
         return nullptr;
     }

@@ -682,6 +682,7 @@ namespace quic{
             KNOB_FRAME,
             IMMEDIATE_ACK_FRAME,
             ACK_FREQUENCY_FRAME,
+            NOOP_FRAME,
             QUIC_SIMPLE_FRAME,
         };
 
@@ -713,6 +714,7 @@ namespace quic{
         QuicFrame(KnobFrame&& in);
         QuicFrame(ImmediateAckFrame&& in);
         QuicFrame(AckFrequencyFrame&& in);
+        QuicFrame(NoopFrame&& in);
         QuicFrame(QuicSimpleFrame&& in);
 
         TYPE type() const;
@@ -742,6 +744,7 @@ namespace quic{
         KnobFrame* asKnobFrame();
         ImmediateAckFrame* asImmediateAckFrame();
         AckFrequencyFrame* asAckFrequencyFrame();
+        NoopFrame* asNoopFrame();
         QuicSimpleFrame* asQuicSimpleFrame();
 
     private:
@@ -775,6 +778,7 @@ namespace quic{
             KnobFrame knob; //
             ImmediateAckFrame immAck;
             AckFrequencyFrame ackFrequency;
+            NoopFrame noop;
             QuicSimpleFrame quicSimple;
         };
     };

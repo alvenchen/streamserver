@@ -24,7 +24,7 @@
 #include "../observer/SocketObserverTypes.h"
 #include "../state/ack_event.h"
 #include "../state/loss_state.h"
-//#include <quic/logging/QLogger.h>
+#include "../logging/qlogger.h"
 #include "../state/ack_states.h"
 #include "../state/outstanding_packet.h"
 #include "../state/packet_event.h"
@@ -588,7 +588,7 @@ struct QuicConnectionStateBase : public folly::DelayedDestruction {
 
     PacketSchedulingState schedulingState;
 
-    //std::shared_ptr<QLogger> qLogger; // QLogger for this connection
+    std::shared_ptr<QLogger> qLogger; // QLogger for this connection
 
     // Track stats for various server events
     QuicTransportStatsCallback* statsCallback{nullptr};
