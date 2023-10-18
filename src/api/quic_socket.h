@@ -978,13 +978,13 @@ public:
             // Not supported
         }
         void onByteEvent(ByteEvent byteEvent) final {
-            CHECK_EQ((int)ByteEvent::Type::ACK, (int)byteEvent.type); // sanity
+            //CHECK_EQ((int)ByteEvent::Type::ACK, (int)byteEvent.type); // sanity
             onDeliveryAck(byteEvent.id, byteEvent.offset, byteEvent.srtt);
         }
 
         // Temporary shim during transition to ByteEvent
         void onByteEventCanceled(ByteEventCancellation cancellation) final {
-            CHECK_EQ((int)ByteEvent::Type::ACK, (int)cancellation.type); // sanity
+            //CHECK_EQ((int)ByteEvent::Type::ACK, (int)cancellation.type); // sanity
             onCanceled(cancellation.id, cancellation.offset);
         }
     };

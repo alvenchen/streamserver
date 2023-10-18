@@ -17,7 +17,7 @@
 #include <folly/io/async/TimeoutManager.h>
 
 #include <boost/intrusive/list.hpp>
-#include <glog/logging.h>
+//#include <glog/logging.h>
 
 #include <folly/Chrono.h>
 #include <folly/Exception.h>
@@ -39,11 +39,9 @@ struct TimeoutManager::CobTimeouts {
       try {
         cob_();
       } catch (const std::exception& ex) {
-        LOG(ERROR) << "TimeoutManager::runAfterDelay() callback threw "
-                   << typeid(ex).name() << " exception: " << ex.what();
+        //LOG(ERROR) << "TimeoutManager::runAfterDelay() callback threw " << typeid(ex).name() << " exception: " << ex.what();
       } catch (...) {
-        LOG(ERROR) << "TimeoutManager::runAfterDelay() callback threw "
-                   << "non-exception type";
+        //LOG(ERROR) << "TimeoutManager::runAfterDelay() callback threw " << "non-exception type";
       }
 
       // The CobTimeout object was allocated on the heap by runAfterDelay(),

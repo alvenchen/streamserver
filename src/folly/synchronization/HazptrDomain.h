@@ -145,9 +145,7 @@ class hazptr_domain {
     reclaim_all_objects();
     free_hazptr_recs();
     if (kIsDebug && !tagged_empty()) {
-      LOG(WARNING)
-          << "Tagged objects remain. This may indicate a higher-level leak "
-          << "of object(s) that use hazptr_obj_cohort.";
+      //LOG(WARNING) << "Tagged objects remain. This may indicate a higher-level leak " << "of object(s) that use hazptr_obj_cohort.";
     }
   }
 
@@ -279,7 +277,7 @@ class hazptr_domain {
   }
 
   void dec_num_bulk_reclaims() {
-    DCHECK_GT(load_num_bulk_reclaims(), 0);
+    //DCHECK_GT(load_num_bulk_reclaims(), 0);
     num_bulk_reclaims_.fetch_sub(1, std::memory_order_release);
   }
 
@@ -296,33 +294,33 @@ class hazptr_domain {
 
   /** acquire_hprecs */
   Rec* acquire_hprecs(uint8_t num) {
-    DCHECK_GE(num, 1);
+    //DCHECK_GE(num, 1);
     // C++17: auto [n, head] = try_pop_available_hprecs(num);
     uint8_t n;
     Rec* head;
     std::tie(n, head) = try_pop_available_hprecs(num);
     for (; n < num; ++n) {
       Rec* rec = create_new_hprec();
-      DCHECK(rec->next_avail() == nullptr);
+      //DCHECK(rec->next_avail() == nullptr);
       rec->set_next_avail(head);
       head = rec;
     }
-    DCHECK(head);
+    //DCHECK(head);
     return head;
   }
 
   /** release_hprec */
   void release_hprec(Rec* hprec) noexcept {
-    DCHECK(hprec);
-    DCHECK(hprec->next_avail() == nullptr);
+    //DCHECK(hprec);
+    //DCHECK(hprec->next_avail() == nullptr);
     push_available_hprecs(hprec, hprec);
   }
 
   /** release_hprecs */
   void release_hprecs(Rec* head, Rec* tail) noexcept {
-    DCHECK(head);
-    DCHECK(tail);
-    DCHECK(tail->next_avail() == nullptr);
+    //DCHECK(head);
+    //DCHECK(tail);
+    //DCHECK(tail->next_avail() == nullptr);
     push_available_hprecs(head, tail);
   }
 
@@ -369,7 +367,7 @@ class hazptr_domain {
   size_t calc_shard(uintptr_t ftag) {
     size_t shard =
         (std::hash<uintptr_t>{}(ftag) >> kIgnoredLowBits) & kShardMask;
-    DCHECK(shard < kNumShards);
+    //DCHECK(shard < kNumShards);
     return shard;
   }
 
@@ -476,7 +474,7 @@ class hazptr_domain {
         while (obj) {
           auto next = obj->next();
           auto cohort = obj->cohort();
-          DCHECK(cohort);
+          //DCHECK(cohort);
           cohort->push_safe_obj(obj);
           obj = next;
         }
@@ -514,7 +512,7 @@ class hazptr_domain {
 
   /** do_reclamation */
   void do_reclamation(int rcount) {
-    DCHECK_GE(rcount, 0);
+    //DCHECK_GE(rcount, 0);
     while (true) {
       Obj* untagged[kNumShards];
       Obj* tagged[kNumShards];
@@ -542,7 +540,7 @@ class hazptr_domain {
       Obj* obj, ObjList& match, ObjList& nomatch, const Cond& cond) {
     while (obj) {
       auto next = obj->next();
-      DCHECK_NE(obj, next);
+      //DCHECK_NE(obj, next);
       if (cond(obj)) {
         match.push(obj);
       } else {
@@ -615,7 +613,7 @@ class hazptr_domain {
   }
 
   std::pair<uint8_t, Rec*> try_pop_available_hprecs(uint8_t num) {
-    DCHECK_GE(num, 1);
+    //DCHECK_GE(num, 1);
     while (true) {
       uintptr_t avail = load_avail();
       if (avail == reinterpret_cast<uintptr_t>(nullptr)) {
@@ -628,8 +626,8 @@ class hazptr_domain {
           Rec* head = reinterpret_cast<Rec*>(avail);
           uint8_t nn = pop_available_hprecs_release_lock(num, head);
           // Lock released
-          DCHECK_GE(nn, 1);
-          DCHECK_LE(nn, num);
+          //DCHECK_GE(nn, 1);
+          //DCHECK_LE(nn, num);
           return {nn, head};
         }
       } else {
@@ -640,19 +638,19 @@ class hazptr_domain {
 
   uint8_t pop_available_hprecs_release_lock(uint8_t num, Rec* head) {
     // Lock already acquired
-    DCHECK_GE(num, 1);
-    DCHECK(head);
+    //DCHECK_GE(num, 1);
+    //DCHECK(head);
     Rec* tail = head;
     uint8_t nn = 1;
     Rec* next = tail->next_avail();
     while ((next != nullptr) && (nn < num)) {
-      DCHECK_EQ(reinterpret_cast<uintptr_t>(next) & kLockBit, 0);
+      //DCHECK_EQ(reinterpret_cast<uintptr_t>(next) & kLockBit, 0);
       tail = next;
       next = tail->next_avail();
       ++nn;
     }
     uintptr_t newval = reinterpret_cast<uintptr_t>(next);
-    DCHECK_EQ(newval & kLockBit, 0);
+    //DCHECK_EQ(newval & kLockBit, 0);
     // Release lock
     store_avail(newval);
     tail->set_next_avail(nullptr);
@@ -660,14 +658,14 @@ class hazptr_domain {
   }
 
   void push_available_hprecs(Rec* head, Rec* tail) {
-    DCHECK(head);
-    DCHECK(tail);
-    DCHECK(tail->next_avail() == nullptr);
+    //DCHECK(head);
+    //DCHECK(tail);
+    //DCHECK(tail->next_avail() == nullptr);
     if (kIsDebug) {
       dcheck_connected(head, tail);
     }
     uintptr_t newval = reinterpret_cast<uintptr_t>(head);
-    DCHECK_EQ(newval & kLockBit, 0);
+    //DCHECK_EQ(newval & kLockBit, 0);
     while (true) {
       uintptr_t avail = load_avail();
       if ((avail & kLockBit) == 0) {
@@ -690,11 +688,11 @@ class hazptr_domain {
       Rec* next = rec->next_avail();
       if (rec == tail) {
         connected = true;
-        DCHECK(next == nullptr);
+        //DCHECK(next == nullptr);
       }
       rec = next;
     }
-    DCHECK(connected);
+    //DCHECK(connected);
   }
 
   Rec* create_new_hprec() {
@@ -757,9 +755,7 @@ class hazptr_domain {
       uintptr_t ftag, size_t shard, int count) {
     static std::atomic<uint64_t> warning_count{0};
     if ((warning_count++ % 10000) == 0) {
-      LOG(WARNING) << "Hazptr retired list too large:"
-                   << " ftag=" << ftag << " shard=" << shard
-                   << " count=" << count;
+      //LOG(WARNING) << "Hazptr retired list too large:" << " ftag=" << ftag << " shard=" << shard << " count=" << count;
     }
   }
 
@@ -767,9 +763,7 @@ class hazptr_domain {
       int backlog) {
     static std::atomic<uint64_t> warning_count{0};
     if ((warning_count++ % 10000) == 0) {
-      LOG(WARNING) << backlog
-                   << " request backlog for hazptr asynchronous "
-                      "reclamation executor";
+      //LOG(WARNING) << backlog << " request backlog for hazptr asynchronous " "reclamation executor";
     }
   }
 }; // hazptr_domain

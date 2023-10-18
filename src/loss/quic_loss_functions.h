@@ -88,7 +88,8 @@ calculateAlarmDuration(const QuicConnectionStateBase& conn) {
     adjustedAlarmDuration = folly::chrono::ceil<std::chrono::milliseconds>(
         lastSentPacketTime + alarmDuration - now);
   } else {
-    VLOG(10) << __func__ << " alarm already due method=" << *alarmMethod
+    /*
+    //VLOG(10) << __func__ << " alarm already due method=" << *alarmMethod
              << " lastSentPacketTime="
              << lastSentPacketTime.time_since_epoch().count()
              << " now=" << now.time_since_epoch().count()
@@ -96,8 +97,9 @@ calculateAlarmDuration(const QuicConnectionStateBase& conn) {
              << " deadline="
              << (lastSentPacketTime + alarmDuration).time_since_epoch().count()
              << " " << conn;
+    */
   }
-  DCHECK(alarmMethod.hasValue()) << "Alarm method must have a value";
+  //DCHECK(alarmMethod.hasValue()) << "Alarm method must have a value";
   return std::make_pair(adjustedAlarmDuration, *alarmMethod);
 }
 
@@ -132,11 +134,13 @@ void setLossDetectionAlarm(QuicConnectionStateBase& conn, Timeout& timeout) {
    */
   if (!hasDataToWrite && conn.outstandings.packetEvents.empty() &&
       totalPacketsOutstanding == conn.outstandings.numClonedPackets()) {
-    VLOG(10) << __func__ << " unset alarm pure ack or processed packets only"
+    /*
+    //VLOG(10) << __func__ << " unset alarm pure ack or processed packets only"
              << " outstanding=" << totalPacketsOutstanding
              << " handshakePackets="
              << conn.outstandings.packetCount[PacketNumberSpace::Handshake]
              << " " << conn;
+    */
     conn.pendingEvents.setLossDetectionAlarm = false;
     timeout.cancelLossTimeout();
     return;
@@ -150,8 +154,7 @@ void setLossDetectionAlarm(QuicConnectionStateBase& conn, Timeout& timeout) {
   if (conn.lossState.currentAlarmMethod ==
           LossState::AlarmMethod::EarlyRetransmitOrReordering &&
       !earliestLossTimer(conn).first) {
-    VLOG(10) << __func__
-             << " unset alarm due to invalidated early retran timer";
+    //VLOG(10) << __func__ << " unset alarm due to invalidated early retran timer";
     timeout.cancelLossTimeout();
   }
   if (!conn.pendingEvents.setLossDetectionAlarm) {
@@ -167,7 +170,8 @@ void setLossDetectionAlarm(QuicConnectionStateBase& conn, Timeout& timeout) {
   timeout.cancelLossTimeout();
   auto alarmDuration = calculateAlarmDuration<ClockType>(conn);
   conn.lossState.currentAlarmMethod = alarmDuration.second;
-  VLOG(10) << __func__ << " setting transmission"
+  /*
+  //VLOG(10) << __func__ << " setting transmission"
            << " alarm=" << alarmDuration.first.count() << "ms"
            << " method=" << conn.lossState.currentAlarmMethod
            << " haDataToWrite=" << hasDataToWrite
@@ -179,6 +183,7 @@ void setLossDetectionAlarm(QuicConnectionStateBase& conn, Timeout& timeout) {
            << " handshakePackets="
            << conn.outstandings.packetCount[PacketNumberSpace::Handshake] << " "
            << nodeToString(conn.nodeType) << " " << conn;
+  */
   timeout.scheduleLossTimeout(alarmDuration.first);
   conn.pendingEvents.setLossDetectionAlarm = false;
 }
@@ -223,13 +228,13 @@ void onLossDetectionAlarm(
     const LossVisitor& lossVisitor) {
   auto now = ClockType::now();
   if (conn.outstandings.packets.empty()) {
-    VLOG(10) << "Transmission alarm fired with no outstanding packets " << conn;
+    //VLOG(10) << "Transmission alarm fired with no outstanding packets " << conn;
     return;
   }
   if (conn.lossState.currentAlarmMethod ==
       LossState::AlarmMethod::EarlyRetransmitOrReordering) {
     auto lossTimeAndSpace = earliestLossTimer(conn);
-    CHECK(lossTimeAndSpace.first);
+    //CHECK(lossTimeAndSpace.first);
     auto lossEvent = detectLossPackets(
         conn,
         getAckState(conn, lossTimeAndSpace.second).largestAckedByPeer,
@@ -237,7 +242,7 @@ void onLossDetectionAlarm(
         now,
         lossTimeAndSpace.second);
     if (conn.congestionController && lossEvent) {
-      DCHECK(lossEvent->largestLostSentTime && lossEvent->smallestLostSentTime);
+      //DCHECK(lossEvent->largestLostSentTime && lossEvent->smallestLostSentTime);
       conn.congestionController->onPacketAckOrLoss(
           nullptr, lossEvent.get_pointer());
     }
@@ -246,7 +251,8 @@ void onLossDetectionAlarm(
   }
   conn.pendingEvents.setLossDetectionAlarm =
       conn.outstandings.numOutstanding() > 0;
-  VLOG(10) << __func__ << " setLossDetectionAlarm="
+  /*
+  //VLOG(10) << __func__ << " setLossDetectionAlarm="
            << conn.pendingEvents.setLossDetectionAlarm
            << " outstanding=" << conn.outstandings.numOutstanding()
            << " initialPackets="
@@ -254,6 +260,7 @@ void onLossDetectionAlarm(
            << " handshakePackets="
            << conn.outstandings.packetCount[PacketNumberSpace::Handshake] << " "
            << conn;
+  */
 }
 
 /*
@@ -282,25 +289,24 @@ void markZeroRttPacketsLost(
   CongestionController::LossEvent lossEvent(ClockType::now());
   auto iter = getFirstOutstandingPacket(conn, PacketNumberSpace::AppData);
   while (iter != conn.outstandings.packets.end()) {
-    DCHECK_EQ(
-        iter->packet.header.getPacketNumberSpace(), PacketNumberSpace::AppData);
+    //DCHECK_EQ(iter->packet.header.getPacketNumberSpace(), PacketNumberSpace::AppData);
     auto isZeroRttPacket =
         iter->packet.header.getProtectionType() == ProtectionType::ZeroRtt;
     if (isZeroRttPacket) {
       auto& pkt = *iter;
-      DCHECK(!pkt.metadata.isHandshake);
+      //DCHECK(!pkt.metadata.isHandshake);
       bool processed = pkt.associatedEvent &&
           !conn.outstandings.packetEvents.count(*pkt.associatedEvent);
       lossVisitor(conn, pkt.packet, processed);
       // Remove the PacketEvent from the outstandings.packetEvents set
       if (pkt.associatedEvent) {
         conn.outstandings.packetEvents.erase(*pkt.associatedEvent);
-        CHECK(conn.outstandings.clonedPacketCount[PacketNumberSpace::AppData]);
+        //CHECK(conn.outstandings.clonedPacketCount[PacketNumberSpace::AppData]);
         --conn.outstandings.clonedPacketCount[PacketNumberSpace::AppData];
       }
       lossEvent.addLostPacket(pkt);
       if (!processed) {
-        CHECK(conn.outstandings.packetCount[PacketNumberSpace::AppData]);
+        //CHECK(conn.outstandings.packetCount[PacketNumberSpace::AppData]);
         --conn.outstandings.packetCount[PacketNumberSpace::AppData];
       }
       iter = conn.outstandings.packets.erase(iter);
@@ -314,6 +320,6 @@ void markZeroRttPacketsLost(
   if (conn.congestionController && lossEvent.largestLostPacketNum.hasValue()) {
     conn.congestionController->onRemoveBytesFromInflight(lossEvent.lostBytes);
   }
-  VLOG(10) << __func__ << " marked=" << lossEvent.lostPackets;
+  //VLOG(10) << __func__ << " marked=" << lossEvent.lostPackets;
 }
 } // namespace quic

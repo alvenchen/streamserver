@@ -9,9 +9,8 @@
 #include "client_transport_parameters_extension.h"
 #include "client_state_machine.h"
 
-#include <quic/client/state/ClientStateMachine.h>
-#include <quic/fizz/client/handshake/QuicPskCache.h>
-#include <quic/state/QuicStreamFunctions.h>
+#include "../state/quic_stream_function.h"
+//#include "../fizz/client/QuicPskCache.h"
 
 namespace quic {
 
@@ -34,7 +33,7 @@ void ClientHandshake::connect(
     }
 
     // If zero rtt write cipher is derived, it means the cached psk was valid
-    DCHECK(cachedServerTransportParams);
+    //DCHECK(cachedServerTransportParams);
     cacheServerInitialParams(
         *conn_,
         cachedServerTransportParams->initialMaxData,
@@ -79,7 +78,7 @@ void ClientHandshake::doHandshake(
       appDataReadBuf_.append(std::move(data));
       break;
     default:
-      LOG(FATAL) << "Unhandled EncryptionLevel";
+      //LOG(FATAL) << "Unhandled EncryptionLevel";
   }
   // Get the current buffer type the transport is accepting.
   waitForData_ = false;
@@ -96,7 +95,7 @@ void ClientHandshake::doHandshake(
         processSocketData(appDataReadBuf_);
         break;
       default:
-        LOG(FATAL) << "Unhandled EncryptionLevel";
+        //LOG(FATAL) << "Unhandled EncryptionLevel";
     }
     throwOnError();
   }
@@ -176,12 +175,12 @@ void ClientHandshake::writeDataToStream(
 }
 
 void ClientHandshake::handshakeInitiated() {
-  CHECK(phase_ == Phase::Initial);
+  //CHECK(phase_ == Phase::Initial);
   phase_ = Phase::Handshake;
 }
 
 void ClientHandshake::computeZeroRttCipher() {
-  VLOG(10) << "Computing Client zero rtt keys";
+  //VLOG(10) << "Computing Client zero rtt keys";
   earlyDataAttempted_ = true;
 }
 
@@ -206,7 +205,7 @@ void ClientHandshake::computeOneRttCipher(bool earlyDataAccepted) {
   // After a successful handshake we should send packets with the type of
   // ClientCleartext. We assume that by the time we get the data for the QUIC
   // stream, the server would have also acked all the client initial packets.
-  CHECK(phase_ == Phase::Handshake);
+  //CHECK(phase_ == Phase::Handshake);
   phase_ = Phase::OneRttKeysDerived;
 }
 

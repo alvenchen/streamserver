@@ -89,7 +89,7 @@ class hazptr_tc {
 
   FOLLY_ALWAYS_INLINE
   hazptr_tc_entry<Atom>& operator[](uint8_t i) noexcept {
-    DCHECK(i <= capacity());
+    //DCHECK(i <= capacity());
     return entry_[i];
   }
 
@@ -114,21 +114,21 @@ class hazptr_tc {
   FOLLY_ALWAYS_INLINE void set_count(uint8_t val) noexcept { count_ = val; }
 
   FOLLY_NOINLINE void fill(uint8_t num) {
-    DCHECK_LE(count_ + num, capacity());
+    //DCHECK_LE(count_ + num, capacity());
     auto& domain = default_hazptr_domain<Atom>();
     Rec* hprec = domain.acquire_hprecs(num);
     for (uint8_t i = 0; i < num; ++i) {
-      DCHECK(hprec);
+      //DCHECK(hprec);
       Rec* next = hprec->next_avail();
       hprec->set_next_avail(nullptr);
       entry_[count_++].fill(hprec);
       hprec = next;
     }
-    DCHECK(hprec == nullptr);
+    //DCHECK(hprec == nullptr);
   }
 
   FOLLY_NOINLINE void evict(uint8_t num) {
-    DCHECK_GE(count_, num);
+    //DCHECK_GE(count_, num);
     if (num == 0) {
       return;
     }
@@ -136,16 +136,16 @@ class hazptr_tc {
     Rec* tail = nullptr;
     for (uint8_t i = 0; i < num; ++i) {
       Rec* rec = entry_[--count_].get();
-      DCHECK(rec);
+      //DCHECK(rec);
       rec->set_next_avail(head);
       head = rec;
       if (!tail) {
         tail = rec;
       }
     }
-    DCHECK(head);
-    DCHECK(tail);
-    DCHECK(tail->next_avail() == nullptr);
+    //DCHECK(head);
+    //DCHECK(tail);
+    //DCHECK(tail->next_avail() == nullptr);
     hazard_pointer_default_domain<Atom>().release_hprecs(head, tail);
   }
 

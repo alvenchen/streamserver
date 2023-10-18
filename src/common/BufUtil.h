@@ -130,7 +130,7 @@ public:
     // write.
     void sizeCheck(size_t dataSize) {
         /*
-        DCHECK(iobuf_.tailroom() >= dataSize && written_ + dataSize <= most_)
+        //DCHECK(iobuf_.tailroom() >= dataSize && written_ + dataSize <= most_)
             << "Buffer room=" << iobuf_.tailroom() << " inputSize=" << dataSize
             << " written=" << written_ << " limit=" << most_;
         */

@@ -87,8 +87,7 @@ bool EventHandler::registerImpl(uint16_t events, bool internal) {
   // therefore slightly more efficient in this case (although it does take up
   // more space).
   if (event_.eb_event_add(nullptr) < 0) {
-    LOG(ERROR) << "EventBase: failed to register event handler for fd "
-               << event_.eb_ev_fd() << ": " << errnoStr(errno);
+    //LOG(ERROR) << "EventBase: failed to register event handler for fd " << event_.eb_ev_fd() << ": " << errnoStr(errno);
     // Call event_del() to make sure the event is completely uninstalled
     event_.eb_event_del();
     return false;
@@ -138,7 +137,7 @@ void EventHandler::ensureNotRegistered(const char* fn) {
   // handler is registered.  Treat it as a programmer bug and abort the program
   // if this requirement is violated.
   if (isHandlerRegistered()) {
-    LOG(ERROR) << fn << " called on registered handler; aborting";
+    //LOG(ERROR) << fn << " called on registered handler; aborting";
     abort();
   }
 }

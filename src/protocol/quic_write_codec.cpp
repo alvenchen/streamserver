@@ -205,7 +205,7 @@ static size_t fillFrameWithAckBlocks(const AckBlocks& ackBlocks, WriteAckFrame& 
     for (auto blockItr = ackBlocks.crbegin() + 1; blockItr != ackBlocks.crend(); ++blockItr) {
         const auto& currBlock = *blockItr;
         // These must be true because of the properties of the interval set.
-        、、CHECK_GE(currentSeqNum, currBlock.end + 2);
+        //CHECK_GE(currentSeqNum, currBlock.end + 2);
         PacketNum gap = currentSeqNum - currBlock.end - 2;
         PacketNum currBlockLen = currBlock.end - currBlock.start;
 

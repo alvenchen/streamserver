@@ -164,7 +164,7 @@ class hazptr_obj {
   void push_obj(hazptr_domain<Atom>& domain) {
     auto coh = cohort();
     if (coh) {
-      DCHECK_EQ(&domain, &default_hazptr_domain<Atom>());
+      //DCHECK_EQ(&domain, &default_hazptr_domain<Atom>());
       coh->push_obj(this);
     } else {
       push_to_retired(domain);
@@ -177,7 +177,7 @@ class hazptr_obj {
   }
 
   FOLLY_NOINLINE void pre_retire_check_fail() noexcept {
-    CHECK_EQ(next_, this);
+    //CHECK_EQ(next_, this);
   }
 }; // hazptr_obj
 
@@ -280,13 +280,13 @@ class hazptr_obj_cohort {
     if (active()) {
       shutdown_and_reclaim();
     }
-    DCHECK(!active());
-    DCHECK(l_.empty());
+    //DCHECK(!active());
+    //DCHECK(l_.empty());
   }
 
   /** shutdown_and_reclaim */
   void shutdown_and_reclaim() {
-    DCHECK(active());
+    //DCHECK(active());
     clear_active();
     if (pushed_to_domain_tagged_.load(std::memory_order_relaxed)) {
       default_hazptr_domain<Atom>().cleanup_cohort_tag(this);
@@ -298,7 +298,7 @@ class hazptr_obj_cohort {
       Obj* obj = l.head();
       reclaim_list(obj);
     }
-    DCHECK(l_.empty());
+    //DCHECK(l_.empty());
   }
 
  private:
@@ -384,8 +384,7 @@ class hazptr_obj_cohort {
         if (kIsDebug) {
           Obj* p = ll.head();
           for (int i = 1; p; ++i, p = p->next()) {
-            DCHECK_EQ(reinterpret_cast<uintptr_t>(p) & 7, uintptr_t{0})
-                << p << " " << i;
+            //DCHECK_EQ(reinterpret_cast<uintptr_t>(p) & 7, uintptr_t{0}) << p << " " << i;
           }
         }
         hazptr_obj_list<Atom> l(ll.head(), ll.tail(), c);

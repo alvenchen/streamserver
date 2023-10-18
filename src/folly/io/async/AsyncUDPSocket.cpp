@@ -457,7 +457,7 @@ void AsyncUDPSocket::setErrMessageCallback(
 }
 
 void AsyncUDPSocket::setFD(NetworkSocket fd, FDOwnership ownership) {
-  CHECK_EQ(NetworkSocket(), fd_) << "Already bound to another FD";
+  //CHECK_EQ(NetworkSocket(), fd_) << "Already bound to another FD";
 
   fd_ = fd;
   ownership_ = ownership;
@@ -556,7 +556,7 @@ ssize_t AsyncUDPSocket::writeChain(
     const folly::SocketAddress& address,
     std::unique_ptr<folly::IOBuf>&& buf,
     WriteOptions options) {
-  CHECK(nontrivialCmsgs_.empty()) << "Nontrivial options are not supported";
+  //CHECK(nontrivialCmsgs_.empty()) << "Nontrivial options are not supported";
   int msg_flags = options.zerocopy ? getZeroCopyFlags() : 0;
   iovec vec[16];
   size_t iovec_len = buf->fillIov(vec, sizeof(vec) / sizeof(vec[0])).numIovecs;
@@ -566,7 +566,7 @@ ssize_t AsyncUDPSocket::writeChain(
     vec[0].iov_len = buf->length();
     iovec_len = 1;
   }
-  CHECK_NE(NetworkSocket(), fd_) << "Socket not yet bound";
+  //CHECK_NE(NetworkSocket(), fd_) << "Socket not yet bound";
   sockaddr_storage addrStorage;
   address.getAddress(&addrStorage);
 
@@ -625,15 +625,15 @@ ssize_t AsyncUDPSocket::writeChain(
     memcpy(CMSG_DATA(cm), &txtime, sizeof(txtime));
   }
 #else
-  CHECK_LT(options.gso, 1) << "GSO not supported";
-  CHECK_LT(options.txTime.count(), 1) << "TX_TIME not supported";
+  //CHECK_LT(options.gso, 1) << "GSO not supported";
+  //CHECK_LT(options.txTime.count(), 1) << "TX_TIME not supported";
 #endif
 
   auto ret = sendmsg(fd_, &msg, msg_flags);
   if (msg_flags) {
     if (ret < 0) {
       if (errno == ENOBUFS) {
-        LOG(INFO) << "ENOBUFS...";
+        //LOG(INFO) << "ENOBUFS...";
         // workaround for running with zerocopy enabled but without a big enough
         // memlock value - see ulimit -l
         // Also see /proc/sys/net/core/optmem_max
@@ -666,7 +666,7 @@ ssize_t AsyncUDPSocket::writev(
     const struct iovec* vec,
     size_t iovec_len,
     WriteOptions options) {
-  CHECK_NE(NetworkSocket(), fd_) << "Socket not yet bound";
+  //CHECK_NE(NetworkSocket(), fd_) << "Socket not yet bound";
   netops::Msgheader msg;
   sockaddr_storage addrStorage;
   address.getAddress(&addrStorage);
@@ -721,7 +721,7 @@ ssize_t AsyncUDPSocket::writev(
     return writevImpl(&msg, options);
   }
 #else
-  CHECK_LT(options.gso, 1) << "GSO not supported";
+  //CHECK_LT(options.gso, 1) << "GSO not supported";
 #endif
 
 #ifdef _WIN32
@@ -828,7 +828,7 @@ int AsyncUDPSocket::writemGSO(
   constexpr size_t kSmallSizeMax = 40;
   char* controlPtr = nullptr;
 #ifndef FOLLY_HAVE_MSG_ERRQUEUE
-  CHECK(!options) << "GSO not supported";
+  //CHECK(!options) << "GSO not supported";
 #endif
   maybeUpdateDynamicCmsgs();
   size_t singleControlBufSize = 1;
@@ -877,7 +877,7 @@ void AsyncUDPSocket::fillMsgVec(
     const WriteOptions* options,
     char* control) {
   auto addr_count = addrs.size();
-  DCHECK(addr_count);
+  //DCHECK(addr_count);
   size_t remaining = iov_count;
 
   size_t iov_pos = 0;
@@ -1048,11 +1048,10 @@ int AsyncUDPSocket::recvmmsg(
 }
 
 void AsyncUDPSocket::resumeRead(ReadCallback* cob) {
-  CHECK(!readCallback_) << "Another read callback already installed";
-  CHECK_NE(NetworkSocket(), fd_)
-      << "UDP server socket not yet bind to an address";
+  //CHECK(!readCallback_) << "Another read callback already installed";
+  //CHECK_NE(NetworkSocket(), fd_) << "UDP server socket not yet bind to an address";
 
-  readCallback_ = CHECK_NOTNULL(cob);
+  readCallback_ = cob;
   if (!updateRegistration()) {
     AsyncSocketException ex(
         AsyncSocketException::NOT_OPEN, "failed to register for accept events");
@@ -1097,14 +1096,14 @@ void AsyncUDPSocket::handlerReady(uint16_t events) noexcept {
   }
 
   if (events & EventHandler::READ) {
-    DCHECK(readCallback_);
+    //DCHECK(readCallback_);
     handleRead();
   }
 }
 
 void AsyncUDPSocket::releaseZeroCopyBuf(uint32_t id) {
   auto iter = idZeroCopyBufMap_.find(id);
-  CHECK(iter != idZeroCopyBufMap_.end());
+  //CHECK(iter != idZeroCopyBufMap_.end());
   if (ioBufFreeFunc_) {
     ioBufFreeFunc_(std::move(iter->second));
   }
@@ -1133,9 +1132,11 @@ void AsyncUDPSocket::processZeroCopyMsg(
   uint32_t lo = serr->ee_info;
   // disable zero copy if the buffer was actually copied
   if ((serr->ee_code & SO_EE_CODE_ZEROCOPY_COPIED) && zeroCopyEnabled_) {
-    VLOG(2) << "AsyncSocket::processZeroCopyMsg(): setting "
+    /*
+    //VLOG(2) << "AsyncSocket::processZeroCopyMsg(): setting "
             << "zeroCopyEnabled_ = false due to SO_EE_CODE_ZEROCOPY_COPIED "
             << "on " << fd_;
+    */
     zeroCopyEnabled_ = false;
   }
 
@@ -1169,13 +1170,12 @@ size_t AsyncUDPSocket::handleErrMessages() noexcept {
   size_t num = 0;
   while (fd_ != NetworkSocket()) {
     ret = netops::recvmsg(fd_, &msg, MSG_ERRQUEUE);
-    VLOG(5) << "AsyncSocket::handleErrMessages(): recvmsg returned " << ret;
+    //VLOG(5) << "AsyncSocket::handleErrMessages(): recvmsg returned " << ret;
 
     if (ret < 0) {
       if (errno != EAGAIN) {
         auto errnoCopy = errno;
-        LOG(ERROR) << "::recvmsg exited with code " << ret
-                   << ", errno: " << errnoCopy;
+        //LOG(ERROR) << "::recvmsg exited with code " << ret << ", errno: " << errnoCopy;
         AsyncSocketException ex(
             AsyncSocketException::INTERNAL_ERROR,
             "recvmsg() failed",
@@ -1542,15 +1542,15 @@ void AsyncUDPSocket::applyNontrivialOptions(
 }
 
 void AsyncUDPSocket::detachEventBase() {
-  DCHECK(eventBase_ && eventBase_->isInEventBaseThread());
+  //DCHECK(eventBase_ && eventBase_->isInEventBaseThread());
   registerHandler(uint16_t(NONE));
   eventBase_ = nullptr;
   EventHandler::detachEventBase();
 }
 
 void AsyncUDPSocket::attachEventBase(folly::EventBase* evb) {
-  DCHECK(!eventBase_);
-  DCHECK(evb && evb->isInEventBaseThread());
+  //DCHECK(!eventBase_);
+  //DCHECK(evb && evb->isInEventBaseThread());
   eventBase_ = evb;
   EventHandler::attachEventBase(evb);
   updateRegistration();

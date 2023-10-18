@@ -284,8 +284,7 @@ class HHWheelTimerBase : private folly::AsyncTimeout,
         try {
           fn_();
         } catch (...) {
-          LOG(ERROR) << "HHWheelTimerBase timeout callback threw unhandled "
-                     << exceptionStr(std::current_exception());
+          //LOG(ERROR) << "HHWheelTimerBase timeout callback threw unhandled " << exceptionStr(std::current_exception());
         }
         delete this;
       }

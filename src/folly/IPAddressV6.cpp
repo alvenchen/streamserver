@@ -393,19 +393,19 @@ bool IPAddressV6::isMulticast() const {
 }
 
 uint8_t IPAddressV6::getMulticastFlags() const {
-  DCHECK(isMulticast());
+  //DCHECK(isMulticast());
   return uint8_t((addr_.bytes_[1] >> 4) & 0xf);
 }
 
 uint8_t IPAddressV6::getMulticastScope() const {
-  DCHECK(isMulticast());
+  //DCHECK(isMulticast());
   return uint8_t(addr_.bytes_[1] & 0xf);
 }
 
 IPAddressV6 IPAddressV6::getSolicitedNodeAddress() const {
   // Solicited node addresses must be constructed from unicast (or anycast)
   // addresses
-  DCHECK(!isMulticast());
+  //DCHECK(!isMulticast());
 
   uint8_t bytes[16] = {
       0xff,

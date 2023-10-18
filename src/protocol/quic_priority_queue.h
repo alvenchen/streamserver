@@ -7,7 +7,7 @@
 
 #pragma once
 
-//#include <folly/container/F14Map.h>
+#include <folly/container/F14Map.h>
 #include <map>
 #include <set>
 #include "quic.hpp"
@@ -161,8 +161,8 @@ struct PriorityQueue {
         }
 
     private:
-        //folly::F14FastMap<StreamId, OrderId> streamToOrderId;
-        std::map<StreamId, OrderId> streamToOrderId;
+        folly::F14FastMap<StreamId, OrderId> streamToOrderId;
+        //std::map<StreamId, OrderId> streamToOrderId;
     };// end of struct level
 
 
@@ -286,8 +286,8 @@ struct PriorityQueue {
     }
 
 private:
-    //folly::F14FastMap<StreamId, uint8_t> writableStreamsToLevel_;
-    std::map<StreamId, uint8_t> writableStreamsToLevel_;
+    folly::F14FastMap<StreamId, uint8_t> writableStreamsToLevel_;
+    //std::map<StreamId, uint8_t> writableStreamsToLevel_;
     using WSIterator = decltype(writableStreamsToLevel_)::iterator;
 
     void eraseFromLevel(uint8_t levelIndex, StreamId id) {

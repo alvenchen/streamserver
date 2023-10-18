@@ -132,7 +132,7 @@ class SingleWriterFixedHashMap {
     if (!elem_) {
       elem_ = std::make_unique<Elem[]>(capacity_);
     }
-    DCHECK_LT(used_, capacity_);
+    //DCHECK_LT(used_, capacity_);
     if (writer_find(key) < capacity_) {
       return false;
     }
@@ -147,22 +147,22 @@ class SingleWriterFixedHashMap {
         if (state == State::EMPTY) {
           e.setKey(key);
           ++used_;
-          DCHECK_LE(used_, capacity_);
+          //DCHECK_LE(used_, capacity_);
         }
         e.setValue(value);
         e.setValid();
         setSize(size() + 1);
-        DCHECK_LE(size(), used_);
+        //DCHECK_LE(size(), used_);
         return true;
       }
       index = (index + 1) & mask;
     }
-    CHECK(false) << "No available slots";
+    //CHECK(false) << "No available slots";
     folly::assume_unreachable();
   }
 
   void erase(Iterator& it) {
-    DCHECK_NE(it, end());
+    //DCHECK_NE(it, end());
     Elem& e = elem_[it.index_];
     erase_internal(e);
   }
@@ -190,7 +190,7 @@ class SingleWriterFixedHashMap {
   FOLLY_ALWAYS_INLINE size_t hash(Key key) const {
     size_t mask = capacity_ - 1;
     size_t index = std::hash<Key>()(key) & mask;
-    DCHECK_LT(index, capacity_);
+    //DCHECK_LT(index, capacity_);
     return index;
   }
 
@@ -224,7 +224,7 @@ class SingleWriterFixedHashMap {
 
   void erase_internal(Elem& e) {
     e.erase();
-    DCHECK_GT(size(), 0);
+    //DCHECK_GT(size(), 0);
     setSize(size() - 1);
   }
 
@@ -269,28 +269,28 @@ class SingleWriterFixedHashMap {
 
    public:
     FOLLY_ALWAYS_INLINE Key key() const {
-      DCHECK_LT(index_, capacity_);
+      //DCHECK_LT(index_, capacity_);
       Elem& e = elem_[index_];
       return e.key();
     }
 
     FOLLY_ALWAYS_INLINE Value value() const {
-      DCHECK_LT(index_, capacity_);
+      //DCHECK_LT(index_, capacity_);
       Elem& e = elem_[index_];
       return e.value();
     }
 
     FOLLY_ALWAYS_INLINE Iterator& operator++() {
-      DCHECK_LT(index_, capacity_);
+      //DCHECK_LT(index_, capacity_);
       ++index_;
       next();
       return *this;
     }
 
     FOLLY_ALWAYS_INLINE bool operator==(const Iterator& o) const {
-      DCHECK(elem_ == o.elem_ || elem_ == nullptr || o.elem_ == nullptr);
-      DCHECK_EQ(capacity_, o.capacity_);
-      DCHECK_LE(index_, capacity_);
+      //DCHECK(elem_ == o.elem_ || elem_ == nullptr || o.elem_ == nullptr);
+      //DCHECK_EQ(capacity_, o.capacity_);
+      //DCHECK_LE(index_, capacity_);
       return index_ == o.index_;
     }
 

@@ -186,9 +186,9 @@ void markPacketLoss(
             break;
           }
           auto& bufMeta = retxBufMetaItr->second;
-          CHECK_EQ(bufMeta.offset, frame.offset);
-          CHECK_EQ(bufMeta.length, frame.len);
-          CHECK_EQ(bufMeta.eof, frame.fin);
+          //CHECK_EQ(bufMeta.offset, frame.offset);
+          //CHECK_EQ(bufMeta.length, frame.len);
+          //CHECK_EQ(bufMeta.eof, frame.fin);
           if (!streamRetransmissionDisabled(conn, *stream)) {
             stream->insertIntoLossBufMeta(retxBufMetaItr->second);
           }
@@ -217,7 +217,7 @@ void markPacketLoss(
           // it's packet was lost so we might not have the offset.
           break;
         }
-        DCHECK_EQ(bufferItr->second->offset, frame.offset);
+        //DCHECK_EQ(bufferItr->second->offset, frame.offset);
         cryptoStream->insertIntoLossBuffer(std::move(bufferItr->second));
         cryptoStream->retransmissionBuffer.erase(bufferItr);
         break;
@@ -310,7 +310,7 @@ bool processOutstandingsForLoss(
         // largest ACKed for that stream. The default value here covers the
         // case where no DSR packets were ACKed, in which case we should
         // not declare reorder loss.
-        CHECK(pkt.isDSRPacket);
+        //CHECK(pkt.isDSRPacket);
         return folly::get_default(
             largestDsrAcked,
             maybeStreamFrame->streamId,
@@ -352,11 +352,11 @@ bool processOutstandingsForLoss(
     }
 
     if (pkt.isDSRPacket) {
-      CHECK_GT(conn.outstandings.dsrCount, 0);
+      //CHECK_GT(conn.outstandings.dsrCount, 0);
       --conn.outstandings.dsrCount;
     }
     if (pkt.associatedEvent) {
-      CHECK(conn.outstandings.clonedPacketCount[pnSpace]);
+      //CHECK(conn.outstandings.clonedPacketCount[pnSpace]);
       --conn.outstandings.clonedPacketCount[pnSpace];
     }
     // Invoke LossVisitor if the packet doesn't have a associated PacketEvent;
@@ -547,7 +547,7 @@ folly::Optional<CongestionController::LossEvent> handleAckForLoss(
   conn.pendingEvents.setLossDetectionAlarm =
       conn.outstandings.numOutstanding() > 0;
   /*
-  VLOG(10) << __func__ << " largestAckedInPacket="
+  //VLOG(10) << __func__ << " largestAckedInPacket="
            << ack.largestNewlyAckedPacket.value_or(0)
            << " setLossDetectionAlarm="
            << conn.pendingEvents.setLossDetectionAlarm

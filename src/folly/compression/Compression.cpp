@@ -287,8 +287,8 @@ bool StreamCodec::compressStream(
       state_ = State::END;
     }
     // Check internal invariants
-    DCHECK(input.empty());
-    DCHECK(flushOp != StreamCodec::FlushOp::NONE);
+    //DCHECK(input.empty());
+    //DCHECK(flushOp != StreamCodec::FlushOp::NONE);
   }
   return done;
 }
@@ -324,7 +324,7 @@ bool StreamCodec::uncompressStream(
 
 static std::unique_ptr<IOBuf> addOutputBuffer(
     MutableByteRange& output, uint64_t size) {
-  DCHECK(output.empty());
+  //DCHECK(output.empty());
   auto buffer = IOBuf::create(size);
   buffer->append(buffer->capacity());
   output = {buffer->writableData(), buffer->length()};
@@ -364,9 +364,9 @@ std::unique_ptr<IOBuf> StreamCodec::doCompress(IOBuf const* data) {
     }
     done = compressStream(input, output, flushOp);
     if (done) {
-      DCHECK(input.empty());
-      DCHECK(flushOp == StreamCodec::FlushOp::END);
-      DCHECK_EQ(current->next(), data);
+      //DCHECK(input.empty());
+      //DCHECK(flushOp == StreamCodec::FlushOp::END);
+      //DCHECK_EQ(current->next(), data);
     }
   }
   buffer->prev()->trimEnd(output.size());
@@ -452,7 +452,7 @@ std::unique_ptr<Codec> NoCompressionCodec::create(int level, CodecType type) {
 
 NoCompressionCodec::NoCompressionCodec(int level, CodecType type)
     : Codec(type) {
-  DCHECK(type == CodecType::NO_COMPRESSION);
+  //DCHECK(type == CodecType::NO_COMPRESSION);
   switch (level) {
     case COMPRESSION_LEVEL_DEFAULT:
     case COMPRESSION_LEVEL_FASTEST:
@@ -487,7 +487,7 @@ std::unique_ptr<IOBuf> NoCompressionCodec::doUncompress(
 #if (FOLLY_HAVE_LIBLZ4 || FOLLY_HAVE_LIBLZMA)
 
 void encodeVarintToIOBuf(uint64_t val, folly::IOBuf* out) {
-  DCHECK_GE(out->tailroom(), kMaxVarintLength64);
+  //DCHECK_GE(out->tailroom(), kMaxVarintLength64);
   out->append(encodeVarint(val, out->writableTail()));
 }
 
@@ -580,7 +580,7 @@ int lz4ConvertLevel(int level) {
 LZ4Codec::LZ4Codec(int level, CodecType type)
     : Codec(type, lz4ConvertLevel(level)),
       highCompression_(lz4ConvertLevel(level) > 1) {
-  DCHECK(type == CodecType::LZ4 || type == CodecType::LZ4_VARINT_SIZE);
+  //DCHECK(type == CodecType::LZ4 || type == CodecType::LZ4_VARINT_SIZE);
 }
 
 bool LZ4Codec::doNeedsUncompressedLength() const {
@@ -650,8 +650,8 @@ std::unique_ptr<IOBuf> LZ4Codec::doCompress(const IOBuf* data) {
   }
 #endif
 
-  CHECK_GE(n, 0);
-  CHECK_LE(n, out->capacity());
+  //CHECK_GE(n, 0);
+  //CHECK_LE(n, out->capacity());
 
   out->append(n);
   return out;
@@ -675,8 +675,8 @@ std::unique_ptr<IOBuf> LZ4Codec::doUncompress(
     }
   } else {
     // Invariants
-    DCHECK(uncompressedLength.has_value());
-    DCHECK(*uncompressedLength <= maxUncompressedLength());
+    //DCHECK(uncompressedLength.has_value());
+    //DCHECK(*uncompressedLength <= maxUncompressedLength());
     actualUncompressedLength = *uncompressedLength;
   }
 
@@ -781,7 +781,7 @@ int lz4fConvertLevel(int level) {
 
 LZ4FrameCodec::LZ4FrameCodec(int level, CodecType type)
     : Codec(type, lz4fConvertLevel(level)), level_(lz4fConvertLevel(level)) {
-  DCHECK(type == CodecType::LZ4_FRAME);
+  //DCHECK(type == CodecType::LZ4_FRAME);
 }
 
 LZ4FrameCodec::~LZ4FrameCodec() {
@@ -938,7 +938,7 @@ const char* IOBufSnappySource::Peek(size_t* len) {
 }
 
 void IOBufSnappySource::Skip(size_t n) {
-  CHECK_LE(n, available_);
+  //CHECK_LE(n, available_);
   cursor_.skip(n);
   available_ -= n;
 }
@@ -964,7 +964,7 @@ std::unique_ptr<Codec> SnappyCodec::create(int level, CodecType type) {
 }
 
 SnappyCodec::SnappyCodec(int level, CodecType type) : Codec(type) {
-  DCHECK(type == CodecType::SNAPPY);
+  //DCHECK(type == CodecType::SNAPPY);
   switch (level) {
     case COMPRESSION_LEVEL_FASTEST:
     case COMPRESSION_LEVEL_DEFAULT:
@@ -995,7 +995,7 @@ std::unique_ptr<IOBuf> SnappyCodec::doCompress(const IOBuf* data) {
 
   size_t n = snappy::Compress(&source, &sink);
 
-  CHECK_LE(n, out->capacity());
+  //CHECK_LE(n, out->capacity());
   out->append(n);
   return out;
 }
@@ -1133,7 +1133,7 @@ std::unique_ptr<StreamCodec> LZMA2StreamCodec::createStream(
 
 LZMA2StreamCodec::LZMA2StreamCodec(int level, CodecType type)
     : StreamCodec(type) {
-  DCHECK(type == CodecType::LZMA2 || type == CodecType::LZMA2_VARINT_SIZE);
+  //DCHECK(type == CodecType::LZMA2 || type == CodecType::LZMA2_VARINT_SIZE);
   switch (level) {
     case COMPRESSION_LEVEL_FASTEST:
       level = 0;
@@ -1416,22 +1416,22 @@ int zstdFastConvertLevel(int level) {
 }
 
 std::unique_ptr<Codec> getZstdCodec(int level, CodecType type) {
-  DCHECK(type == CodecType::ZSTD);
+  //DCHECK(type == CodecType::ZSTD);
   return zstd::getCodec(zstd::Options(zstdConvertLevel(level)));
 }
 
 std::unique_ptr<StreamCodec> getZstdStreamCodec(int level, CodecType type) {
-  DCHECK(type == CodecType::ZSTD);
+  //DCHECK(type == CodecType::ZSTD);
   return zstd::getStreamCodec(zstd::Options(zstdConvertLevel(level)));
 }
 
 std::unique_ptr<Codec> getZstdFastCodec(int level, CodecType type) {
-  DCHECK(type == CodecType::ZSTD_FAST);
+  //DCHECK(type == CodecType::ZSTD_FAST);
   return zstd::getCodec(zstd::Options(zstdFastConvertLevel(level)));
 }
 
 std::unique_ptr<StreamCodec> getZstdFastStreamCodec(int level, CodecType type) {
-  DCHECK(type == CodecType::ZSTD_FAST);
+  //DCHECK(type == CodecType::ZSTD_FAST);
   return zstd::getStreamCodec(zstd::Options(zstdFastConvertLevel(level)));
 }
 
@@ -1486,7 +1486,7 @@ class Bzip2StreamCodec final : public StreamCodec {
 
 Bzip2StreamCodec::Bzip2StreamCodec(int level, CodecType type)
     : StreamCodec(type) {
-  DCHECK(type == CodecType::BZIP2);
+  //DCHECK(type == CodecType::BZIP2);
   switch (level) {
     case COMPRESSION_LEVEL_FASTEST:
       level = 1;
@@ -1616,8 +1616,8 @@ bool Bzip2StreamCodec::doCompressStream(
       return false;
     case StreamCodec::FlushOp::FLUSH:
       if (rc == BZ_RUN_OK) {
-        DCHECK_EQ(cstream_->avail_in, 0);
-        DCHECK(input.empty() || cstream_->avail_out != output.size());
+        //DCHECK_EQ(cstream_->avail_in, 0);
+        //DCHECK(input.empty() || cstream_->avail_out != output.size());
         return true;
       }
       return false;
@@ -1666,7 +1666,7 @@ bool Bzip2StreamCodec::doUncompressStream(
 #if FOLLY_HAVE_LIBZ
 
 zlib::Options getZlibOptions(CodecType type) {
-  DCHECK(type == CodecType::GZIP || type == CodecType::ZLIB);
+  //DCHECK(type == CodecType::GZIP || type == CodecType::ZLIB);
   return type == CodecType::GZIP ? zlib::defaultGzipOptions()
                                  : zlib::defaultZlibOptions();
 }
@@ -1786,14 +1786,16 @@ AutomaticCodec::AutomaticCodec(
   }
 
   // Check that none of the codecs are null
+  /*
   DCHECK(std::none_of(
-      codecs_.begin(), codecs_.end(), [](std::unique_ptr<Codec> const& codec) {
+    codecs_.begin(), codecs_.end(), [](std::unique_ptr<Codec> const& codec) {
         return codec == nullptr;
       }));
-
+  */
   // Check that the terminal codec's type is not duplicated (with the exception
   // of USER_DEFINED).
   if (terminalCodec_) {
+    /*
     DCHECK(std::none_of(
         codecs_.begin(),
         codecs_.end(),
@@ -1801,6 +1803,7 @@ AutomaticCodec::AutomaticCodec(
           return codec->type() != CodecType::USER_DEFINED &&
               codec->type() == terminalCodec_->type();
         }));
+    */
   }
 
   bool const terminalNeedsUncompressedLength =
@@ -1819,7 +1822,7 @@ AutomaticCodec::AutomaticCodec(
       [](std::unique_ptr<Codec> const& lhs, std::unique_ptr<Codec> const& rhs) {
         return lhs->maxUncompressedLength() < rhs->maxUncompressedLength();
       });
-  DCHECK(it != codecs_.end());
+  //DCHECK(it != codecs_.end());
   auto const terminalMaxUncompressedLength =
       terminalCodec_ ? terminalCodec_->maxUncompressedLength() : 0;
   maxUncompressedLength_ =
@@ -1989,7 +1992,7 @@ std::unique_ptr<Codec> getCodec(CodecType type, int level) {
         to<std::string>("Compression type ", type, " not supported"));
   }
   auto codec = (*factory)(level, type);
-  DCHECK(codec->type() == type);
+  //DCHECK(codec->type() == type);
   return codec;
 }
 
@@ -2004,7 +2007,7 @@ std::unique_ptr<StreamCodec> getStreamCodec(CodecType type, int level) {
         to<std::string>("Compression type ", type, " not supported"));
   }
   auto codec = (*factory)(level, type);
-  DCHECK(codec->type() == type);
+  //DCHECK(codec->type() == type);
   return codec;
 }
 

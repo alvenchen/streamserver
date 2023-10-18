@@ -34,7 +34,7 @@ void Copa2::onRemoveBytesFromInflight(uint64_t bytes) {
 void Copa2::onPacketSent(const OutstandingPacketWrapper& packet) {
     addAndCheckOverflow(conn_.lossState.inflightBytes, packet.metadata.encodedSize);
 /*
-    VLOG(10) << __func__ << " writable=" << getWritableBytes()
+    //VLOG(10) << __func__ << " writable=" << getWritableBytes()
             << " cwnd=" << cwndBytes_
             << " inflight=" << conn_.lossState.inflightBytes
             << " bytesBufferred=" << conn_.flowControlState.sumCurStreamBufferLen

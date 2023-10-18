@@ -41,8 +41,7 @@ void FunctionLooper::commonLoopBody() noexcept {
   func_();
   // callback could cause us to stop ourselves.
   // Someone could have also called run() in the callback.
-  VLOG(10) << __func__ << ": " << type_ << " hasBeenRunning=" << hasBeenRunning
-           << " running_=" << running_;
+  //VLOG(10) << __func__ << ": " << type_ << " hasBeenRunning=" << hasBeenRunning << " running_=" << running_;
   if (!running_) {
     return;
   }
@@ -69,17 +68,16 @@ void FunctionLooper::runLoopCallback() noexcept {
 }
 
 void FunctionLooper::run(bool thisIteration) noexcept {
-  VLOG(10) << __func__ << ": " << type_;
+  //VLOG(10) << __func__ << ": " << type_;
   running_ = true;
   // Caller can call run() in func_. But if we are in pacing mode, we should
   // prevent such loop.
   if (pacingTimer_ && inLoopBody_) {
-    VLOG(4) << __func__ << ": " << type_
-            << " in loop body and using pacing - not rescheduling";
+    //VLOG(4) << __func__ << ": " << type_ << " in loop body and using pacing - not rescheduling";
     return;
   }
   if (isLoopCallbackScheduled() || (!fireLoopEarly_ && isScheduled())) {
-    VLOG(10) << __func__ << ": " << type_ << " already scheduled";
+    //VLOG(10) << __func__ << ": " << type_ << " already scheduled";
     return;
   }
   // If we are pacing, we're about to write again, if it's close, just write
@@ -102,7 +100,7 @@ void FunctionLooper::run(bool thisIteration) noexcept {
 }
 
 void FunctionLooper::stop() noexcept {
-  VLOG(10) << __func__ << ": " << type_;
+  //VLOG(10) << __func__ << ": " << type_;
   running_ = false;
   cancelLoopCallback();
   cancelTimeout();
@@ -113,15 +111,15 @@ bool FunctionLooper::isRunning() const {
 }
 
 void FunctionLooper::attachEventBase(QuicEventBase* evb) {
-  VLOG(10) << __func__ << ": " << type_;
-  DCHECK(!evb_);
-  DCHECK(evb && evb->isInEventBaseThread());
+  //VLOG(10) << __func__ << ": " << type_;
+  //DCHECK(!evb_);
+  //DCHECK(evb && evb->isInEventBaseThread());
   evb_ = evb;
 }
 
 void FunctionLooper::detachEventBase() {
-  VLOG(10) << __func__ << ": " << type_;
-  DCHECK(evb_ && evb_->isInEventBaseThread());
+  //VLOG(10) << __func__ << ": " << type_;
+  //DCHECK(evb_ && evb_->isInEventBaseThread());
   stop();
   cancelTimeout();
   evb_ = nullptr;

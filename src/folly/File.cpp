@@ -26,13 +26,13 @@
 
 #include <system_error>
 
-#include <glog/logging.h>
+//#include <glog/logging.h>
 
 namespace folly {
 
 File::File(int fd, bool ownsFd) noexcept : fd_(fd), ownsFd_(ownsFd) {
-  CHECK_GE(fd, -1) << "fd must be -1 or non-negative";
-  CHECK(fd != -1 || !ownsFd) << "cannot own -1";
+  //CHECK_GE(fd, -1) << "fd must be -1 or non-negative";
+  //CHECK(fd != -1 || !ownsFd) << "cannot own -1";
 }
 
 File::File(const char* name, int flags, mode_t mode)
@@ -66,9 +66,7 @@ File& File::operator=(File&& other) {
 File::~File() {
   auto fd = fd_;
   if (!closeNoThrow()) { // ignore most errors
-    DCHECK_NE(errno, EBADF)
-        << "closing fd " << fd << ", it may already "
-        << "have been closed. Another time, this might close the wrong FD.";
+    //DCHECK_NE(errno, EBADF) << "closing fd " << fd << ", it may already " << "have been closed. Another time, this might close the wrong FD.";
   }
 }
 

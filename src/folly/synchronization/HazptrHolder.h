@@ -148,12 +148,12 @@ class hazptr_holder {
   template <typename T>
   FOLLY_ALWAYS_INLINE void reset_protection(const T* ptr) noexcept {
     auto p = static_cast<hazptr_obj<Atom>*>(const_cast<T*>(ptr));
-    DCHECK(hprec_); // UB if *this is empty
+    //DCHECK(hprec_); // UB if *this is empty
     hprec_->reset_hazptr(p);
   }
 
   FOLLY_ALWAYS_INLINE void reset_protection(std::nullptr_t = nullptr) noexcept {
-    DCHECK(hprec_); // UB if *this is empty
+    //DCHECK(hprec_); // UB if *this is empty
     hprec_->reset_hazptr();
   }
 
@@ -191,8 +191,8 @@ FOLLY_ALWAYS_INLINE hazptr_holder<Atom> make_hazard_pointer(
   }
 #endif
   auto hprec = domain.acquire_hprecs(1);
-  DCHECK(hprec);
-  DCHECK(hprec->next_avail() == nullptr);
+  //DCHECK(hprec);
+  //DCHECK(hprec->next_avail() == nullptr);
   return hazptr_holder<Atom>(hprec);
 }
 
@@ -304,7 +304,7 @@ class hazptr_array {
   /** [] operator */
   FOLLY_ALWAYS_INLINE hazptr_holder<Atom>& operator[](uint8_t i) noexcept {
     auto h = reinterpret_cast<hazptr_holder<Atom>*>(&raw_);
-    DCHECK(i < M);
+    //DCHECK(i < M);
     return h[i];
   }
 }; // hazptr_array
@@ -329,20 +329,20 @@ FOLLY_ALWAYS_INLINE hazptr_array<M, Atom> make_hazard_pointer_array() {
   uint8_t offset = count - M;
   for (uint8_t i = 0; i < M; ++i) {
     auto hprec = tc[offset + i].get();
-    DCHECK(hprec != nullptr);
+    //DCHECK(hprec != nullptr);
     new (&h[i]) hazptr_holder<Atom>(hprec);
   }
   tc.set_count(offset);
 #else
   auto hprec = hazard_pointer_default_domain<Atom>().acquire_hprecs(M);
   for (uint8_t i = 0; i < M; ++i) {
-    DCHECK(hprec);
+    //DCHECK(hprec);
     auto next = hprec->next_avail();
     hprec->set_next_avail(nullptr);
     new (&h[i]) hazptr_holder<Atom>(hprec);
     hprec = next;
   }
-  DCHECK(hprec == nullptr);
+  //DCHECK(hprec == nullptr);
 #endif
   a.empty_ = false;
   return a;
@@ -381,12 +381,12 @@ class hazptr_local {
       tc.fill(M - count);
     }
     if (kIsDebug) {
-      DCHECK(!tc.local());
+      //DCHECK(!tc.local());
       tc.set_local(true);
     }
     for (uint8_t i = 0; i < M; ++i) {
       auto hprec = tc[i].get();
-      DCHECK(hprec != nullptr);
+      //DCHECK(hprec != nullptr);
       new (&h[i]) hazptr_holder<Atom>(hprec);
     }
 #else
@@ -407,7 +407,7 @@ class hazptr_local {
 #if FOLLY_HAZPTR_THR_LOCAL
     if (kIsDebug) {
       auto& tc = hazptr_tc_tls<Atom>();
-      DCHECK(tc.local());
+      //DCHECK(tc.local());
       tc.set_local(false);
     }
     for (uint8_t i = 0; i < M; ++i) {
@@ -423,7 +423,7 @@ class hazptr_local {
   /** [] operator */
   FOLLY_ALWAYS_INLINE hazptr_holder<Atom>& operator[](uint8_t i) noexcept {
     auto h = reinterpret_cast<hazptr_holder<Atom>*>(&raw_);
-    DCHECK(i < M);
+    //DCHECK(i < M);
     return h[i];
   }
 }; // hazptr_local

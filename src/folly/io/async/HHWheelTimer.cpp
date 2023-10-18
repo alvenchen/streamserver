@@ -197,8 +197,7 @@ void HHWheelTimerBase<Duration>::scheduleTimeout(
 
 template <class Duration>
 void HHWheelTimerBase<Duration>::scheduleTimeout(Callback* callback) {
-  CHECK(Duration(-1) != defaultTimeout_)
-      << "Default timeout was not initialized";
+  //CHECK(Duration(-1) != defaultTimeout_) << "Default timeout was not initialized";
   scheduleTimeout(callback, defaultTimeout_);
 }
 
@@ -239,7 +238,7 @@ void HHWheelTimerBase<Duration>::timeoutExpired() noexcept {
   // If scheduleTimeout is called from a callback in this function, it may
   // cause inconsistencies in the state of this object. As such, we need
   // to treat these calls slightly differently.
-  CHECK(!processingCallbacksGuard_);
+  //CHECK(!processingCallbacksGuard_);
   processingCallbacksGuard_ = &isDestroyed;
   auto reEntryGuard = folly::makeGuard([&] {
     if (!isDestroyed) {

@@ -38,8 +38,8 @@ namespace detail {
 template <typename T>
 typename std::enable_if<std::is_unsigned<T>::value, bool>::type
 dataStartsWithLE(const IOBuf* data, T prefix, uint64_t n = sizeof(T)) {
-  DCHECK_GT(n, 0);
-  DCHECK_LE(n, sizeof(T));
+  //DCHECK_GT(n, 0);
+  //DCHECK_LE(n, sizeof(T));
   T value;
   Cursor cursor{data};
   if (!cursor.tryReadLE(value)) {
@@ -52,8 +52,8 @@ dataStartsWithLE(const IOBuf* data, T prefix, uint64_t n = sizeof(T)) {
 template <typename T>
 typename std::enable_if<std::is_arithmetic<T>::value, std::string>::type
 prefixToStringLE(T prefix, uint64_t n = sizeof(T)) {
-  DCHECK_GT(n, 0);
-  DCHECK_LE(n, sizeof(T));
+  //DCHECK_GT(n, 0);
+  //DCHECK_LE(n, sizeof(T));
   prefix = Endian::little(prefix);
   std::string result;
   result.resize(n);

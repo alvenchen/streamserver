@@ -249,7 +249,7 @@ class IOBufQueue {
       // If we're attached and the cache is not empty, then it should coincide
       // with the tail buffer.
       /*
-      DCHECK(
+      //DCHECK(
           !data_.attached || data_.cachedRange.first == nullptr ||
           (queue_->head_ != nullptr &&
            data_.cachedRange.first >= queue_->head_->prev()->writableTail() &&

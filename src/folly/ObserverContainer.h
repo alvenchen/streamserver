@@ -163,7 +163,7 @@ class ObserverContainerStore : public ObserverContainerStoreBase<Observer> {
     }
 
     if (iterating_) {
-      CHECK(maybeCurrentIterationPolicy_.has_value());
+      //CHECK(maybeCurrentIterationPolicy_.has_value());
       const auto& policy = maybeCurrentIterationPolicy_.value();
       switch (policy) {
         case InvokeWhileIteratingPolicy::InvokeAdded:
@@ -200,7 +200,7 @@ class ObserverContainerStore : public ObserverContainerStoreBase<Observer> {
     // if store is currently being iterated, set this element to nullptr and it
     // will be cleaned up after iteration is completed, else erase immediately.
     if (iterating_) {
-      CHECK(maybeCurrentIterationPolicy_.has_value());
+      //CHECK(maybeCurrentIterationPolicy_.has_value());
       const auto& policy = maybeCurrentIterationPolicy_.value();
       switch (policy) {
         case InvokeWhileIteratingPolicy::InvokeAdded:
@@ -245,10 +245,8 @@ class ObserverContainerStore : public ObserverContainerStoreBase<Observer> {
       folly::Function<void(typename Base::MaybeManagedObserverPointer&)>&& fn,
       const typename Base::InvokeWhileIteratingPolicy policy) noexcept
       override {
-    CHECK(!iterating_)
-        << "Nested iteration of ObserverContainer is prohibited.";
-    CHECK(!maybeCurrentIterationPolicy_.has_value())
-        << "Nested iteration of ObserverContainer is prohibited.";
+    //CHECK(!iterating_) << "Nested iteration of ObserverContainer is prohibited.";
+    //CHECK(!maybeCurrentIterationPolicy_.has_value()) << "Nested iteration of ObserverContainer is prohibited.";
     iterating_ = true;
     maybeCurrentIterationPolicy_ = policy;
     SCOPE_EXIT {
@@ -788,21 +786,21 @@ class ObserverContainerBase {
    private:
     void addedToObserverContainer(
         ObserverContainerBase* ctr) noexcept override {
-      CHECK(!ctr_);
+      //CHECK(!ctr_);
       ctr_ = ctr;
     }
 
     void removedFromObserverContainer(
         ObserverContainerBase* ctr) noexcept override {
-      CHECK_EQ(ctr_, ctr);
+      //CHECK_EQ(ctr_, ctr);
       ctr_ = nullptr;
     }
 
     void movedToObserverContainer(
         ObserverContainerBase* oldCtr,
         ObserverContainerBase* newCtr) noexcept override {
-      CHECK_EQ(ctr_, oldCtr);
-      CHECK_NE(ctr_, newCtr);
+      //CHECK_EQ(ctr_, oldCtr);
+      //CHECK_NE(ctr_, newCtr);
       ctr_ = newCtr;
     }
 
@@ -863,10 +861,10 @@ class ObserverContainer : public ObserverContainerBase<
       ConstructorCallbackList<ObserverContainer, MaxConstructorCallbacks>;
 
   explicit ObserverContainer(Observed* obj)
-      : obj_(CHECK_NOTNULL(obj)), constructorCallbackList_(this) {}
+      : obj_(obj), constructorCallbackList_(this) {}
 
   ObserverContainer(Observed* obj, ObserverContainer&& observerContainer)
-      : obj_(CHECK_NOTNULL(obj)), constructorCallbackList_(this) {
+      : obj_(obj), constructorCallbackList_(this) {
     using InvokeWhileIteratingPolicy =
         typename StoreBase::InvokeWhileIteratingPolicy;
     observerContainer.getStore().invokeForEachObserver(
@@ -877,15 +875,15 @@ class ObserverContainer : public ObserverContainerBase<
           // observer object before calling remove so that it will not be
           // destroyed upon removal from the old ObserverContainer
           auto observerCopy = observer;
-          CHECK_NOTNULL(observerCopy.get());
+          //CHECK_NOTNULL(observerCopy.get());
 
           // remove
           const bool removed = observerContainer.getStore().remove(observer);
-          CHECK(removed);
+          //CHECK(removed);
 
           // add to new, operating solely on observerCopy
           const bool added = getStore().add(observerCopy);
-          CHECK(added);
+          //CHECK(added);
           observerCopy->movedToObserverContainer(&observerContainer, this);
           observerCopy->moved(
               observerContainer.getObject(), obj_, nullptr /* ctx */);
@@ -925,7 +923,7 @@ class ObserverContainer : public ObserverContainerBase<
    * @param observer     Observer to add.
    */
   void addObserver(std::shared_ptr<Observer> observer) override {
-    CHECK_NOTNULL(observer.get());
+    //CHECK_NOTNULL(observer.get());
     if (getStore().add(observer)) {
       DestructorCheck::Safety dc(*observer);
       observer->addedToObserverContainer(this);
@@ -942,7 +940,7 @@ class ObserverContainer : public ObserverContainerBase<
    * @return             Whether the observer was found and removed.
    */
   bool removeObserver(std::shared_ptr<Observer> observer) override {
-    CHECK_NOTNULL(observer.get());
+    //CHECK_NOTNULL(observer.get());
     if (getStore().remove(observer)) {
       DestructorCheck::Safety dc(*observer);
       observer->detached(obj_);

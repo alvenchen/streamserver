@@ -66,14 +66,14 @@ FOLLY_ALWAYS_INLINE
 void RequestData::acquireRef() {
   auto rc = keepAliveCounter_.fetch_add(
       kClearCount + kDeleteCount, std::memory_order_relaxed);
-  DCHECK_GE(rc, 0);
+  //DCHECK_GE(rc, 0);
 }
 
 void RequestData::releaseRefClearOnly() {
   auto rc =
       keepAliveCounter_.fetch_sub(kClearCount, std::memory_order_acq_rel) -
       kClearCount;
-  DCHECK_GT(rc, 0);
+  //DCHECK_GT(rc, 0);
   if (rc < kClearCount) {
     this->onClear();
   }
@@ -83,7 +83,7 @@ void RequestData::releaseRefDeleteOnly() {
   auto rc =
       keepAliveCounter_.fetch_sub(kDeleteCount, std::memory_order_acq_rel) -
       kDeleteCount;
-  DCHECK_GE(rc, 0);
+  //DCHECK_GE(rc, 0);
   if (rc == 0) {
     delete this;
   }
@@ -292,7 +292,7 @@ RequestContext::State::doSetContextDataHelper(
     // Old data will always be overwritten either by the new data
     // (if behavior is OVERWRITE) or by nullptr (if behavior is SET).
     Combined* newCombined = eraseOldData(cur, token, oldData, safe);
-    DCHECK(oldData != nullptr || newCombined == nullptr);
+    //DCHECK(oldData != nullptr || newCombined == nullptr);
     if (newCombined) {
       replaced = cur;
       cur = newCombined;
@@ -301,10 +301,10 @@ RequestContext::State::doSetContextDataHelper(
       // The expected behavior for SET when found is to reset the
       // pointer and warn, without updating to the new data.
       bool inserted = cur->requestData_.insert(token, nullptr);
-      DCHECK(inserted);
+      //DCHECK(inserted);
       unexpected = true;
     } else {
-      DCHECK(behaviour == DoSetBehaviour::OVERWRITE);
+      //DCHECK(behaviour == DoSetBehaviour::OVERWRITE);
     }
   }
   if (!unexpected) {
@@ -337,13 +337,13 @@ RequestContext::State::eraseOldData(
   if (olddata && olddata->hasCallback()) {
     olddata->onUnset();
     bool erased = cur->callbackData_.erase(olddata);
-    DCHECK(erased);
+    //DCHECK(erased);
   }
   if (safe || olddata == nullptr) {
     // If the caller guarantees thread-safety or the old data is null,
     // then erase the entry in the current version.
     bool erased = cur->requestData_.erase(token);
-    DCHECK(erased);
+    //DCHECK(erased);
     if (olddata) {
       olddata->releaseRefClearDelete();
     }
@@ -353,7 +353,7 @@ RequestContext::State::eraseOldData(
     // existence of the new copy.
     newCombined = new Combined(*cur);
     bool erased = newCombined->requestData_.erase(token);
-    DCHECK(erased);
+    //DCHECK(erased);
     newCombined->acquireDataRefs();
   }
   return newCombined;
@@ -377,14 +377,14 @@ RequestContext::State::insertNewData(
   if (data && data->hasCallback()) {
     // If data has callback, insert in callback structure, call onSet
     bool inserted = cur->callbackData_.insert(data.get(), true);
-    DCHECK(inserted);
+    //DCHECK(inserted);
     data->onSet();
   }
   if (data) {
     data->acquireRef();
   }
   bool inserted = cur->requestData_.insert(token, data.release());
-  DCHECK(inserted);
+  //DCHECK(inserted);
   return newCombined;
 }
 
@@ -465,24 +465,24 @@ void RequestContext::State::clearContextData(const RequestToken& token) {
     data = it.value();
     if (!data) {
       bool erased = cur->requestData_.erase(token);
-      DCHECK(erased);
+      //DCHECK(erased);
       return;
     }
     if (data->hasCallback()) {
       data->onUnset();
       bool erased = cur->callbackData_.erase(data);
-      DCHECK(erased);
+      //DCHECK(erased);
     }
     replaced = cur;
     cur = new Combined(*replaced);
     bool erased = cur->requestData_.erase(token);
-    DCHECK(erased);
+    //DCHECK(erased);
     cur->acquireDataRefs();
     setCombined(cur);
   } // Unlock mutex_
-  DCHECK(data);
+  //DCHECK(data);
   data->releaseRefClearOnly();
-  DCHECK(replaced);
+  //DCHECK(replaced);
   replaced->cleared_.emplace_back(std::make_pair(token, data));
   replaced->retire();
 }
@@ -597,7 +597,7 @@ void RequestContext::clearContextData(const RequestToken& val) {
     auto& curcb = curc->callbackData_;
     auto& newcb = newc->callbackData_;
     for (auto it = curcb.begin(); it != curcb.end(); ++it) {
-      DCHECK(it.key());
+      //DCHECK(it.key());
       auto data = it.key();
       if (!newcb.contains(data)) {
         data->onUnset();
@@ -608,7 +608,7 @@ void RequestContext::clearContextData(const RequestToken& val) {
     staticCtx.rootId.store(
         staticCtx.requestContext->getRootId(), std::memory_order_relaxed);
     for (auto it = newcb.begin(); it != newcb.end(); ++it) {
-      DCHECK(it.key());
+      //DCHECK(it.key());
       auto data = it.key();
       if (!curcb.contains(data)) {
         data->onSet();

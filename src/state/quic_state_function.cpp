@@ -111,7 +111,7 @@ void updateAckSendStateOnRecvPacket(QuicConnectionStateBase& conn, AckState& ack
         if ((pktHasCryptoData && !skipCryptoAck) || exceedsReorderThreshold ||
             ++ackState.numRxPacketsRecvd + ackState.numNonRxPacketsRecvd >= thresh) {
             /*
-            VLOG(10) << conn
+            //VLOG(10) << conn
                     << " ack immediately because packet threshold pktHasCryptoData="
                     << pktHasCryptoData << " pktHasRetransmittableData="
                     << static_cast<int>(pktHasRetransmittableData)
@@ -124,7 +124,7 @@ void updateAckSendStateOnRecvPacket(QuicConnectionStateBase& conn, AckState& ack
             ackState.needsToSendAckImmediately = true;
         } else if (!ackState.needsToSendAckImmediately) {
             /*
-            VLOG(10) << conn << " scheduling ack timeout pktHasCryptoData="
+            //VLOG(10) << conn << " scheduling ack timeout pktHasCryptoData="
                     << pktHasCryptoData << " pktHasRetransmittableData="
                     << static_cast<int>(pktHasRetransmittableData)
                     << " numRxPacketsRecvd="
@@ -136,7 +136,7 @@ void updateAckSendStateOnRecvPacket(QuicConnectionStateBase& conn, AckState& ack
         }
     } else if (++ackState.numNonRxPacketsRecvd + ackState.numRxPacketsRecvd >= thresh) {
         /*
-        VLOG(10) << conn
+        /VLOG(10) << conn
             << " ack immediately because exceeds nonrx threshold numNonRxPacketsRecvd="
             << static_cast<int>(ackState.numNonRxPacketsRecvd)
             << " numRxPacketsRecvd="

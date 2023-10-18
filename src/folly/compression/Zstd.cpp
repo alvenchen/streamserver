@@ -109,7 +109,7 @@ bool ZSTDStreamCodec::canUncompress(
 
 CodecType codecType(Options const& options) {
   int const level = options.level();
-  DCHECK_NE(level, 0);
+  //DCHECK_NE(level, 0);
   return level > 0 ? CodecType::ZSTD : CodecType::ZSTD_FAST;
 }
 
@@ -147,9 +147,9 @@ void ZSTDStreamCodec::doResetStream() {
 }
 
 void ZSTDStreamCodec::resetCCtx() {
-  DCHECK(cctx_ == nullptr);
+  //DCHECK(cctx_ == nullptr);
   cctx_ = getZSTD_CCtx(); // Gives us a clean context
-  DCHECK(cctx_ != nullptr);
+  //DCHECK(cctx_ != nullptr);
   zstdThrowIfError(
       ZSTD_CCtx_setParametersUsingCCtxParams(cctx_.get(), options_.params()));
   zstdThrowIfError(ZSTD_CCtx_setPledgedSrcSize(
@@ -186,9 +186,9 @@ bool ZSTDStreamCodec::doCompressStream(
 }
 
 void ZSTDStreamCodec::resetDCtx() {
-  DCHECK(dctx_ == nullptr);
+  //DCHECK(dctx_ == nullptr);
   dctx_ = getZSTD_DCtx(); // Gives us a clean context
-  DCHECK(dctx_ != nullptr);
+  //DCHECK(dctx_ != nullptr);
   if (options_.maxWindowSize() != 0) {
     zstdThrowIfError(
         ZSTD_DCtx_setMaxWindowSize(dctx_.get(), options_.maxWindowSize()));

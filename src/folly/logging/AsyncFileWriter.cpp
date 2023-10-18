@@ -68,7 +68,7 @@ void AsyncFileWriter::writeToFile(
     auto ret =
         folly::writeFull(file_.fd(), ioQueue[idx].data(), ioQueue[idx].size());
     folly::checkUnixError(ret, "writeFull() failed");
-    CHECK_EQ(ret, ioQueue[idx].size());
+    //CHECK_EQ(ret, ioQueue[idx].size());
     ++idx;
 #endif // _WIN32
   }

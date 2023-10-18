@@ -211,7 +211,7 @@ class RegularQuicPacketBuilder final : public PacketBuilderInterface {
     void appendBytes(BufAppender& appender, PacketNum value, uint8_t byteNumber)
         override;
     void appendBytes(BufWriter&, PacketNum, uint8_t) override {
-    CHECK(false) << "Invalid BufWriter";
+        //CHECK(false) << "Invalid BufWriter";
     }
     void insert(std::unique_ptr<folly::IOBuf> buf) override;
     void insert(std::unique_ptr<folly::IOBuf> buf, size_t limit) override;

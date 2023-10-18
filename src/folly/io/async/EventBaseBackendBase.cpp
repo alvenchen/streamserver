@@ -108,7 +108,7 @@ bool EventBaseEvent::setEdgeTriggered() {
     epev.events |= EPOLLOUT;
   }
   if (::epoll_ctl(epfd, EPOLL_CTL_MOD, eb_ev_fd(), &epev) == -1) {
-    LOG(DFATAL) << "epoll_ctl failed: " << errno;
+    //LOG(DFATAL) << "epoll_ctl failed: " << errno;
     return false;
   }
   return true;
@@ -143,7 +143,7 @@ bool EventRecvmsgMultishotCallback::parseRecvmsgMultishot(
   out.flags = h->flags;
 
   if (out.payload.size() != h->payload) {
-    LOG(ERROR) << "odd size " << out.payload.size() << " vs " << h->payload;
+    //LOG(ERROR) << "odd size " << out.payload.size() << " vs " << h->payload;
     return false;
   }
   return true;

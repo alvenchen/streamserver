@@ -65,7 +65,7 @@ EventBaseBackend::EventBaseBackend() {
 
 EventBaseBackend::EventBaseBackend(event_base* evb) : evb_(evb) {
   if (FOLLY_UNLIKELY(evb_ == nullptr)) {
-    LOG(ERROR) << "EventBase(): Pass nullptr as event base.";
+    //LOG(ERROR) << "EventBase(): Pass nullptr as event base.";
     throw std::invalid_argument("EventBase(): event base cannot be nullptr");
   }
 }
@@ -212,7 +212,7 @@ EventBase::~EventBase() {
 
   clearCobTimeouts();
 
-  DCHECK_EQ(0u, runBeforeLoopCallbacks_.size());
+  //DCHECK_EQ(0u, runBeforeLoopCallbacks_.size());
 
   runLoopCallbacks();
 
@@ -243,7 +243,7 @@ EventBase::~EventBase() {
 
   evb_.reset();
 
-  VLOG(5) << "EventBase(): Destroyed.";
+  //VLOG(5) << "EventBase(): Destroyed.";
 }
 
 bool EventBase::tryDeregister(detail::EventBaseLocalBase& evbl) {
@@ -276,12 +276,14 @@ void EventBase::checkIsInEventBaseThread() const {
   // Using getThreadName(evbTid) instead of name_ will work also if
   // the thread name is set outside of EventBase (and name_ is empty).
   auto curTid = std::this_thread::get_id();
-  CHECK_EQ(evbTid, curTid)
+  /*
+  //CHECK_EQ(evbTid, curTid)
       << "This logic must be executed in the event base thread. "
       << "Event base thread name: \""
       << folly::getThreadName(evbTid).value_or("")
       << "\", current thread name: \""
       << folly::getThreadName(curTid).value_or("") << "\"";
+  */
 }
 
 // Set smoothing coefficient for loop load average; input is # of milliseconds
@@ -293,7 +295,7 @@ void EventBase::setLoadAvgMsec(std::chrono::milliseconds ms) {
     maxLatencyLoopTime_.setTimeInterval(us);
     avgLoopTime_.setTimeInterval(us);
   } else {
-    LOG(ERROR) << "non-positive arg to setLoadAvgMsec()";
+    //LOG(ERROR) << "non-positive arg to setLoadAvgMsec()";
   }
 }
 
@@ -358,7 +360,7 @@ void EventBase::loopPollCleanup() {
 }
 
 void EventBase::loopMainSetup() {
-  VLOG(5) << "EventBase(): Starting loop.";
+  //VLOG(5) << "EventBase(): Starting loop.";
 
   const char* message =
       "Your code just tried to loop over an event base from inside another "
@@ -368,16 +370,18 @@ void EventBase::loopMainSetup() {
       "computation on an event-base, replace getEventBase() by a new, "
       "stack-allocated EventBase.";
 
-  LOG_IF(DFATAL, invokingLoop_) << message;
+  //LOG_IF(DFATAL, invokingLoop_) << message;
 
   invokingLoop_ = true;
 
   auto const prevLoopThread = loopThread_.exchange(
       std::this_thread::get_id(), std::memory_order_release);
-  CHECK_EQ(std::thread::id(), prevLoopThread)
+  /*
+  //CHECK_EQ(std::thread::id(), prevLoopThread)
       << "Driving an EventBase in one thread (" << std::this_thread::get_id()
       << ") while it is already being driven in another thread ("
       << prevLoopThread << ") is forbidden.";
+  */
 
   if (!name_.empty()) {
     setThreadName(name_);
@@ -440,8 +444,8 @@ bool EventBase::loopMain(int flags, bool ignoreKeepAlive) {
           observer_->loopSample(busy.count(), idle.count());
         }
       }
-
-      VLOG(11) << "EventBase " << this << " did not timeout "
+/*
+      //VLOG(11) << "EventBase " << this << " did not timeout "
                << " loop time guess: " << loop_time.count()
                << " idle time: " << idle.count()
                << " busy time: " << busy.count()
@@ -450,7 +454,7 @@ bool EventBase::loopMain(int flags, bool ignoreKeepAlive) {
                << " maxLatency_: " << maxLatency_.count() << "us"
                << " notificationQueueSize: " << getNotificationQueueSize()
                << " nothingHandledYet(): " << nothingHandledYet();
-
+*/
       if (maxLatency_ > std::chrono::microseconds::zero()) {
         // see if our average loop time has exceeded our limit
         if (dampenMaxLatency_ &&
@@ -468,7 +472,7 @@ bool EventBase::loopMain(int flags, bool ignoreKeepAlive) {
       // Our loop run did real work; reset the idle timer
       idleStart = now;
     } else {
-      VLOG(11) << "EventBase " << this << " did not timeout";
+      //VLOG(11) << "EventBase " << this << " did not timeout";
     }
 
     // Event loop indicated that there were no more events (NotificationQueue
@@ -490,8 +494,7 @@ bool EventBase::loopMain(int flags, bool ignoreKeepAlive) {
     }
 
     if (enableTimeMeasurement_) {
-      VLOG(11) << "EventBase " << this
-               << " loop time: " << getTimeDelta(&prev).count();
+      //VLOG(11) << "EventBase " << this << " loop time: " << getTimeDelta(&prev).count();
     }
 
     if (once) {
@@ -500,15 +503,15 @@ bool EventBase::loopMain(int flags, bool ignoreKeepAlive) {
   }
 
   if (res < 0) {
-    LOG(ERROR) << "EventBase: -- error in event loop, res = " << res;
+    //LOG(ERROR) << "EventBase: -- error in event loop, res = " << res;
     return false;
   } else if (res == 1) {
-    VLOG(5) << "EventBase: ran out of events (exiting loop)!";
+    //VLOG(5) << "EventBase: ran out of events (exiting loop)!";
   } else if (res > 1) {
-    LOG(ERROR) << "EventBase: unknown event loop result = " << res;
+    //LOG(ERROR) << "EventBase: unknown event loop result = " << res;
     return false;
   }
-  VLOG(5) << "EventBase(): Done with loop.";
+  //VLOG(5) << "EventBase(): Done with loop.";
   return true;
 }
 
@@ -524,7 +527,7 @@ ssize_t EventBase::loopKeepAliveCount() {
     loopKeepAliveCount_ +=
         loopKeepAliveCountAtomic_.exchange(0, std::memory_order_relaxed);
   }
-  DCHECK_GE(loopKeepAliveCount_, 0);
+  //DCHECK_GE(loopKeepAliveCount_, 0);
 
   return loopKeepAliveCount_;
 }
@@ -575,20 +578,18 @@ void EventBase::bumpHandlingTime() {
     return;
   }
 
-  VLOG(11) << "EventBase " << this << " " << __PRETTY_FUNCTION__
-           << " (loop) latest " << latestLoopCnt_ << " next " << nextLoopCnt_;
+  //VLOG(11) << "EventBase " << this << " " << __PRETTY_FUNCTION__ << " (loop) latest " << latestLoopCnt_ << " next " << nextLoopCnt_;
   if (nothingHandledYet()) {
     latestLoopCnt_ = nextLoopCnt_;
     // set the time
     startWork_ = std::chrono::steady_clock::now();
 
-    VLOG(11) << "EventBase " << this << " " << __PRETTY_FUNCTION__
-             << " (loop) startWork_ " << startWork_.time_since_epoch().count();
+    //VLOG(11) << "EventBase " << this << " " << __PRETTY_FUNCTION__ << " (loop) startWork_ " << startWork_.time_since_epoch().count();
   }
 }
 
 void EventBase::terminateLoopSoon() {
-  VLOG(5) << "EventBase(): Received terminateLoopSoon() command.";
+  //VLOG(5) << "EventBase(): Received terminateLoopSoon() command.";
 
   auto keepAlive = getKeepAliveToken(this);
 
@@ -672,8 +673,7 @@ void EventBase::runInEventBaseThread(Func fn) noexcept {
 
   // We try not to schedule nullptr callbacks
   if (!fn) {
-    DLOG(FATAL) << "EventBase " << this
-                << ": Scheduling nullptr callbacks is not allowed";
+    //DLOG(FATAL) << "EventBase " << this << ": Scheduling nullptr callbacks is not allowed";
     return;
   }
 
@@ -692,8 +692,7 @@ void EventBase::runInEventBaseThreadAlwaysEnqueue(Func fn) noexcept {
 
   // We try not to schedule nullptr callbacks
   if (!fn) {
-    LOG(DFATAL) << "EventBase " << this
-                << ": Scheduling nullptr callbacks is not allowed";
+    //LOG(DFATAL) << "EventBase " << this << ": Scheduling nullptr callbacks is not allowed";
     return;
   }
 
@@ -702,8 +701,7 @@ void EventBase::runInEventBaseThreadAlwaysEnqueue(Func fn) noexcept {
 
 void EventBase::runInEventBaseThreadAndWait(Func fn) noexcept {
   if (inRunningEventBaseThread()) {
-    LOG(DFATAL) << "EventBase " << this << ": Waiting in the event loop is not "
-                << "allowed";
+    //LOG(DFATAL) << "EventBase " << this << ": Waiting in the event loop is not " << "allowed";
     return;
   }
 
@@ -786,7 +784,7 @@ void EventBase::initNotificationQueue() {
 void EventBase::SmoothLoopTime::setTimeInterval(
     std::chrono::microseconds timeInterval) {
   expCoeff_ = -1.0 / static_cast<double>(timeInterval.count());
-  VLOG(11) << "expCoeff_ " << expCoeff_ << " " << __PRETTY_FUNCTION__;
+  //VLOG(11) << "expCoeff_ " << expCoeff_ << " " << __PRETTY_FUNCTION__;
 }
 
 void EventBase::SmoothLoopTime::reset(double value) {
@@ -812,7 +810,7 @@ void EventBase::SmoothLoopTime::addSample(
 }
 
 bool EventBase::nothingHandledYet() const noexcept {
-  VLOG(11) << "latest " << latestLoopCnt_ << " next " << nextLoopCnt_;
+  //VLOG(11) << "latest " << latestLoopCnt_ << " next " << nextLoopCnt_;
   return (nextLoopCnt_ != latestLoopCnt_);
 }
 
@@ -843,10 +841,10 @@ bool EventBase::scheduleTimeout(
 
   auto* ev = obj->getEvent();
 
-  DCHECK(ev->eb_ev_base());
+  //DCHECK(ev->eb_ev_base());
 
   if (ev->eb_event_add(&tv) < 0) {
-    LOG(ERROR) << "EventBase: failed to schedule timeout: " << errnoStr(errno);
+    //LOG(ERROR) << "EventBase: failed to schedule timeout: " << errnoStr(errno);
     return false;
   }
 
@@ -926,14 +924,13 @@ EventBase* EventBase::getEventBase() {
 
 EventBase::OnDestructionCallback::~OnDestructionCallback() {
   if (*scheduled_.rlock()) {
-    LOG(FATAL)
-        << "OnDestructionCallback must be canceled if needed prior to destruction";
+    //LOG(FATAL) << "OnDestructionCallback must be canceled if needed prior to destruction";
   }
 }
 
 void EventBase::OnDestructionCallback::runCallback() noexcept {
   scheduled_.withWLock([&](bool& scheduled) {
-    CHECK(scheduled);
+    //CHECK(scheduled);
     scheduled = false;
 
     // run can only be called by EventBase and VirtualEventBase, and it's called
@@ -960,7 +957,7 @@ bool EventBase::OnDestructionCallback::cancel() {
     const bool wasScheduled = std::exchange(scheduled, false);
     if (wasScheduled) {
       auto eraser = std::move(eraser_);
-      CHECK(eraser);
+      //CHECK(eraser);
       eraser(*this);
     }
     return wasScheduled;

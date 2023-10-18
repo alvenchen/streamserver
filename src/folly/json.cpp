@@ -149,7 +149,7 @@ struct Printer {
         printArray(v, context);
         break;
       default:
-        CHECK(0) << "Bad type " << v.type();
+        //CHECK(0) << "Bad type " << v.type();
     }
   }
 
@@ -476,7 +476,7 @@ void parseObjectKeyValue(
 }
 
 dynamic parseObject(Input& in, json::metadata_map* map) {
-  DCHECK_EQ(*in, '{');
+  //DCHECK_EQ(*in, '{');
   ++in;
 
   dynamic ret = dynamic::object;
@@ -516,7 +516,7 @@ dynamic parseObject(Input& in, json::metadata_map* map) {
 }
 
 dynamic parseArray(Input& in, json::metadata_map* map) {
-  DCHECK_EQ(*in, '[');
+  //DCHECK_EQ(*in, '[');
   ++in;
 
   dynamic ret = dynamic::array;
@@ -663,7 +663,7 @@ void decodeUnicodeEscape(Input& in, std::string& out) {
 }
 
 std::string parseString(Input& in) {
-  DCHECK_EQ(*in, '\"');
+  //DCHECK_EQ(*in, '\"');
   ++in;
 
   std::string ret;
@@ -846,7 +846,7 @@ void escapeStringImpl(
         word = folly::partialLoadUnaligned<uint64_t>(firstEsc, avail);
       }
       auto prefix = firstEscapableInWord<EnableExtraAsciiEscapes>(word, opts);
-      DCHECK_LE(prefix, avail);
+      //DCHECK_LE(prefix, avail);
       firstEsc += prefix;
       if (prefix < 8) {
         break;
@@ -873,7 +873,7 @@ void escapeStringImpl(
       // string-escaping instead of two separate passes.
 
       // As the encoding progresses, q will stay at or ahead of p.
-      CHECK_GE(q, p);
+      //CHECK_GE(q, p);
 
       // As p catches up with q, move q forward.
       if (q == p) {

@@ -18,7 +18,7 @@
 
 #include <numeric>
 
-#include <glog/logging.h>
+//#include <glog/logging.h>
 
 #include <folly/Format.h>
 #include <folly/container/Enumerate.h>
@@ -89,7 +89,7 @@ TypeError::TypeError(
         apply(std::string);           \
         break;                        \
       default:                        \
-        CHECK(0);                     \
+        //CHECK(0);                     \
         abort();                      \
     }                                 \
   } while (0)

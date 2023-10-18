@@ -108,11 +108,11 @@ CIDRNetwork IPAddress::createNetwork(
 
   switch (ret.error()) {
     case CIDRNetworkError::INVALID_IP:
-      CHECK_GE(vec.size(), 1);
+      //CHECK_GE(vec.size(), 1);
       throw IPAddressFormatException(
           fmt::format("Invalid IP address {}", vec.at(0)));
     case CIDRNetworkError::INVALID_CIDR:
-      CHECK_GE(vec.size(), 2);
+      //CHECK_GE(vec.size(), 2);
       throw IPAddressFormatException(
           fmt::format("Mask value '{}' not a valid mask", vec.at(1)));
     case CIDRNetworkError::CIDR_MISMATCH: {
@@ -132,7 +132,7 @@ CIDRNetwork IPAddress::createNetwork(
       break;
   }
 
-  CHECK(0);
+  //CHECK(0);
 
   return CIDRNetwork{};
 }
@@ -400,7 +400,7 @@ bool operator==(const IPAddress& addr1, const IPAddress& addr2) {
     } else if (addr1.isV4()) {
       return (addr1.asV4() == addr2.asV4());
     } else {
-      CHECK_EQ(addr1.family(), AF_UNSPEC);
+      //CHECK_EQ(addr1.family(), AF_UNSPEC);
       // Two default initialized AF_UNSPEC addresses should be considered equal.
       // AF_UNSPEC is the only other value for which an IPAddress can be
       // created, in the default constructor case.
@@ -433,7 +433,7 @@ bool operator<(const IPAddress& addr1, const IPAddress& addr2) {
     } else if (addr1.isV4()) {
       return (addr1.asV4() < addr2.asV4());
     } else {
-      CHECK_EQ(addr1.family(), AF_UNSPEC);
+      //CHECK_EQ(addr1.family(), AF_UNSPEC);
       // Two default initialized AF_UNSPEC addresses can not be less than each
       // other. AF_UNSPEC is the only other value for which an IPAddress can be
       // created, in the default constructor case.

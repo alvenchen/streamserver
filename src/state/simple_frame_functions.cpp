@@ -5,11 +5,12 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-#include <quic/QuicConstants.h>
-#include <quic/state/QuicStateFunctions.h>
-#include <quic/state/QuicStreamFunctions.h>
-#include <quic/state/SimpleFrameFunctions.h>
-#include <quic/state/stream/StreamSendHandlers.h>
+#include "../protocol/quic_constants.hpp"
+#include "../state/quic_state_function.h"
+#include "../state/quic_stream_function.h"
+#include "../state/simple_frame_functions.h"
+#include "../state/stream/stream_send_handlers.h"
+
 
 namespace quic {
 void sendSimpleFrame(QuicConnectionStateBase& conn, QuicSimpleFrame frame) {
@@ -63,7 +64,7 @@ void updateSimpleFrameOnPacketSent(
     default: {
       auto& frames = conn.pendingEvents.frames;
       auto itr = std::find(frames.begin(), frames.end(), simpleFrame);
-      CHECK(itr != frames.end());
+      //CHECK(itr != frames.end());
       frames.erase(itr);
       break;
     }
@@ -256,7 +257,7 @@ bool updateSimpleFrameOnPacketReceived(
 
       if (conn.nodeType == QuicNodeType::Server) {
         // in the server case, we need to queue unbinding from map
-        CHECK(conn.connIdsRetiringSoon.has_value());
+        //CHECK(conn.connIdsRetiringSoon.has_value());
         conn.connIdsRetiringSoon->push_back(it->connId);
       }
       selfConnIds.erase(it);

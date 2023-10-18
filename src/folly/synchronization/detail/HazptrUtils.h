@@ -113,8 +113,8 @@ class shared_head_tail_list {
   }
 
   ~shared_head_tail_list() {
-    DCHECK(head() == nullptr);
-    DCHECK(tail() == nullptr);
+    //DCHECK(head() == nullptr);
+    //DCHECK(tail() == nullptr);
   }
 
   void push(Node* node) noexcept {
@@ -229,7 +229,7 @@ class shared_head_only_list {
         ptrval -= lockbit;
         newval += lockbit;
       } else {
-        DCHECK_EQ(lockbit, kUnlocked);
+        //DCHECK_EQ(lockbit, kUnlocked);
       }
       auto ptr = reinterpret_cast<Node*>(ptrval);
       l.tail()->set_next(ptr); // Node must support set_next
@@ -244,20 +244,20 @@ class shared_head_only_list {
   }
 
   void push_unlock(linked_list<Node>& l) noexcept {
-    DCHECK_EQ(owner(), std::this_thread::get_id());
+    //DCHECK_EQ(owner(), std::this_thread::get_id());
     uintptr_t lockbit;
     if (reentrance_ > 0) {
-      DCHECK_EQ(reentrance_, 1);
+      //DCHECK_EQ(reentrance_, 1);
       --reentrance_;
       lockbit = kLockBit;
     } else {
       clear_owner();
       lockbit = kUnlocked;
     }
-    DCHECK_EQ(reentrance_, 0);
+    //DCHECK_EQ(reentrance_, 0);
     while (true) {
       auto oldval = head();
-      DCHECK_EQ(oldval & kLockBit, kLockBit); // Should be already locked
+      //DCHECK_EQ(oldval & kLockBit, kLockBit); // Should be already locked
       auto ptrval = oldval - kLockBit;
       auto ptr = reinterpret_cast<Node*>(ptrval);
       auto t = l.tail();
@@ -296,7 +296,7 @@ class shared_head_only_list {
   std::thread::id owner() { return owner_.load(std::memory_order_relaxed); }
 
   void set_owner() {
-    DCHECK(owner() == std::thread::id());
+    //DCHECK(owner() == std::thread::id());
     owner_.store(std::this_thread::get_id(), std::memory_order_relaxed);
   }
 
@@ -306,7 +306,7 @@ class shared_head_only_list {
 
   Node* pop_all_no_lock() noexcept {
     auto oldval = exchange_head();
-    DCHECK_EQ(oldval & kLockBit, kUnlocked);
+    //DCHECK_EQ(oldval & kLockBit, kUnlocked);
     return reinterpret_cast<Node*>(oldval);
   }
 
@@ -318,7 +318,7 @@ class shared_head_only_list {
       if (lockbit == kUnlocked || owner() == tid) {
         auto newval = reinterpret_cast<uintptr_t>(nullptr) + kLockBit;
         if (cas_head(oldval, newval)) {
-          DCHECK_EQ(reentrance_, 0);
+          //DCHECK_EQ(reentrance_, 0);
           if (lockbit == kUnlocked) {
             set_owner();
           } else {

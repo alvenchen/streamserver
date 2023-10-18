@@ -207,7 +207,7 @@ void stringAppendfImpl(std::string& output, const char* format, va_list args) {
   // The second call can take fewer bytes if, for example, we were printing a
   // string buffer with null-terminating char using a width specifier -
   // vsnprintf("%.*s", buf.size(), buf)
-  CHECK(bytes_used >= final_bytes_used);
+  //CHECK(bytes_used >= final_bytes_used);
 
   // We don't keep the trailing '\0' in our output string
   output.append(heap_buffer.get(), size_t(final_bytes_used));

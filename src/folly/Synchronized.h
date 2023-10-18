@@ -1514,12 +1514,12 @@ class LockedPtr {
   }
 
   void releaseLock() noexcept {
-    DCHECK(lock_.owns_lock());
+    //DCHECK(lock_.owns_lock());
     lock_ = {};
   }
   void reacquireLock(SynchronizedType* parent) {
-    DCHECK(parent);
-    DCHECK(!lock_.owns_lock());
+    //DCHECK(parent);
+    //DCHECK(!lock_.owns_lock());
     lock_ = doLock(parent->mutex_);
   }
 

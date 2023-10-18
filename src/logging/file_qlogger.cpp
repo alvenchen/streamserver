@@ -30,7 +30,7 @@ void FileQLogger::setScid(folly::Optional<ConnectionId> connID) {
 void FileQLogger::setupStream() {
   // create the output file
   if (!dcid.hasValue()) {
-    LOG(ERROR) << "Error: No dcid found";
+    //LOG(ERROR) << "Error: No dcid found";
     return;
   }
   endLine_ = prettyJson_ ? "\n" : "";
@@ -40,7 +40,7 @@ void FileQLogger::setupStream() {
   try {
     writer_ = std::make_unique<folly::AsyncFileWriter>(outputPath);
   } catch (const std::system_error& err) {
-    LOG(ERROR) << "Error creating qlog file. " << err.what();
+    //LOG(ERROR) << "Error creating qlog file. " << err.what();
     return;
   }
   if (compress_) {
@@ -504,7 +504,7 @@ void FileQLogger::outputLogsToFile(const std::string& path, bool prettyJson) {
     return;
   }
   if (!dcid.hasValue()) {
-    LOG(ERROR) << "Error: No dcid found";
+    //LOG(ERROR) << "Error: No dcid found";
     return;
   }
   auto extension = compress_ ? kCompressedQlogExtension : kQlogExtension;
@@ -521,13 +521,13 @@ void FileQLogger::outputLogsToFile(const std::string& path, bool prettyJson) {
         auto compressed = gzipCodec->compress(qLog);
         fileObj << compressed;
       } catch (std::invalid_argument& ex) {
-        LOG(ERROR) << "Failed to compress QLog. " << ex.what();
+        //LOG(ERROR) << "Failed to compress QLog. " << ex.what();
       }
     } else {
       fileObj << qLog;
     }
   } else {
-    LOG(ERROR) << "Error: Can't write to provided path: " << path;
+    //LOG(ERROR) << "Error: Can't write to provided path: " << path;
   }
   fileObj.close();
 }

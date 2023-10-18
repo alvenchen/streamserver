@@ -127,7 +127,7 @@ void Copa::onPacketAcked(const AckEvent& ack) {
     standingRTTFilter_.Update(conn_.lossState.lrtt, std::chrono::duration_cast<microseconds>(ack.ackTime.time_since_epoch()).count());
     auto rttStandingMicroSec = standingRTTFilter_.GetBest().count();
 /*
-    VLOG(10) << __func__ << "ack size=" << ack.ackedBytes
+    //VLOG(10) << __func__ << "ack size=" << ack.ackedBytes
             << " num packets acked=" << ack.ackedBytes / conn_.udpSendPacketLen
             << " writable=" << getWritableBytes() << " cwnd=" << cwndBytes_
             << " inflight=" << conn_.lossState.inflightBytes

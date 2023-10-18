@@ -53,8 +53,7 @@ bool STTimerFDTimeoutManager::scheduleTimeout(
 
 bool STTimerFDTimeoutManager::scheduleTimeoutHighRes(
     AsyncTimeout* obj, timeout_type_high_res timeout) {
-  CHECK(obj_ == nullptr || obj_ == obj)
-      << "Scheduling multiple timeouts on a single timeout manager is not allowed!";
+  //CHECK(obj_ == nullptr || obj_ == obj) << "Scheduling multiple timeouts on a single timeout manager is not allowed!";
   // no need to cancel - just reschedule
   obj_ = obj;
   setActive(obj, true);
