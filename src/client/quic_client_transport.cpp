@@ -9,17 +9,20 @@
 
 #include <folly/portability/Sockets.h>
 
-#include <quic/QuicConstants.h>
-#include <quic/api/LoopDetectorCallback.h>
-#include <quic/api/QuicTransportFunctions.h>
-#include <quic/client/handshake/ClientHandshakeFactory.h>
-#include <quic/client/handshake/ClientTransportParametersExtension.h>
-#include <quic/client/state/ClientStateMachine.h>
-#include <quic/flowcontrol/QuicFlowController.h>
-#include <quic/handshake/CryptoFactory.h>
-#include <quic/happyeyeballs/QuicHappyEyeballsFunctions.h>
-#include <quic/logging/QLoggerConstants.h>
-#include <quic/loss/QuicLossFunctions.h>
+#include "../protocol/quic_constants.hpp"
+#include "../api/loop_detector_callback.h"
+#include "../api/quic_transport_function.h"
+#include "client_transport_parameters_extension.h"
+
+#include "client_handshake_factory.h"
+#include "client_state_machine.h"
+#include "../flowcontrol/quic_flow_control.h"
+#include "../handshake/crypto_factory.h"
+#include "happyeyeballs/QuicHappyEyeballsFunctions.h"
+#include "../logging/qlogger_constants.h"
+#include "../loss/quic_loss_functions.h"
+#include "../state/ack_handlers.h"
+
 #include <quic/state/AckHandlers.h>
 #include <quic/state/DatagramHandlers.h>
 #include <quic/state/QuicPacingFunctions.h>

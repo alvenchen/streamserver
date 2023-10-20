@@ -7,7 +7,7 @@
 
 #include "client_state_machine.h"
 #include "../protocol/quic_header.hpp"
-//#include <quic/client/handshake/CachedServerTransportParameters.h>
+#include "cached_server_transport_parameters.h"
 #include "../loss/quic_loss_functions.h"
 #include "../protocol/quic_constants.hpp"
 #include "../protocol/parse.hpp"

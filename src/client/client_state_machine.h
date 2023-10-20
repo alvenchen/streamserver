@@ -7,8 +7,8 @@
 
 #pragma once
 
-//#include <quic/client/handshake/ClientHandshake.h>
-//#include <quic/client/handshake/ClientHandshakeFactory.h>
+#include "client_handshake.h"
+#include "client_handshake_factory.h"
 
 #include "../congestion_control/quic_cubic.h"
 #include "../flowcontrol/quic_flow_control.h"

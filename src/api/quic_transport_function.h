@@ -10,10 +10,10 @@
 #include <folly/Expected.h>
 #include <folly/io/async/AsyncUDPSocket.h>
 #include "../protocol/quic_exception.h"
+#include "io_buf_quic_batch.h"
+#include "quic_socket.h"
 
-#include <quic/api/IoBufQuicBatch.h>
 #include <quic/api/QuicPacketScheduler.h>
-#include <quic/api/QuicSocket.h>
 #include <quic/handshake/TransportParameters.h>
 #include <quic/state/StateData.h>
 
