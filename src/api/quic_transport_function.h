@@ -7,15 +7,16 @@
 
 #pragma once
 
+#include <folly/Optional.h>
 #include <folly/Expected.h>
 #include <folly/io/async/AsyncUDPSocket.h>
 #include "../protocol/quic_exception.h"
 #include "io_buf_quic_batch.h"
 #include "quic_socket.h"
+#include "quic_packet_scheduler.h"
+#include "../handshake/transport_parameters.h"
 
-#include <quic/api/QuicPacketScheduler.h>
-#include <quic/handshake/TransportParameters.h>
-#include <quic/state/StateData.h>
+#include "../state/state_data.h"
 
 // Function to schedule writing data to socket. Return number of packets
 // successfully scheduled

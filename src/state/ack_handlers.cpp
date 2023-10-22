@@ -6,10 +6,11 @@
  */
 
 #include <folly/MapUtil.h>
-#include <quic/loss/QuicLossFunctions.h>
-#include <quic/state/AckHandlers.h>
-#include <quic/state/QuicStateFunctions.h>
-#include <quic/state/QuicStreamFunctions.h>
+#include "../loss/quic_loss_functions.h"
+#include "ack_handlers.h"
+#include "../state/quic_state_function.h"
+#include "../state/quic_stream_function.h"
+
 #include <iterator>
 
 namespace quic {
