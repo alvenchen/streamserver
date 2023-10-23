@@ -15,14 +15,15 @@
 #include "../congestion_control/pacer.h"
 #include "../congestion_control/tokenless_pacer.h"
 
-//#include <quic/logging/QLoggerConstants.h>
-#include <quic/loss/QuicLossFunctions.h>
-#include <quic/state/QuicPacingFunctions.h>
-#include <quic/state/QuicStateFunctions.h>
-#include <quic/state/QuicStreamFunctions.h>
-#include <quic/state/QuicStreamUtilities.h>
-#include <quic/state/SimpleFrameFunctions.h>
-#include <quic/state/stream/StreamSendHandlers.h>
+#include "../logging/qlogger_constants.h"
+#include "../loss/quic_loss_functions.h"
+#include "../state/quic_pacing_functions.h"
+#include "../state/quic_state_function.h"
+#include "../state/quic_stream_function.h"
+#include "../state/quic_stream_utilities.h"
+#include "../state/simple_frame_functions.h"
+#include "../state/stream/stream_send_handlers.h"
+
 
 namespace quic {
 

@@ -22,13 +22,12 @@
 #include "../logging/qlogger_constants.h"
 #include "../loss/quic_loss_functions.h"
 #include "../state/ack_handlers.h"
+#include "../state/datagram_handlers.h"
+#include "../state/quic_pacing_functions.h"
+#include "../state/simple_frame_functions.h"
+#include "../state/stream/stream_receive_handlers.h"
+#include "../state/stream/stream_send_handlers.h"
 
-#include <quic/state/AckHandlers.h>
-#include <quic/state/DatagramHandlers.h>
-#include <quic/state/QuicPacingFunctions.h>
-#include <quic/state/SimpleFrameFunctions.h>
-#include <quic/state/stream/StreamReceiveHandlers.h>
-#include <quic/state/stream/StreamSendHandlers.h>
 
 namespace fsp = folly::portability::sockets;
 
@@ -66,7 +65,7 @@ QuicClientTransport::QuicClientTransport(
           useConnectionEndWithErrorCallback),
       happyEyeballsConnAttemptDelayTimeout_(this),
       wrappedObserverContainer_(this) {
-  DCHECK(handshakeFactory);
+  //DCHECK(handshakeFactory);
   auto tempConn =
       std::make_unique<QuicClientConnectionState>(std::move(handshakeFactory));
   clientConn_ = tempConn.get();
@@ -86,8 +85,7 @@ QuicClientTransport::QuicClientTransport(
       clientConn_->initialDestinationConnectionId;
   conn_->clientChosenDestConnectionId =
       clientConn_->initialDestinationConnectionId;
-  VLOG(4) << "initial dcid: "
-          << clientConn_->initialDestinationConnectionId->hex();
+  //VLOG(4) << "initial dcid: " << clientConn_->initialDestinationConnectionId->hex();
   if (conn_->qLogger) {
     conn_->qLogger->setDcid(conn_->clientChosenDestConnectionId);
   }
@@ -97,11 +95,12 @@ QuicClientTransport::QuicClientTransport(
       conn_->originalVersion.value(),
       conn_->transportSettings.maybeAckReceiveTimestampsConfigSentToPeer));
 
-  VLOG(10) << "client created " << *conn_;
+  //VLOG(10) << "client created " << *conn_;
 }
 
 QuicClientTransport::~QuicClientTransport() {
-  VLOG(10) << "Destroyed connection to server=" << conn_->peerAddress;
+  //VLOG(10) << "Destroyed connection to server=" << conn_->peerAddress;
+
   // The caller probably doesn't need the conn callback after destroying the
   // transport.
   resetConnectionCallbacks();
@@ -133,9 +132,7 @@ void QuicClientTransport::processUDPData(
     auto versionNegotiation =
         conn_->readCodec->tryParsingVersionNegotiation(udpData);
     if (versionNegotiation) {
-      VLOG(4) << "Got version negotiation packet from peer=" << peer
-              << " versions=" << std::hex << versionNegotiation->versions << " "
-              << *this;
+      //VLOG(4) << "Got version negotiation packet from peer=" << peer << " versions=" << std::hex << versionNegotiation->versions << " " << *this;
 
       throw QuicInternalException(
           "Received version negotiation packet",
@@ -148,10 +145,7 @@ void QuicClientTransport::processUDPData(
        processedPackets++) {
     processPacketData(peer, networkData.receiveTimePoint, udpData);
   }
-  VLOG_IF(4, !udpData.empty())
-      << "Leaving " << udpData.chainLength()
-      << " bytes unprocessed after attempting to process "
-      << kMaxNumCoalescedPackets << " packets.";
+  //VLOG_IF(4, !udpData.empty()) << "Leaving " << udpData.chainLength() << " bytes unprocessed after attempting to process " << kMaxNumCoalescedPackets << " packets.";
 
   // Process any pending 1RTT and handshake packets if we have keys.
   if (conn_->readCodec->getOneRttReadCipher() &&
@@ -196,13 +190,13 @@ void QuicClientTransport::processPacketData(
   if (statelessReset) {
     const auto& token = clientConn_->statelessResetToken;
     if (statelessReset->token == token) {
-      VLOG(4) << "Received Stateless Reset " << *this;
+      //VLOG(4) << "Received Stateless Reset " << *this;
       conn_->peerConnectionError = QuicError(
           QuicErrorCode(LocalErrorCode::CONNECTION_RESET),
           toString(LocalErrorCode::CONNECTION_RESET).str());
       throw QuicInternalException("Peer reset", LocalErrorCode::NO_ERROR);
     }
-    VLOG(4) << "Drop StatelessReset for bad connId or token " << *this;
+    //VLOG(4) << "Drop StatelessReset for bad connId or token " << *this;
   }
 
   RetryPacket* retryPacket = parsedPacket.retryPacket();
@@ -219,7 +213,7 @@ void QuicClientTransport::processPacketData(
         !clientConn_->retryToken.empty();
 
     if (shouldRejectRetryPacket) {
-      VLOG(4) << "Server incorrectly issued a retry packet; dropping retry";
+      //VLOG(4) << "Server incorrectly issued a retry packet; dropping retry";
       return;
     }
 
@@ -228,8 +222,7 @@ void QuicClientTransport::processPacketData(
 
     if (!clientConn_->clientHandshakeLayer->verifyRetryIntegrityTag(
             *originalDstConnId, *retryPacket)) {
-      VLOG(4) << "The integrity tag in the retry packet was invalid. "
-              << "Dropping bad retry packet.";
+      //VLOG(4) << "The integrity tag in the retry packet was invalid. " << "Dropping bad retry packet.";
       return;
     }
 
@@ -310,7 +303,7 @@ void QuicClientTransport::processPacketData(
   }
 
   if (happyEyeballsEnabled_) {
-    CHECK(socket_);
+    //CHECK(socket_);
     happyEyeballsOnDataReceived(
         *clientConn_, happyEyeballsConnAttemptDelayTimeout_, socket_, peer);
   }
@@ -396,8 +389,7 @@ void QuicClientTransport::processPacketData(
   for (auto& quicFrame : regularPacket.frames) {
     switch (quicFrame.type()) {
       case QuicFrame::Type::ReadAckFrame: {
-        VLOG(10) << "Client received ack frame in packet=" << packetNum << " "
-                 << *this;
+        //VLOG(10) << "Client received ack frame in packet=" << packetNum << " " << *this;
         ReadAckFrame& ackFrame = *quicFrame.asReadAckFrame();
         conn_->lastProcessedAckEvents.emplace_back(processAckFrame(
             *conn_,
@@ -420,16 +412,14 @@ void QuicClientTransport::processPacketData(
               switch (packetFrame.type()) {
                 case QuicWriteFrame::Type::WriteAckFrame: {
                   const WriteAckFrame& frame = *packetFrame.asWriteAckFrame();
-                  DCHECK(!frame.ackBlocks.empty());
-                  VLOG(4) << "Client received ack for largestAcked="
-                          << frame.ackBlocks.front().end << " " << *this;
+                  //DCHECK(!frame.ackBlocks.empty());
+                  //VLOG(4) << "Client received ack for largestAcked=" << frame.ackBlocks.front().end << " " << *this;
                   commonAckVisitorForAckFrame(ackState, frame);
                   break;
                 }
                 case QuicWriteFrame::Type::RstStreamFrame: {
                   const RstStreamFrame& frame = *packetFrame.asRstStreamFrame();
-                  VLOG(4) << "Client received ack for reset frame stream="
-                          << frame.streamId << " " << *this;
+                  //VLOG(4) << "Client received ack for reset frame stream=" << frame.streamId << " " << *this;
 
                   auto stream = conn_->streamManager->getStream(frame.streamId);
                   if (stream) {
@@ -443,11 +433,13 @@ void QuicClientTransport::processPacketData(
 
                   auto ackedStream =
                       conn_->streamManager->getStream(frame.streamId);
+                /*
                   VLOG(4) << "Client got ack for stream=" << frame.streamId
                           << " offset=" << frame.offset << " fin=" << frame.fin
                           << " data=" << frame.len
                           << " closed=" << (ackedStream == nullptr) << " "
                           << *this;
+                */
                   if (ackedStream) {
                     sendAckSMHandler(*ackedStream, frame);
                   }
@@ -479,8 +471,7 @@ void QuicClientTransport::processPacketData(
       }
       case QuicFrame::Type::RstStreamFrame: {
         RstStreamFrame& frame = *quicFrame.asRstStreamFrame();
-        VLOG(10) << "Client received reset stream=" << frame.streamId << " "
-                 << *this;
+        //VLOG(10) << "Client received reset stream=" << frame.streamId << " " << *this;
         pktHasRetransmittableData = true;
         auto streamId = frame.streamId;
         auto stream = conn_->streamManager->getStream(streamId);
@@ -494,9 +485,11 @@ void QuicClientTransport::processPacketData(
         pktHasRetransmittableData = true;
         pktHasCryptoData = true;
         ReadCryptoFrame& cryptoFrame = *quicFrame.asReadCryptoFrame();
+        /*
         VLOG(10) << "Client received crypto data offset=" << cryptoFrame.offset
                  << " len=" << cryptoFrame.data->computeChainDataLength()
                  << " packetNum=" << packetNum << " " << *this;
+        */
         appendDataToReadBuffer(
             *getCryptoStream(*conn_->cryptoState, encryptionLevel),
             StreamBuffer(
@@ -505,17 +498,18 @@ void QuicClientTransport::processPacketData(
       }
       case QuicFrame::Type::ReadStreamFrame: {
         ReadStreamFrame& frame = *quicFrame.asReadStreamFrame();
+        /*
         VLOG(10) << "Client received stream data for stream=" << frame.streamId
                  << " offset=" << frame.offset
                  << " len=" << frame.data->computeChainDataLength()
                  << " fin=" << frame.fin << " packetNum=" << packetNum << " "
                  << *this;
+        */
         auto stream = conn_->streamManager->getStream(
             frame.streamId, frame.streamGroupId);
         pktHasRetransmittableData = true;
         if (!stream) {
-          VLOG(10) << "Could not find stream=" << frame.streamId << " "
-                   << *conn_;
+          //VLOG(10) << "Could not find stream=" << frame.streamId << " " << *conn_;
           break;
         }
         receiveReadStreamFrameSMHandler(*stream, std::move(frame));
@@ -525,8 +519,7 @@ void QuicClientTransport::processPacketData(
         ReadNewTokenFrame& newTokenFrame = *quicFrame.asReadNewTokenFrame();
         std::string tokenStr =
             newTokenFrame.token->moveToFbString().toStdString();
-        VLOG(10) << "client received new token token="
-                 << folly::hexlify(tokenStr);
+        //VLOG(10) << "client received new token token=" << folly::hexlify(tokenStr);
         if (newTokenCallback_) {
           newTokenCallback_(std::move(tokenStr));
         }
@@ -534,8 +527,7 @@ void QuicClientTransport::processPacketData(
       }
       case QuicFrame::Type::MaxDataFrame: {
         MaxDataFrame& connWindowUpdate = *quicFrame.asMaxDataFrame();
-        VLOG(10) << "Client received max data offset="
-                 << connWindowUpdate.maximumData << " " << *this;
+        //VLOG(10) << "Client received max data offset=" << connWindowUpdate.maximumData << " " << *this;
         pktHasRetransmittableData = true;
         handleConnWindowUpdate(*conn_, connWindowUpdate, packetNum);
         break;
@@ -543,10 +535,12 @@ void QuicClientTransport::processPacketData(
       case QuicFrame::Type::MaxStreamDataFrame: {
         MaxStreamDataFrame& streamWindowUpdate =
             *quicFrame.asMaxStreamDataFrame();
+        /*
         VLOG(10) << "Client received max stream data stream="
                  << streamWindowUpdate.streamId
                  << " offset=" << streamWindowUpdate.maximumData << " "
                  << *this;
+        */
         if (isReceivingStream(conn_->nodeType, streamWindowUpdate.streamId)) {
           throw QuicTransportException(
               "Received MaxStreamDataFrame for receiving stream.",
@@ -562,7 +556,7 @@ void QuicClientTransport::processPacketData(
         break;
       }
       case QuicFrame::Type::DataBlockedFrame: {
-        VLOG(10) << "Client received blocked " << *this;
+        //VLOG(10) << "Client received blocked " << *this;
         pktHasRetransmittableData = true;
         handleConnBlocked(*conn_);
         break;
@@ -571,8 +565,7 @@ void QuicClientTransport::processPacketData(
         // peer wishes to send data, but is unable to due to stream-level flow
         // control
         StreamDataBlockedFrame& blocked = *quicFrame.asStreamDataBlockedFrame();
-        VLOG(10) << "Client received blocked stream=" << blocked.streamId << " "
-                 << *this;
+        //VLOG(10) << "Client received blocked stream=" << blocked.streamId << " " << *this;
         pktHasRetransmittableData = true;
         auto stream = conn_->streamManager->getStream(blocked.streamId);
         if (stream) {
@@ -584,8 +577,7 @@ void QuicClientTransport::processPacketData(
         // peer wishes to open a stream, but is unable to due to the maximum
         // stream limit set by us
         StreamsBlockedFrame& blocked = *quicFrame.asStreamsBlockedFrame();
-        VLOG(10) << "Client received stream blocked limit="
-                 << blocked.streamLimit << " " << *this;
+        //VLOG(10) << "Client received stream blocked limit=" << blocked.streamLimit << " " << *this;
         // TODO implement handler for it
         break;
       }
@@ -593,7 +585,7 @@ void QuicClientTransport::processPacketData(
         ConnectionCloseFrame& connFrame = *quicFrame.asConnectionCloseFrame();
         auto errMsg = folly::to<std::string>(
             "Client closed by peer reason=", connFrame.reasonPhrase);
-        VLOG(4) << errMsg << " " << *this;
+        //VLOG(4) << errMsg << " " << *this;
         // we want to deliver app callbacks with the peer supplied error,
         // but send a NO_ERROR to the peer.
         if (conn_->qLogger) {
@@ -624,8 +616,7 @@ void QuicClientTransport::processPacketData(
       }
       case QuicFrame::Type::DatagramFrame: {
         DatagramFrame& frame = *quicFrame.asDatagramFrame();
-        VLOG(10) << "Client received datagram data: "
-                 << "len=" << frame.length << " " << *this;
+        //VLOG(10) << "Client received datagram data: " << "len=" << frame.length << " " << *this;
         // Datagram isn't retransmittable. But we would like to ack them early.
         // So, make Datagram frames count towards ack policy
         pktHasRetransmittableData = true;
@@ -719,7 +710,7 @@ void QuicClientTransport::processPacketData(
                 .peerAdvertisedInitialMaxStreamOffsetBidiRemote;
         auto originalPeerInitialStreamOffsetUni =
             conn_->flowControlState.peerAdvertisedInitialMaxStreamOffsetUni;
-        VLOG(10) << "Client negotiated transport params " << *this;
+        //VLOG(10) << "Client negotiated transport params " << *this;
         auto maxStreamsBidi = getIntegerParameter(
             TransportParameterId::initial_max_streams_bidi,
             serverParams->parameters);
@@ -874,7 +865,7 @@ void QuicClientTransport::writeData() {
     if (clientConn_->clientHandshakeLayer->getPhase() ==
             ClientHandshake::Phase::Established &&
         conn_->oneRttWriteCipher) {
-      CHECK(conn_->oneRttWriteHeaderCipher);
+      //CHECK(conn_->oneRttWriteHeaderCipher);
       writeShortClose(
           *socket_,
           *conn_,
@@ -884,7 +875,7 @@ void QuicClientTransport::writeData() {
           *conn_->oneRttWriteHeaderCipher);
     }
     if (conn_->handshakeWriteCipher) {
-      CHECK(conn_->handshakeWriteHeaderCipher);
+      //CHECK(conn_->handshakeWriteHeaderCipher);
       writeLongClose(
           *socket_,
           *conn_,
@@ -897,7 +888,7 @@ void QuicClientTransport::writeData() {
           version);
     }
     if (conn_->initialWriteCipher) {
-      CHECK(conn_->initialHeaderCipher);
+      //CHECK(conn_->initialHeaderCipher);
       writeLongClose(
           *socket_,
           *conn_,
@@ -931,7 +922,7 @@ void QuicClientTransport::writeData() {
          conn_->outstandings.packetCount[PacketNumberSpace::Initial] &&
          numProbePackets) ||
         initialScheduler.hasData() || toWriteInitialAcks(*conn_)) {
-      CHECK(conn_->initialHeaderCipher);
+      //CHECK(conn_->initialHeaderCipher);
       std::string& token = clientConn_->retryToken.empty()
           ? clientConn_->newToken
           : clientConn_->retryToken;
@@ -962,7 +953,7 @@ void QuicClientTransport::writeData() {
          handshakeCryptoStream.retransmissionBuffer.size() &&
          numProbePackets) ||
         handshakeScheduler.hasData() || toWriteHandshakeAcks(*conn_)) {
-      CHECK(conn_->handshakeWriteHeaderCipher);
+      //CHECK(conn_->handshakeWriteHeaderCipher);
       packetLimit -= writeCryptoAndAckDataToSocket(
                          *socket_,
                          *conn_,
@@ -980,7 +971,7 @@ void QuicClientTransport::writeData() {
     }
   }
   if (clientConn_->zeroRttWriteCipher && !conn_->oneRttWriteCipher) {
-    CHECK(clientConn_->zeroRttWriteHeaderCipher);
+    //CHECK(clientConn_->zeroRttWriteHeaderCipher);
     packetLimit -= writeZeroRttDataToSocket(
         *socket_,
         *conn_,
@@ -995,7 +986,7 @@ void QuicClientTransport::writeData() {
     return;
   }
   if (conn_->oneRttWriteCipher) {
-    CHECK(clientConn_->oneRttWriteHeaderCipher);
+    //CHECK(clientConn_->oneRttWriteHeaderCipher);
     writeQuicDataExceptCryptoStreamToSocket(
         *socket_,
         *conn_,
@@ -1140,7 +1131,7 @@ void QuicClientTransport::onReadError(
 }
 
 void QuicClientTransport::getReadBuffer(void** buf, size_t* len) noexcept {
-  DCHECK(conn_) << "trying to receive packets without a connection";
+  //DCHECK(conn_) << "trying to receive packets without a connection";
   auto readBufferSize =
       conn_->transportSettings.maxRecvPacketSize * numGROBuffers_;
   readBuffer_ = folly::IOBuf::createCombined(readBufferSize);
@@ -1153,7 +1144,7 @@ void QuicClientTransport::onDataAvailable(
     size_t len,
     bool truncated,
     OnDataAvailableParams params) noexcept {
-  VLOG(10) << "Got data from socket peer=" << server << " len=" << len;
+  //VLOG(10) << "Got data from socket peer=" << server << " len=" << len;
   auto packetReceiveTime = Clock::now();
   Buf data = std::move(readBuffer_);
 
@@ -1209,7 +1200,7 @@ void QuicClientTransport::onDataAvailable(
         // the actual len is len - offset now
         // leave params.gro bytes
         tmp->trimEnd(len - offset - params.gro);
-        DCHECK_EQ(tmp->length(), params.gro);
+        //DCHECK_EQ(tmp->length(), params.gro);
 
         offset += params.gro;
         remaining -= params.gro;
@@ -1218,7 +1209,7 @@ void QuicClientTransport::onDataAvailable(
         // do not clone the last packet
         // start at offset, use all the remaining data
         data->trimStart(offset);
-        DCHECK_EQ(data->length(), remaining);
+        //DCHECK_EQ(data->length(), remaining);
         remaining = 0;
         networkData.packets.emplace_back(std::move(data));
       }
@@ -1318,7 +1309,7 @@ void QuicClientTransport::recvMsg(
       server = folly::SocketAddress();
       server->setFromSockaddr(rawAddr, kAddrLen);
     }
-    VLOG(10) << "Got data from socket peer=" << *server << " len=" << bytesRead;
+    //VLOG(10) << "Got data from socket peer=" << *server << " len=" << bytesRead;
     readBuffer->append(bytesRead);
     if (params.gro > 0) {
       size_t len = bytesRead;
@@ -1335,7 +1326,7 @@ void QuicClientTransport::recvMsg(
           // the actual len is len - offset now
           // leave gro bytes
           tmp->trimEnd(len - offset - params.gro);
-          DCHECK_EQ(tmp->length(), params.gro);
+          //DCHECK_EQ(tmp->length(), params.gro);
 
           offset += params.gro;
           remaining -= params.gro;
@@ -1344,7 +1335,7 @@ void QuicClientTransport::recvMsg(
           // do not clone the last packet
           // start at offset, use all the remaining data
           readBuffer->trimStart(offset);
-          DCHECK_EQ(readBuffer->length(), remaining);
+          //DCHECK_EQ(readBuffer->length(), remaining);
           remaining = 0;
           networkData.packets.emplace_back(std::move(readBuffer));
         }
@@ -1391,7 +1382,7 @@ void QuicClientTransport::recvMmsg(
       msg->msg_iov = &iovec;
       msg->msg_iovlen = 1;
     }
-    CHECK(readBuffer != nullptr);
+    //CHECK(readBuffer != nullptr);
 
     auto* rawAddr = reinterpret_cast<sockaddr*>(&addr);
     rawAddr->sa_family = socket_->address().getFamily();
@@ -1427,7 +1418,7 @@ void QuicClientTransport::recvMmsg(
         errno));
   }
 
-  CHECK_LE(numMsgsRecvd, numPackets);
+  //CHECK_LE(numMsgsRecvd, numPackets);
   // Need to save our position so we can recycle the unused buffers.
   uint16_t i;
   for (i = 0; i < static_cast<uint16_t>(numMsgsRecvd); ++i) {
@@ -1463,7 +1454,7 @@ void QuicClientTransport::recvMmsg(
       server->setFromSockaddr(rawAddr, kAddrLen);
     }
 
-    VLOG(10) << "Got data from socket peer=" << *server << " len=" << bytesRead;
+    //VLOG(10) << "Got data from socket peer=" << *server << " len=" << bytesRead;
     readBuffer->append(bytesRead);
     if (params.gro > 0) {
       size_t len = bytesRead;
@@ -1480,7 +1471,7 @@ void QuicClientTransport::recvMmsg(
           // the actual len is len - offset now
           // leave gro bytes
           tmp->trimEnd(len - offset - params.gro);
-          DCHECK_EQ(tmp->length(), params.gro);
+          //DCHECK_EQ(tmp->length(), params.gro);
 
           offset += params.gro;
           remaining -= params.gro;
@@ -1489,7 +1480,7 @@ void QuicClientTransport::recvMmsg(
           // do not clone the last packet
           // start at offset, use all the remaining data
           readBuffer->trimStart(offset);
-          DCHECK_EQ(readBuffer->length(), remaining);
+          //DCHECK_EQ(readBuffer->length(), remaining);
           remaining = 0;
           networkData.packets.emplace_back(std::move(readBuffer));
         }
@@ -1504,7 +1495,7 @@ void QuicClientTransport::recvMmsg(
 
 void QuicClientTransport::onNotifyDataAvailable(
     folly::AsyncUDPSocket& sock) noexcept {
-  DCHECK(conn_) << "trying to receive packets without a connection";
+  //DCHECK(conn_) << "trying to receive packets without a connection";
   auto readBufferSize =
       conn_->transportSettings.maxRecvPacketSize * numGROBuffers_;
   const uint16_t numPackets = conn_->transportSettings.maxRecvBatchSize;
@@ -1535,7 +1526,7 @@ void QuicClientTransport::onNotifyDataAvailable(
     }
     return;
   }
-  DCHECK(server.has_value());
+  //DCHECK(server.has_value());
   // TODO: we can get better receive time accuracy than this, with
   // SO_TIMESTAMP or SIOCGSTAMP.
   auto packetReceiveTime = Clock::now();
@@ -1572,7 +1563,7 @@ void QuicClientTransport::start(
         socketOptions_);
   }
 
-  CHECK(conn_->peerAddress.isInitialized());
+  //CHECK(conn_->peerAddress.isInitialized());
 
   if (conn_->qLogger) {
     conn_->qLogger->addTransportStateUpdate(kStart);
@@ -1608,7 +1599,7 @@ void QuicClientTransport::start(
           QuicError(QuicErrorCode(ex.errorCode()), std::string(ex.what())));
     });
   } catch (const std::exception& ex) {
-    LOG(ERROR) << "Connect failed " << ex.what();
+    //LOG(ERROR) << "Connect failed " << ex.what();
     runOnEvbAsync([ex](auto self) {
       auto clientPtr = static_cast<QuicClientTransport*>(self.get());
       clientPtr->closeImpl(QuicError(
@@ -1619,7 +1610,7 @@ void QuicClientTransport::start(
 }
 
 void QuicClientTransport::addNewPeerAddress(folly::SocketAddress peerAddress) {
-  CHECK(peerAddress.isInitialized());
+  //CHECK(peerAddress.isInitialized());
 
   if (happyEyeballsEnabled_) {
     conn_->udpSendPacketLen = std::min(
@@ -1638,7 +1629,7 @@ void QuicClientTransport::addNewPeerAddress(folly::SocketAddress peerAddress) {
 }
 
 void QuicClientTransport::setLocalAddress(folly::SocketAddress localAddress) {
-  CHECK(localAddress.isInitialized());
+  //CHECK(localAddress.isInitialized());
   conn_->localAddress = std::move(localAddress);
 }
 
@@ -1779,7 +1770,7 @@ void QuicClientTransport::onNetworkSwitch(
 
 void QuicClientTransport::setTransportStatsCallback(
     std::shared_ptr<QuicTransportStatsCallback> statsCallback) noexcept {
-  CHECK(conn_);
+  //CHECK(conn_);
   statsCallback_ = std::move(statsCallback);
   if (statsCallback_) {
     conn_->statsCallback = statsCallback_.get();
@@ -1803,7 +1794,7 @@ void QuicClientTransport::maybeSendTransportKnobs() {
           setKnob(knob.space, knob.id, folly::IOBuf::copyBuffer(knob.blob));
       if (res.hasError()) {
         if (res.error() != LocalErrorCode::KNOB_FRAME_UNSUPPORTED) {
-          LOG(ERROR) << "Unexpected error while sending knob frames";
+          //LOG(ERROR) << "Unexpected error while sending knob frames";
         }
         // No point in keep trying if transport does not support knob frame
         break;
@@ -1824,7 +1815,7 @@ void QuicClientTransport::maybeEnableStreamGroups() {
 
   if (!setCustomTransportParameter(
           streamGroupsEnabledParam, customTransportParameters_)) {
-    LOG(ERROR) << "failed to set stream groups enabled transport parameter";
+    //LOG(ERROR) << "failed to set stream groups enabled transport parameter";
   }
 }
 

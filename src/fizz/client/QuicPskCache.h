@@ -7,7 +7,8 @@
 
 #pragma once
 
-#include <quic/client/handshake/CachedServerTransportParameters.h>
+#include "../client/cached_server_transport_parameters.h"
+
 
 #include <fizz/client/PskCache.h>
 #include <folly/Optional.h>
