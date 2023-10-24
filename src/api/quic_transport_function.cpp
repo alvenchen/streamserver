@@ -476,7 +476,7 @@ void handleRetransmissionWritten(
     bufWritten = lossBufferIter->data.splitAtMost(frameLen);
   }
   /*
-  CHECK(stream.retransmissionBuffer.emplace(
+  //CHECK(stream.retransmissionBuffer.emplace(
                 std::piecewise_construct,
                 std::forward_as_tuple(frameOffset),
                 std::forward_as_tuple(std::make_unique<StreamBuffer>(
@@ -499,7 +499,7 @@ void handleRetransmissionBufMetaWritten(
     lossBufMetaIter->offset += frameLen;
   }
   /*
-  CHECK(stream.retransmissionBufMetas
+  //CHECK(stream.retransmissionBufMetas
         .emplace(
                 std::piecewise_construct,
                 std::forward_as_tuple(frameOffset),

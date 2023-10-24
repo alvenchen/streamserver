@@ -7,8 +7,7 @@
 
 #include "copa2.h"
 #include "congestion_control_functions.h"
-
-//#include <quic/logging/QLoggerConstants.h>
+#include "../logging/qlogger_constants.h"
 
 namespace quic {
 
@@ -24,11 +23,11 @@ Copa2::Copa2(QuicConnectionStateBase& conn)
 void Copa2::onRemoveBytesFromInflight(uint64_t bytes) {
     subtractAndCheckUnderflow(conn_.lossState.inflightBytes, bytes);
     //VLOG(10) << __func__ << " writable=" << getWritableBytes() << " cwnd=" << cwndBytes_ << " inflight=" << conn_.lossState.inflightBytes << " " << conn_;
-    /*
+    
     if (conn_.qLogger) {
         conn_.qLogger->addCongestionMetricUpdate(conn_.lossState.inflightBytes, getCongestionWindow(), kRemoveInflight);
     }
-    */
+    
 }
 
 void Copa2::onPacketSent(const OutstandingPacketWrapper& packet) {
@@ -41,11 +40,11 @@ void Copa2::onPacketSent(const OutstandingPacketWrapper& packet) {
             << " packetNum=" << packet.packet.header.getPacketSequenceNum()
             << " " << conn_;
 */
-/*
+
     if (conn_.qLogger) {
         conn_.qLogger->addCongestionMetricUpdate(conn_.lossState.inflightBytes, getCongestionWindow(), kCongestionPacketSent);
     }
-*/
+
 }
 
 void Copa2::onPacketAckOrLoss(const AckEvent* FOLLY_NULLABLE ack, const LossEvent* FOLLY_NULLABLE loss) {
@@ -59,11 +58,11 @@ void Copa2::onPacketAckOrLoss(const AckEvent* FOLLY_NULLABLE ack, const LossEven
         if (appLimited_) {
             if (appLimitedExitTarget_ < ack->largestNewlyAckedPacketSentTime) {
                 appLimited_ = false;
-                /*
+                
                 if (conn_.qLogger) {
                     conn_.qLogger->addAppUnlimitedUpdate();
                 }
-                */
+                
             }
         }
         onPacketAcked(*ack);
@@ -101,12 +100,12 @@ void Copa2::manageLossyMode(folly::Optional<TimePoint> sentTime) {
 
 void Copa2::onPacketLoss(const LossEvent& loss) {
     //VLOG(10) << __func__ << " lostBytes=" << loss.lostBytes << " lostPackets=" << loss.lostPackets << " cwnd=" << cwndBytes_ << " inflight=" << conn_.lossState.inflightBytes << " " << conn_;
-    /*
+    
     if (conn_.qLogger) {
         conn_.qLogger->addCongestionMetricUpdate(conn_.lossState.inflightBytes,
             getCongestionWindow(), kCongestionPacketLoss);
     }
-    */
+    
     //DCHECK(loss.largestLostPacketNum.has_value());
     subtractAndCheckUnderflow(conn_.lossState.inflightBytes, loss.lostBytes);
     if (loss.persistentCongestion) {
@@ -116,12 +115,12 @@ void Copa2::onPacketLoss(const LossEvent& loss) {
             // TODO Which min RTT should we use?
             conn_.pacer->refreshPacingRate(cwndBytes_, conn_.lossState.mrtt);
         }
-        /*
+        
         if (conn_.qLogger) {
             conn_.qLogger->addCongestionMetricUpdate(conn_.lossState.inflightBytes,
                 getCongestionWindow(), kPersistentCongestion);
         }
-        */
+        
     }
 
     numLostInLossCycle_ += loss.lostPackets;
@@ -235,11 +234,11 @@ void Copa2::setAppLimited() {
     }
     appLimited_ = true;
     appLimitedExitTarget_ = Clock::now();
-    /*
+    
     if (conn_.qLogger) {
         conn_.qLogger->addAppLimitedUpdate();
     }
-    */
+    
 }
 
 bool Copa2::isAppLimited() const noexcept {

@@ -59,7 +59,7 @@ VirtualEventBase::~VirtualEventBase() {
   if (!destroyFuture_.valid()) {
     return;
   }
-  CHECK(!evb_->inRunningEventBaseThread());
+  //CHECK(!evb_->inRunningEventBaseThread());
   destroy().get();
 }
 

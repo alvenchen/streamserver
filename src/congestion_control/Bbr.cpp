@@ -11,8 +11,7 @@
 #include "../protocol/quic_constants.hpp"
 #include "../common/TimeUtil.h"
 #include "../congestion_control/congestion_control_functions.h"
-
-//#include <quic/logging/QLoggerConstants.h>
+#include "../logging/qlogger_constants.h"
 #include "../state/quic_ack_frequency_function.h"
 
 #include <chrono>
@@ -91,7 +90,7 @@ void BbrCongestionController::onPacketLoss(const LossEvent& loss, uint64_t acked
 
     if (loss.persistentCongestion) {
         recoveryWindow_ = conn_.udpSendPacketLen * kMinCwndInMssForBbr;
-        /*
+        
         if (conn_.qLogger) {
             conn_.qLogger->addCongestionMetricUpdate(
                 conn_.lossState.inflightBytes,
@@ -100,7 +99,7 @@ void BbrCongestionController::onPacketLoss(const LossEvent& loss, uint64_t acked
                 bbrStateToString(state_),
                 bbrRecoveryStateToString(recoveryState_));
         }
-        */
+        
     }
 }
 
@@ -504,11 +503,11 @@ void BbrCongestionController::updateCwnd(uint64_t ackedBytes, uint64_t excessive
 }
 
 void BbrCongestionController::setAppIdle(bool idle, TimePoint /* eventTime */) noexcept {
-    /*
+    
     if (conn_.qLogger) {
         conn_.qLogger->addAppIdleUpdate(kAppIdle, idle);
     }
-    */
+    
 
     /*
     * No-op for bbr.

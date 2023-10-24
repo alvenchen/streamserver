@@ -43,13 +43,11 @@ void sendStopSendingSMHandler(
     const StopSendingFrame& frame) {
   switch (stream.sendState) {
     case StreamSendState::Open: {
-      CHECK(
-          isBidirectionalStream(stream.id) ||
-          isSendingStream(stream.conn.nodeType, stream.id));
+      //CHECK(isBidirectionalStream(stream.id) || isSendingStream(stream.conn.nodeType, stream.id));
       if (stream.conn.nodeType == QuicNodeType::Server &&
           getSendStreamFlowControlBytesWire(stream) == 0 &&
           !stream.finalWriteOffset) {
-        VLOG(3) << "Client gives up a flow control blocked stream";
+        //VLOG(3) << "Client gives up a flow control blocked stream";
       }
       stream.conn.streamManager->addStopSending(stream.id, frame.errorCode);
       break;
@@ -80,7 +78,7 @@ void sendRstSMHandler(QuicStreamState& stream, ApplicationErrorCode errorCode) {
       break;
     }
     case StreamSendState::Closed: {
-      VLOG(4) << "Ignoring SendReset from closed state.";
+      //VLOG(4) << "Ignoring SendReset from closed state.";
       break;
     }
     case StreamSendState::ResetSent: {
@@ -106,13 +104,15 @@ void sendAckSMHandler(
         // Clean up the acked buffers from the retransmissionBuffer.
         auto ackedBuffer = stream.retransmissionBuffer.find(ackedFrame.offset);
         if (ackedBuffer != stream.retransmissionBuffer.end()) {
-          CHECK_EQ(ackedFrame.offset, ackedBuffer->second->offset);
-          CHECK_EQ(ackedFrame.len, ackedBuffer->second->data.chainLength());
-          CHECK_EQ(ackedFrame.fin, ackedBuffer->second->eof);
-          VLOG(10) << "Open: acked stream data stream=" << stream.id
+          //CHECK_EQ(ackedFrame.offset, ackedBuffer->second->offset);
+          //CHECK_EQ(ackedFrame.len, ackedBuffer->second->data.chainLength());
+          //CHECK_EQ(ackedFrame.fin, ackedBuffer->second->eof);
+          /*
+          //VLOG(10) << "Open: acked stream data stream=" << stream.id
                    << " offset=" << ackedBuffer->second->offset
                    << " len=" << ackedBuffer->second->data.chainLength()
                    << " eof=" << ackedBuffer->second->eof << " " << stream.conn;
+          */
           stream.updateAckedIntervals(
               ackedBuffer->second->offset,
               ackedBuffer->second->data.chainLength(),
@@ -123,13 +123,15 @@ void sendAckSMHandler(
         auto ackedBuffer =
             stream.retransmissionBufMetas.find(ackedFrame.offset);
         if (ackedBuffer != stream.retransmissionBufMetas.end()) {
-          CHECK_EQ(ackedFrame.offset, ackedBuffer->second.offset);
-          CHECK_EQ(ackedFrame.len, ackedBuffer->second.length);
-          CHECK_EQ(ackedFrame.fin, ackedBuffer->second.eof);
-          VLOG(10) << "Open: acked stream data bufmeta=" << stream.id
+          //CHECK_EQ(ackedFrame.offset, ackedBuffer->second.offset);
+          //CHECK_EQ(ackedFrame.len, ackedBuffer->second.length);
+          //CHECK_EQ(ackedFrame.fin, ackedBuffer->second.eof);
+          /*
+          //VLOG(10) << "Open: acked stream data bufmeta=" << stream.id
                    << " offset=" << ackedBuffer->second.offset
                    << " len=" << ackedBuffer->second.length
                    << " eof=" << ackedBuffer->second.eof << " " << stream.conn;
+          */
           stream.updateAckedIntervals(
               ackedBuffer->second.offset,
               ackedBuffer->second.length,
@@ -152,8 +154,8 @@ void sendAckSMHandler(
     }
     case StreamSendState::Closed:
     case StreamSendState::ResetSent: {
-      DCHECK(stream.retransmissionBuffer.empty());
-      DCHECK(stream.writeBuffer.empty());
+      //DCHECK(stream.retransmissionBuffer.empty());
+      //DCHECK(stream.writeBuffer.empty());
       break;
     }
     case StreamSendState::Invalid: {
@@ -170,8 +172,7 @@ void sendAckSMHandler(
 void sendRstAckSMHandler(QuicStreamState& stream) {
   switch (stream.sendState) {
     case StreamSendState::ResetSent: {
-      VLOG(10) << "ResetSent: Transition to closed stream=" << stream.id << " "
-               << stream.conn;
+      //VLOG(10) << "ResetSent: Transition to closed stream=" << stream.id << " " << stream.conn;
       stream.sendState = StreamSendState::Closed;
       if (stream.inTerminalStates()) {
         stream.conn.streamManager->addClosed(stream.id);

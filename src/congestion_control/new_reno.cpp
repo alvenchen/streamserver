@@ -7,8 +7,7 @@
 
 #include "new_reno.h"
 #include "congestion_control_functions.h"
-
-//#include <quic/logging/QLoggerConstants.h>
+#include "../logging/qlogger_constants.h"
 
 namespace quic {
 
@@ -25,38 +24,38 @@ NewReno::NewReno(QuicConnectionStateBase& conn)
 void NewReno::onRemoveBytesFromInflight(uint64_t bytes) {
     subtractAndCheckUnderflow(conn_.lossState.inflightBytes, bytes);
     //VLOG(10) << __func__ << " writable=" << getWritableBytes() << " cwnd=" << cwndBytes_ << " inflight=" << conn_.lossState.inflightBytes << " " << conn_;
-    /*
+    
     if (conn_.qLogger) {
         conn_.qLogger->addCongestionMetricUpdate(conn_.lossState.inflightBytes, getCongestionWindow(), kRemoveInflight);
     }
-    */
+    
 }
 
 void NewReno::onPacketSent(const OutstandingPacketWrapper& packet) {
     addAndCheckOverflow(conn_.lossState.inflightBytes, packet.metadata.encodedSize);
     //VLOG(10) << __func__ << " writable=" << getWritableBytes() << " cwnd=" << cwndBytes_ << " inflight=" << conn_.lossState.inflightBytes << " packetNum=" << packet.packet.header.getPacketSequenceNum() << " " << conn_;
-    /*
+    
     if (conn_.qLogger) {
         conn_.qLogger->addCongestionMetricUpdate(
             conn_.lossState.inflightBytes,
             getCongestionWindow(),
             kCongestionPacketSent);
     }
-    */
+    
 }
 
 void NewReno::onAckEvent(const AckEvent& ack) {
     //DCHECK(ack.largestNewlyAckedPacket.has_value() && !ack.ackedPackets.empty());
     subtractAndCheckUnderflow(conn_.lossState.inflightBytes, ack.ackedBytes);
     //VLOG(10) << __func__ << " writable=" << getWritableBytes()<< " cwnd=" << cwndBytes_ << " inflight=" << conn_.lossState.inflightBytes << " " << conn_;
-    /*
+    
     if (conn_.qLogger) {
         conn_.qLogger->addCongestionMetricUpdate(
             conn_.lossState.inflightBytes,
             getCongestionWindow(),
             kCongestionPacketAck);
     }
-    */
+    
     for (const auto& packet : ack.ackedPackets) {
         onPacketAcked(packet);
     }
@@ -105,21 +104,21 @@ void NewReno::onPacketLoss(const LossEvent& loss) {
     } else {
         //VLOG(10) << __func__ << " packetNum=" << *loss.largestLostPacketNum << " writable=" << getWritableBytes() << " cwnd=" << cwndBytes_ << " inflight=" << conn_.lossState.inflightBytes << " " << conn_;
     }
-/*
+
     if (conn_.qLogger) {
         conn_.qLogger->addCongestionMetricUpdate(
             conn_.lossState.inflightBytes,
             getCongestionWindow(),
             kCongestionPacketLoss);
     }
-*/
+
     if (loss.persistentCongestion) {
         //VLOG(10) << __func__ << " writable=" << getWritableBytes() << " cwnd=" << cwndBytes_ << " inflight=" << conn_.lossState.inflightBytes << " " << conn_;
-        /*
+        
         if (conn_.qLogger) {
             conn_.qLogger->addCongestionMetricUpdate(conn_.lossState.inflightBytes, getCongestionWindow(), kPersistentCongestion);
         }
-        */
+        
         cwndBytes_ = conn_.transportSettings.minCwndInMss * conn_.udpSendPacketLen;
     }
 }

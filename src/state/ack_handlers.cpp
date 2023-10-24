@@ -110,11 +110,13 @@ AckEvent processAckFrame(
       // This means that all the packets are greater than the end packet.
       // Since we iterate the ACK blocks in reverse order of end packets, our
       // work here is done.
-      VLOG(10) << __func__ << " less than all outstanding packets outstanding="
+      /*
+      //VLOG(10) << __func__ << " less than all outstanding packets outstanding="
                << conn.outstandings.numOutstanding() << " range=["
                << ackBlockIt->startPacket << ", " << ackBlockIt->endPacket
                << "]"
                << " " << conn;
+      */
       ackBlockIt++;
       break;
     }
@@ -144,14 +146,16 @@ AckEvent processAckFrame(
       if (currentPacketNum < ackBlockIt->startPacket) {
         break;
       }
-      VLOG(10) << __func__ << " acked packetNum=" << currentPacketNum
+      /*
+      //VLOG(10) << __func__ << " acked packetNum=" << currentPacketNum
                << " space=" << currentPacketNumberSpace << " handshake="
                << (int)((rPacketIt->metadata.isHandshake) ? 1 : 0) << " "
                << conn;
+      */
       // If we hit a packet which has been lost we need to count the spurious
       // loss and ignore all other processing.
       if (rPacketIt->declaredLost) {
-        CHECK_GT(conn.outstandings.declaredLostCount, 0);
+        //CHECK_GT(conn.outstandings.declaredLostCount, 0);
         conn.lossState.totalPacketsSpuriouslyMarkedLost++;
         if (conn.transportSettings.useAdaptiveLossReorderingThresholds) {
           if (rPacketIt->metadata.lossReorderDistance.hasValue() &&
@@ -188,7 +192,7 @@ AckEvent processAckFrame(
         QUIC_STATS(conn.statsCallback, onPacketSpuriousLoss);
         // Decrement the counter, trust that we will erase this as part of
         // the bulk erase.
-        CHECK_GT(conn.outstandings.declaredLostCount, 0);
+        //CHECK_GT(conn.outstandings.declaredLostCount, 0);
         conn.outstandings.declaredLostCount--;
         if (spuriousLossEvent) {
           spuriousLossEvent->addSpuriousPacket(
@@ -202,12 +206,12 @@ AckEvent processAckFrame(
       bool needsProcess = !rPacketIt->associatedEvent ||
           conn.outstandings.packetEvents.count(*rPacketIt->associatedEvent);
       if (needsProcess) {
-        CHECK(conn.outstandings.packetCount[currentPacketNumberSpace]);
+        //CHECK(conn.outstandings.packetCount[currentPacketNumberSpace]);
         --conn.outstandings.packetCount[currentPacketNumberSpace];
       }
       ack.ackedBytes += rPacketIt->metadata.encodedSize;
       if (rPacketIt->associatedEvent) {
-        CHECK(conn.outstandings.clonedPacketCount[currentPacketNumberSpace]);
+        //CHECK(conn.outstandings.clonedPacketCount[currentPacketNumberSpace]);
         --conn.outstandings.clonedPacketCount[currentPacketNumberSpace];
       }
       if (rPacketIt->isDSRPacket) {
@@ -253,8 +257,8 @@ AckEvent processAckFrame(
           }
 
           // update AckEvent RTTs, which are used by CCA and other processing
-          CHECK(!ack.rttSample.has_value());
-          CHECK(!ack.rttSampleNoAckDelay.has_value());
+          //CHECK(!ack.rttSample.has_value());
+          //CHECK(!ack.rttSampleNoAckDelay.has_value());
           ack.rttSample = rttSample;
           ack.rttSampleNoAckDelay = (rttSample >= frame.ackDelay)
               ? folly::make_optional(
@@ -414,7 +418,7 @@ AckEvent processAckFrame(
         })();
 
         // check for change in ACK IntervalSet version
-        CHECK(maybeAckedStreamState);
+        //CHECK(maybeAckedStreamState);
         if (preAckVisitorState.ackIntervalSetVersion !=
             getAckIntervalSetVersion(*maybeAckedStreamState)) {
           // we were able to fill in a hole in the ACK interval
@@ -425,7 +429,7 @@ AckEvent processAckFrame(
               getLargestDeliverableOffset(*maybeAckedStreamState);
           if (preAckVisitorState.maybeLargestDeliverableOffset !=
               maybeLargestDeliverableOffset) {
-            CHECK(maybeLargestDeliverableOffset.has_value());
+            //CHECK(maybeLargestDeliverableOffset.has_value());
             detailsPerStream.recordDeliveryOffsetUpdate(
                 ackedFrame.streamId, maybeLargestDeliverableOffset.value());
           }
@@ -436,9 +440,7 @@ AckEvent processAckFrame(
               ackedFrame, retransmission);
 
           // should be no change in delivery offset
-          DCHECK(
-              preAckVisitorState.maybeLargestDeliverableOffset ==
-              getLargestDeliverableOffset(*maybeAckedStreamState));
+          //DCHECK(preAckVisitorState.maybeLargestDeliverableOffset == getLargestDeliverableOffset(*maybeAckedStreamState));
         }
       }
     }
@@ -465,14 +467,13 @@ AckEvent processAckFrame(
   if (lastAckedPacketSentTime) {
     conn.lossState.lastAckedPacketSentTime = *lastAckedPacketSentTime;
   }
-  CHECK_GE(conn.outstandings.dsrCount, dsrPacketsAcked);
+  //CHECK_GE(conn.outstandings.dsrCount, dsrPacketsAcked);
   conn.outstandings.dsrCount -= dsrPacketsAcked;
-  CHECK_GE(
-      conn.outstandings.packets.size(), conn.outstandings.declaredLostCount);
+  //CHECK_GE(conn.outstandings.packets.size(), conn.outstandings.declaredLostCount);
   auto updatedOustandingPacketsCount = conn.outstandings.numOutstanding();
   const auto& packetCount = conn.outstandings.packetCount;
-  LOG_IF(
-      DFATAL,
+  /*
+  //LOG_IF(DFATAL,
       updatedOustandingPacketsCount <
           packetCount[PacketNumberSpace::Handshake] +
               packetCount[PacketNumberSpace::Initial] +
@@ -487,12 +488,13 @@ AckEvent processAckFrame(
       << originalPacketCount[PacketNumberSpace::Initial] << ","
       << originalPacketCount[PacketNumberSpace::Handshake] << ","
       << originalPacketCount[PacketNumberSpace::AppData] << "}";
-  CHECK_GE(updatedOustandingPacketsCount, conn.outstandings.numClonedPackets());
+  //CHECK_GE(updatedOustandingPacketsCount, conn.outstandings.numClonedPackets());
+  */
   auto lossEvent = handleAckForLoss(conn, lossVisitor, ack, pnSpace);
   if (conn.congestionController &&
       (ack.largestNewlyAckedPacket.has_value() || lossEvent)) {
     if (lossEvent) {
-      CHECK(lossEvent->largestLostSentTime && lossEvent->smallestLostSentTime);
+      //CHECK(lossEvent->largestLostSentTime && lossEvent->smallestLostSentTime);
       // TODO it's not clear that we should be using the smallest and largest
       // lost times here. It may perhaps be better to only consider the latest
       // contiguous lost block and determine if that block is larger than the
@@ -561,7 +563,7 @@ void clearOldOutstandingPackets(
       auto timeSinceSent = time - opItr->metadata.time;
       if (opItr->declaredLost && timeSinceSent > threshold) {
         opItr++;
-        CHECK_GT(conn.outstandings.declaredLostCount, 0);
+        //CHECK_GT(conn.outstandings.declaredLostCount, 0);
         conn.outstandings.declaredLostCount--;
       } else {
         break;
@@ -588,7 +590,7 @@ void parseAckReceiveTimestamps(
     return;
   }
 
-  DCHECK(frame.maybeLatestRecvdPacketNum.has_value());
+  //DCHECK(frame.maybeLatestRecvdPacketNum.has_value());
 
   // Confirm there is at least one timestamp range and one timestamp delta
   // within that range.
@@ -640,15 +642,16 @@ void parseAckReceiveTimestamps(
       }
       // We don't need to process more than the requested Receive timestamps
       // sent by peer.
-      if (packetReceiveTimeStamps.size() >=
-          maxReceiveTimestampsRequestedFromPeer) {
-        LOG(ERROR) << " Received more timestamps "
+      if (packetReceiveTimeStamps.size() >= maxReceiveTimestampsRequestedFromPeer) {
+        /*
+        //LOG(ERROR) << " Received more timestamps "
                    << packetReceiveTimeStamps.size()
                    << " than requested timestamps from peer: "
                    << maxReceiveTimestampsRequestedFromPeer << " current PN "
                    << receivedPacketNum << " largest PN "
                    << frame.maybeLatestRecvdPacketNum.value() << " deltas  "
                    << timeStampRange.deltas.size();
+        */
         return;
       }
       receiveTimeStamp -= delta;

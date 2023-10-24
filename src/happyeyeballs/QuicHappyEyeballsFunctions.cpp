@@ -46,10 +46,10 @@ void happyEyeballsAddPeerAddress(
   // TODO: Support multiple addresses
 
   if (peerAddress.getFamily() == AF_INET) {
-    DCHECK(!connection.happyEyeballsState.v4PeerAddress.isInitialized());
+    //DCHECK(!connection.happyEyeballsState.v4PeerAddress.isInitialized());
     connection.happyEyeballsState.v4PeerAddress = peerAddress;
   } else {
-    DCHECK(!connection.happyEyeballsState.v6PeerAddress.isInitialized());
+    //DCHECK(!connection.happyEyeballsState.v6PeerAddress.isInitialized());
     connection.happyEyeballsState.v6PeerAddress = peerAddress;
   }
 }
@@ -72,7 +72,7 @@ void startHappyEyeballs(
   if (connection.happyEyeballsState.v6PeerAddress.isInitialized() &&
       connection.happyEyeballsState.v4PeerAddress.isInitialized()) {
     // A second socket has to be added before happy eyeballs starts
-    DCHECK(connection.happyEyeballsState.secondSocket);
+    //DCHECK(connection.happyEyeballsState.secondSocket);
 
     if (cachedFamily == AF_INET) {
       connection.originalPeerAddress =
@@ -179,7 +179,7 @@ void happyEyeballsSetUpSocket(
 
 void happyEyeballsStartSecondSocket(
     QuicClientConnectionState::HappyEyeballsState& happyEyeballsState) {
-  CHECK(!happyEyeballsState.finished);
+  //CHECK(!happyEyeballsState.finished);
 
   happyEyeballsState.shouldWriteToSecondSocket = true;
 }
@@ -198,7 +198,7 @@ void happyEyeballsOnDataReceived(
   connection.happyEyeballsState.shouldWriteToSecondSocket = false;
   // If second socket won, update main socket and peerAddress
   if (connection.peerAddress.getFamily() != peerAddress.getFamily()) {
-    CHECK(connection.happyEyeballsState.secondSocket);
+    //CHECK(connection.happyEyeballsState.secondSocket);
     socket.swap(connection.happyEyeballsState.secondSocket);
     connection.originalPeerAddress = peerAddress;
     connection.peerAddress = peerAddress;

@@ -36,10 +36,14 @@ file(GLOB SRC
      ${CMAKE_CURRENT_SOURCE_DIR}/src/folly/*/*.cpp
      ${CMAKE_CURRENT_SOURCE_DIR}/src/folly/*/*/*.hpp
      ${CMAKE_CURRENT_SOURCE_DIR}/src/folly/*/*/*.cpp
+     ${CMAKE_CURRENT_SOURCE_DIR}/src/folly/*/*/*/*.hpp
+     ${CMAKE_CURRENT_SOURCE_DIR}/src/folly/*/*/*/*.cpp
      ${CMAKE_CURRENT_SOURCE_DIR}/src/fizz/*.hpp
      ${CMAKE_CURRENT_SOURCE_DIR}/src/fizz/*.cpp
      ${CMAKE_CURRENT_SOURCE_DIR}/src/fizz/*/*.hpp
      ${CMAKE_CURRENT_SOURCE_DIR}/src/fizz/*/*.cpp
+     ${CMAKE_CURRENT_SOURCE_DIR}/src/fizz/*/*/*.hpp
+     ${CMAKE_CURRENT_SOURCE_DIR}/src/fizz/*/*/*.cpp
      ${CMAKE_CURRENT_SOURCE_DIR}/src/common/*.hpp
      ${CMAKE_CURRENT_SOURCE_DIR}/src/common/*.cpp
      ${CMAKE_CURRENT_SOURCE_DIR}/src/common/*/*.hpp
@@ -52,6 +56,7 @@ target_include_directories(LiveServer PUBLIC
     ${CMAKE_CURRENT_SOURCE_DIR}/src
     ${CMAKE_CURRENT_SOURCE_DIR}/src/protocol
     ${CMAKE_CURRENT_SOURCE_DIR}/src/folly
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/fizz
 )
 
 #seastar

@@ -32,9 +32,7 @@ EventBaseAtomicNotificationQueue<Task, Consumer>::
   if (eventfd_ == -1) {
     if (errno == ENOSYS || errno == EINVAL) {
       // eventfd not availalble
-      LOG(ERROR) << "failed to create eventfd for AtomicNotificationQueue: "
-                 << errno << ", falling back to pipe mode (is your kernel "
-                 << "> 2.6.30?)";
+      //LOG(ERROR) << "failed to create eventfd for AtomicNotificationQueue: " << errno << ", falling back to pipe mode (is your kernel " << "> 2.6.30?)";
     } else {
       // some other error
       folly::throwSystemError(

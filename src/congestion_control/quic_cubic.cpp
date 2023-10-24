@@ -7,8 +7,7 @@
 
 #include "quic_cubic.h"
 #include "congestion_control_functions.h"
-
-//#include <quic/logging/QLoggerConstants.h>
+#include "../logging/qlogger_constants.h"
 #include "../state/quic_state_function.h"
 
 #include <folly/Chrono.h>
@@ -23,7 +22,7 @@ Cubic::Cubic(QuicConnectionStateBase& conn, uint64_t initCwndBytes,
     steadyState_.tcpFriendly = tcpFriendly;
     steadyState_.estRenoCwnd = cwndBytes_;
     hystartState_.ackTrain = ackTrain;
-    /*
+    
     if (conn_.qLogger) {
         conn_.qLogger->addCongestionMetricUpdate(
         conn_.lossState.inflightBytes,
@@ -31,7 +30,7 @@ Cubic::Cubic(QuicConnectionStateBase& conn, uint64_t initCwndBytes,
         kCubicInit,
         cubicStateToString(state_).str());
     }
-    */
+    
 }
 
 CubicStates Cubic::state() const noexcept {
@@ -78,7 +77,7 @@ void Cubic::onPersistentCongestion() {
     hystartState_.inRttRound = false;
 
     state_ = CubicStates::Hystart;
-/*
+
     if (conn_.qLogger) {
         conn_.qLogger->addCongestionMetricUpdate(
             conn_.lossState.inflightBytes,
@@ -86,7 +85,7 @@ void Cubic::onPersistentCongestion() {
             kPersistentCongestion,
             cubicStateToString(state_).str());
     }
-*/
+
 }
 
 void Cubic::onPacketSent(const OutstandingPacketWrapper& packet) {

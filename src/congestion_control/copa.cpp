@@ -8,8 +8,7 @@
 #include "copa.h"
 #include "../common/TimeUtil.h"
 #include "congestion_control_functions.h"
-
-//#include <quic/logging/QLoggerConstants.h>
+#include "../logging/qlogger_constants.h"
 
 namespace quic {
 
@@ -141,11 +140,11 @@ void Copa::onPacketAcked(const AckEvent& ack) {
             << " packetsRetransmitted=" << conn_.lossState.rtxCount << " "
             << conn_;
 */
-/*
+
     if (conn_.qLogger) {
         conn_.qLogger->addCongestionMetricUpdate(conn_.lossState.inflightBytes, getCongestionWindow(), kCongestionPacketAck);
     }
-*/
+
     if (rttStandingMicroSec < rttMin.count()) {
         //VLOG(3) << __func__ << "delay negative, rttStanding=" << rttStandingMicroSec << " rttMin=" << rttMin.count() << " " << conn_;
         return;

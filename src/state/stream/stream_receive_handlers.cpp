@@ -38,13 +38,11 @@ void receiveReadStreamFrameSMHandler(
     ReadStreamFrame&& frame) {
   switch (stream.recvState) {
     case StreamRecvState::Open: {
-      VLOG_IF(10, frame.fin) << "Open: Received data with fin"
-                             << " stream=" << stream.id << " " << stream.conn;
+      //VLOG_IF(10, frame.fin) << "Open: Received data with fin" << " stream=" << stream.id << " " << stream.conn;
       appendDataToReadBuffer(
           stream, StreamBuffer(std::move(frame.data), frame.offset, frame.fin));
       if (isAllDataReceived(stream)) {
-        VLOG(10) << "Open: Transition to Closed"
-                 << " stream=" << stream.id << " " << stream.conn;
+        //VLOG(10) << "Open: Transition to Closed" << " stream=" << stream.id << " " << stream.conn;
         stream.recvState = StreamRecvState::Closed;
         if (stream.inTerminalStates()) {
           stream.conn.streamManager->addClosed(stream.id);
@@ -56,9 +54,8 @@ void receiveReadStreamFrameSMHandler(
       break;
     }
     case StreamRecvState::Closed: {
-      CHECK(!isSendingStream(stream.conn.nodeType, stream.id));
-      VLOG(10) << "Closed: Received discarding data stream=" << stream.id
-               << " fin=" << frame.fin << " " << stream.conn;
+      //CHECK(!isSendingStream(stream.conn.nodeType, stream.id));
+      //VLOG(10) << "Closed: Received discarding data stream=" << stream.id << " fin=" << frame.fin << " " << stream.conn;
       break;
     }
     case StreamRecvState::Invalid: {
