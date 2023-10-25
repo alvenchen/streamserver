@@ -2,7 +2,251 @@
 
 
 namespace quic{
+/*
+    quic simple frame
+*/
+    QuicSimpleFrame::~QuicSimpleFrame(){
+        destroy();
+    }
 
+    QuicSimpleFrame::QuicSimpleFrame(QuicSimpleFrame&& other) noexcept {
+        switch (other._type) {
+            case QuicSimpleFrame::TYPE::STOP_SENDING_FRAME:
+                new (&stopSending) StopSendingFrame(std::move(other.stopSending));
+                break;
+            case QuicSimpleFrame::TYPE::PATH_CHALLANGE_FRAME:
+                new (&pathChallenge) PathChallengeFrame(std::move(other.pathChallenge));
+                break;
+            case QuicSimpleFrame::TYPE::PATH_RESPONSE_FRAME:
+                new (&pathResp) PathResponseFrame(std::move(other.pathResp));
+                break;
+            case QuicSimpleFrame::TYPE::NEW_CONNECTION_ID_FRAME:
+                new (&newConnID) NewConnectionIdFrame(std::move(other.newConnID));
+                break;
+            case QuicSimpleFrame::TYPE::MAX_STREAMS_FRAME:
+                new (&maxStream) MaxStreamsFrame(std::move(other.maxStream));
+                break;
+            case QuicSimpleFrame::TYPE::RETIRE_CONNECTION_ID_FRAME:
+                new (&retireConnID) RetireConnectionIdFrame(std::move(other.retireConnID));
+                break;
+            case QuicSimpleFrame::TYPE::HANDSHAKE_DONE_FRAME:
+                new (&handshakeDone) HandshakeDoneFrame(std::move(other.handshakeDone));
+                break;
+            case QuicSimpleFrame::TYPE::KNOB_FRAME:
+                new (&knob) KnobFrame(std::move(other.knob));
+                break;
+            case QuicSimpleFrame::TYPE::ACK_FREQUENCY_FRAME:
+                new (&ackFrequency) AckFrequencyFrame(std::move(other.ackFrequency));
+                break;
+            case QuicSimpleFrame::TYPE::NEW_TOKEN_FRAME:
+                new (&newToken) NewTokenFrame(std::move(other.newToken));
+                break;
+            
+        }
+        _type = other._type;
+    }
+
+    QuicSimpleFrame& QuicSimpleFrame::operator=(QuicSimpleFrame&& other) noexcept{
+        destroy();
+        switch (other._type) {
+            case QuicSimpleFrame::TYPE::STOP_SENDING_FRAME:
+                new (&stopSending) StopSendingFrame(std::move(other.stopSending));
+                break;
+            case QuicSimpleFrame::TYPE::PATH_CHALLANGE_FRAME:
+                new (&pathChallenge) PathChallengeFrame(std::move(other.pathChallenge));
+                break;
+            case QuicSimpleFrame::TYPE::PATH_RESPONSE_FRAME:
+                new (&pathResp) PathResponseFrame(std::move(other.pathResp));
+                break;
+            case QuicSimpleFrame::TYPE::NEW_CONNECTION_ID_FRAME:
+                new (&newConnID) NewConnectionIdFrame(std::move(other.newConnID));
+                break;
+            case QuicSimpleFrame::TYPE::MAX_STREAMS_FRAME:
+                new (&maxStream) MaxStreamsFrame(std::move(other.maxStream));
+                break;
+            case QuicSimpleFrame::TYPE::RETIRE_CONNECTION_ID_FRAME:
+                new (&retireConnID) RetireConnectionIdFrame(std::move(other.retireConnID));
+                break;
+            case QuicSimpleFrame::TYPE::HANDSHAKE_DONE_FRAME:
+                new (&handshakeDone) HandshakeDoneFrame(std::move(other.handshakeDone));
+                break;
+            case QuicSimpleFrame::TYPE::KNOB_FRAME:
+                new (&knob) KnobFrame(std::move(other.knob));
+                break;
+            case QuicSimpleFrame::TYPE::ACK_FREQUENCY_FRAME:
+                new (&ackFrequency) AckFrequencyFrame(std::move(other.ackFrequency));
+                break;
+            case QuicSimpleFrame::TYPE::NEW_TOKEN_FRAME:
+                new (&newToken) NewTokenFrame(std::move(other.newToken));
+                break;
+            
+        }
+        _type = other._type;
+        return *this;
+    }
+
+    QuicSimpleFrame::QuicSimpleFrame(StopSendingFrame&& in)
+        :_type(QuicSimpleFrame::TYPE::STOP_SENDING_FRAME){
+        new (&stopSending) StopSendingFrame(std::move(in));
+    }
+    
+    QuicSimpleFrame::QuicSimpleFrame(PathChallengeFrame&& in)
+        :_type(QuicSimpleFrame::TYPE::PATH_CHALLANGE_FRAME){
+        new (&pathChallenge) PathChallengeFrame(std::move(in));
+    }
+
+    QuicSimpleFrame::QuicSimpleFrame(PathResponseFrame&& in)
+        :_type(QuicSimpleFrame::TYPE::PATH_RESPONSE_FRAME){
+        new (&pathResp) PathResponseFrame(std::move(in));
+    }
+
+    QuicSimpleFrame::QuicSimpleFrame(NewConnectionIdFrame&& in)
+        :_type(QuicSimpleFrame::TYPE::NEW_CONNECTION_ID_FRAME){
+        new (&newConnID) NewConnectionIdFrame(std::move(in));
+    }
+
+    QuicSimpleFrame::QuicSimpleFrame(MaxStreamsFrame&& in)
+        :_type(QuicSimpleFrame::TYPE::MAX_STREAMS_FRAME){
+        new (&maxStream) MaxStreamsFrame(std::move(in));
+    }
+        
+    QuicSimpleFrame::QuicSimpleFrame(RetireConnectionIdFrame&& in)
+        :_type(QuicSimpleFrame::TYPE::RETIRE_CONNECTION_ID_FRAME){
+        new (&retireConnID) RetireConnectionIdFrame(std::move(in));
+    }
+        
+    QuicSimpleFrame::QuicSimpleFrame(HandshakeDoneFrame&& in) 
+        :_type(QuicSimpleFrame::TYPE::HANDSHAKE_DONE_FRAME){
+        new (&handshakeDone) HandshakeDoneFrame(std::move(in));
+    }   
+
+    QuicSimpleFrame::QuicSimpleFrame(KnobFrame&& in)
+        :_type(QuicSimpleFrame::TYPE::KNOB_FRAME){
+        new (&knob) KnobFrame(std::move(in));
+    } 
+        
+    QuicSimpleFrame::QuicSimpleFrame(AckFrequencyFrame&& in)
+        :_type(QuicSimpleFrame::TYPE::ACK_FREQUENCY_FRAME){
+        new (&ackFrequency) AckFrequencyFrame(std::move(in));
+    } 
+        
+    QuicSimpleFrame::QuicSimpleFrame(NewTokenFrame&& in)
+        :_type(QuicSimpleFrame::TYPE::NEW_TOKEN_FRAME){
+        new (&newToken) NewTokenFrame(std::move(in));
+    } 
+
+    QuicSimpleFrame::TYPE QuicSimpleFrame::type() const{
+        return _type;
+    }
+
+    void QuicSimpleFrame::destroy() noexcept{
+        switch (_type) {
+            case QuicSimpleFrame::TYPE::STOP_SENDING_FRAME:
+                stopSending.~StopSendingFrame();
+                break;
+            case QuicSimpleFrame::TYPE::PATH_CHALLANGE_FRAME:
+                pathChallenge.~PathChallengeFrame();
+                break;
+            case QuicSimpleFrame::TYPE::PATH_RESPONSE_FRAME:
+                pathResp.~PathResponseFrame();
+                break;
+            case QuicSimpleFrame::TYPE::NEW_CONNECTION_ID_FRAME:
+                newConnID.~NewConnectionIdFrame();
+                break;
+            case QuicSimpleFrame::TYPE::MAX_STREAMS_FRAME:
+                maxStream.~MaxStreamsFrame();
+                break;
+            case QuicSimpleFrame::TYPE::RETIRE_CONNECTION_ID_FRAME:
+                retireConnID.~RetireConnectionIdFrame();
+                break;
+            case QuicSimpleFrame::TYPE::HANDSHAKE_DONE_FRAME:
+                handshakeDone.~HandshakeDoneFrame();
+                break;
+            case QuicSimpleFrame::TYPE::KNOB_FRAME:
+                knob.~KnobFrame();
+                break;
+            case QuicSimpleFrame::TYPE::ACK_FREQUENCY_FRAME:
+                ackFrequency.~AckFrequencyFrame();
+                break;
+            case QuicSimpleFrame::TYPE::NEW_TOKEN_FRAME:
+                newToken.~NewTokenFrame();
+                break;
+        }
+    }
+
+    StopSendingFrame* QuicSimpleFrame::asStopSendingFrame(){
+        if(_type == QuicSimpleFrame::TYPE::STOP_SENDING_FRAME){
+            return &stopSending;
+        }
+        return nullptr;
+    }
+
+    PathChallengeFrame* QuicSimpleFrame::asPathChallengeFrame(){
+        if(_type == QuicSimpleFrame::TYPE::PATH_CHALLANGE_FRAME){
+            return &pathChallenge;
+        }
+        return nullptr;
+    }
+
+    PathResponseFrame* QuicSimpleFrame::asPathResponseFrame(){
+        if(_type == QuicSimpleFrame::TYPE::PATH_RESPONSE_FRAME){
+            return &pathResp;
+        }
+        return nullptr;
+    }
+
+    NewConnectionIdFrame* QuicSimpleFrame::asNewConnectionIdFrame(){
+        if(_type == QuicSimpleFrame::TYPE::NEW_CONNECTION_ID_FRAME){
+            return &newConnID;
+        }
+        return nullptr;
+    }
+
+    MaxStreamsFrame* QuicSimpleFrame::asMaxStreamsFrame(){
+        if(_type == QuicSimpleFrame::TYPE::MAX_STREAMS_FRAME){
+            return &newConnID;
+        }
+        return nullptr;
+    }
+
+    RetireConnectionIdFrame* QuicSimpleFrame::asRetireConnectionIdFrame(){
+        if(_type == QuicSimpleFrame::TYPE::RETIRE_CONNECTION_ID_FRAME){
+            return &retireConnID;
+        }
+        return nullptr;
+    }
+
+    HandshakeDoneFrame* QuicSimpleFrame::asHandshakeDoneFrame(){
+        if(_type == QuicSimpleFrame::TYPE::HANDSHAKE_DONE_FRAME){
+            return &handshakeDone;
+        }
+        return nullptr;
+    }
+
+    KnobFrame* QuicSimpleFrame::asKnobFrame(){
+        if(_type == QuicSimpleFrame::TYPE::KNOB_FRAME){
+            return &knob;
+        }
+        return nullptr;
+    }
+
+    AckFrequencyFrame* QuicSimpleFrame::asAckFrequencyFrame(){
+        if(_type == QuicSimpleFrame::TYPE::ACK_FREQUENCY_FRAME){
+            return &ackFrequency;
+        }
+        return nullptr;
+    }
+
+    NewTokenFrame* QuicSimpleFrame::asNewTokenFrame(){
+        if(_type == QuicSimpleFrame::TYPE::NEW_TOKEN_FRAME){
+            return &newToken;
+        }
+        return nullptr;
+    }
+
+/*
+    quic frame
+*/
     QuicFrame::~QuicFrame() {
         destroy();
     }
@@ -86,6 +330,9 @@ namespace quic{
                 break;
             case QuicFrame::TYPE::NOOP_FRAME:
                 new (&noop) NoopFrame(std::move(other.noop));
+                break;
+            case QuicFrame::TYPE::QUIC_SIMPLE_FRAME:
+                new (&quicSimple) QuicSimpleFrame(std::move(other.quicSimple));
                 break;
         }
         _type = other._type;
@@ -172,6 +419,9 @@ namespace quic{
                 break;
             case QuicFrame::TYPE::NOOP_FRAME:
                 new (&noop) NoopFrame(std::move(other.noop));
+                break;
+            case QuicFrame::TYPE::QUIC_SIMPLE_FRAME:
+                new (&quicSimple) QuicSimpleFrame(std::move(other.quicSimple));
                 break;
         }
         _type = other._type;
@@ -308,6 +558,11 @@ namespace quic{
         new (&ackFrequency) AckFrequencyFrame(std::move(in));
     }
 
+    QuicFrame::QuicFrame(QuicSimpleFrame &&in)
+        :_type(QuicFrame::TYPE::QUIC_SIMPLE_FRAME){
+        new (&quicSimple) QuicSimpleFrame(std::move(in));
+    }
+
     void QuicFrame::destroy() noexcept{
         switch (_type) {
             case QuicFrame::TYPE::PADDING_FRAME:
@@ -387,6 +642,9 @@ namespace quic{
                 break;
             case QuicFrame::TYPE::NOOP_FRAME:
                 noop.~NoopFrame();
+                break;
+            case QuicFrame::TYPE::QUIC_SIMPLE_FRAME:
+                quicSimple.~QuicSimpleFrame();
                 break;
         }
     }
@@ -577,5 +835,37 @@ namespace quic{
         return nullptr;
     }
 
+    QuicSimpleFrame* QuicFrame::asQuicSimpleFrame(){
+        if(_type == QuicFrame::TYPE::QUIC_SIMPLE_FRAME){
+            return &quicSimple;
+        }
+        return nullptr;
+    }
+
+/*
+    quic write frame
+*/
+
+    QuicWriteFrame::~QuicWriteFrame(){
+        destroy();
+    }
+
+    QuicWriteFrame::QuicWriteFrame(QuicWriteFrame&& other) noexcept {
+        switch (other._type) {
+            case QuicWriteFrame::TYPE::PADDING_FRAME:
+                new (&padding) StopSendingFrame(std::move(other.padding));
+                break;
+        }
+    }
+
+    void QuicWriteFrame::destroy() noexcept{
+        switch (_type) {
+
+        }
+    }
+
+    QuicWriteFrame::TYOE QuicWriteFrame::type() const{
+
+    }
 
 }

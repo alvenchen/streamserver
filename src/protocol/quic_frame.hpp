@@ -634,7 +634,6 @@ namespace quic{
         AckFrequencyFrame* asAckFrequencyFrame();
         NewTokenFrame* asNewTokenFrame();
         
-
     private:
         void destroy() noexcept;
 
