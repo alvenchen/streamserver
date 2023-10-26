@@ -853,19 +853,357 @@ namespace quic{
     QuicWriteFrame::QuicWriteFrame(QuicWriteFrame&& other) noexcept {
         switch (other._type) {
             case QuicWriteFrame::TYPE::PADDING_FRAME:
-                new (&padding) StopSendingFrame(std::move(other.padding));
+                new (&padding) PaddingFrame(std::move(other.padding));
+                break;
+            case QuicWriteFrame::TYPE::RST_STREAM_FRAME:
+                new (&rstStream) RstStreamFrame(std::move(other.rstStream));
+                break;
+            case QuicWriteFrame::TYPE::CONNECTION_CLOSE_FRAME:
+                new (&connClose) ConnectionCloseFrame(std::move(other.connClose));
+                break;
+            case QuicWriteFrame::TYPE::MAX_DATA_FRAME:
+                new (&maxData) MaxDataFrame(std::move(other.maxData));
+                break;
+            case QuicWriteFrame::TYPE::MAX_STREAM_DATA_FRAME:
+                new (&maxStream) MaxStreamDataFrame(std::move(other.maxStream));
+                break;
+            case QuicWriteFrame::TYPE::DATA_BLOCKED_FRAME:
+                new (&dataBlocked) DataBlockedFrame(std::move(other.dataBlocked));
+                break;
+            case QuicWriteFrame::TYPE::STREAM_DATA_BLOCKED_FRAME:
+                new (&streamDataBlocked) StreamDataBlockedFrame(std::move(other.streamDataBlocked));
+                break;
+            case QuicWriteFrame::TYPE::STREAMS_BLOCKED_FRAME:
+                new (&streamBlocked) StreamsBlockedFrame(std::move(other.streamBlocked));
+                break;
+            case QuicWriteFrame::TYPE::WRITE_ACK_FRAME:
+                new (&writeACK) WriteAckFrame(std::move(other.writeACK));
+                break;
+            case QuicWriteFrame::TYPE::WRITE_STREAM_FRAME:
+                new (&writeStream) WriteStreamFrame(std::move(other.writeStream));
+                break;
+            case QuicWriteFrame::TYPE::WRITE_CRYPTO_FRAME:
+                new (&writeCrypto) WriteCryptoFrame(std::move(other.writeCrypto));
+                break;
+            case QuicWriteFrame::TYPE::PING_FRAME:
+                new (&ping) PingFrame(std::move(other.ping));
+                break;
+            case QuicWriteFrame::TYPE::NOOP_FRAME:
+                new (&noop) NoopFrame(std::move(other.noop));
+                break;
+            case QuicWriteFrame::TYPE::DATAGRAM_FRAME:
+                new (&datagram) DatagramFrame(std::move(other.datagram));
+                break;
+            case QuicWriteFrame::TYPE::IMMEDIATE_ACK_FRAME:
+                new (&immAck) ImmediateAckFrame(std::move(other.immAck));
+                break;
+            case QuicWriteFrame::TYPE::QUIC_SIMPLE_FRAME:
+                new (&quicSimple) QuicSimpleFrame(std::move(other.quicSimple));
+                break;
+        }
+    }
+
+    QuicWriteFrame& QuicWriteFrame::operator=(QuicWriteFrame&& other) noexcept{
+        destroy();
+        switch (other._type) {
+            case QuicWriteFrame::TYPE::PADDING_FRAME:
+                new (&padding) PaddingFrame(std::move(other.padding));
+                break;
+            case QuicWriteFrame::TYPE::RST_STREAM_FRAME:
+                new (&rstStream) RstStreamFrame(std::move(other.rstStream));
+                break;
+            case QuicWriteFrame::TYPE::CONNECTION_CLOSE_FRAME:
+                new (&connClose) ConnectionCloseFrame(std::move(other.connClose));
+                break;
+            case QuicWriteFrame::TYPE::MAX_DATA_FRAME:
+                new (&maxData) MaxDataFrame(std::move(other.maxData));
+                break;
+            case QuicWriteFrame::TYPE::MAX_STREAM_DATA_FRAME:
+                new (&maxStream) MaxStreamDataFrame(std::move(other.maxStream));
+                break;
+            case QuicWriteFrame::TYPE::DATA_BLOCKED_FRAME:
+                new (&dataBlocked) DataBlockedFrame(std::move(other.dataBlocked));
+                break;
+            case QuicWriteFrame::TYPE::STREAM_DATA_BLOCKED_FRAME:
+                new (&streamDataBlocked) StreamDataBlockedFrame(std::move(other.streamDataBlocked));
+                break;
+            case QuicWriteFrame::TYPE::STREAMS_BLOCKED_FRAME:
+                new (&streamBlocked) StreamsBlockedFrame(std::move(other.streamBlocked));
+                break;
+            case QuicWriteFrame::TYPE::WRITE_ACK_FRAME:
+                new (&writeACK) WriteAckFrame(std::move(other.writeACK));
+                break;
+            case QuicWriteFrame::TYPE::WRITE_STREAM_FRAME:
+                new (&writeStream) WriteStreamFrame(std::move(other.writeStream));
+                break;
+            case QuicWriteFrame::TYPE::WRITE_CRYPTO_FRAME:
+                new (&writeCrypto) WriteCryptoFrame(std::move(other.writeCrypto));
+                break;
+            case QuicWriteFrame::TYPE::PING_FRAME:
+                new (&ping) PingFrame(std::move(other.ping));
+                break;
+            case QuicWriteFrame::TYPE::NOOP_FRAME:
+                new (&noop) NoopFrame(std::move(other.noop));
+                break;
+            case QuicWriteFrame::TYPE::DATAGRAM_FRAME:
+                new (&datagram) DatagramFrame(std::move(other.datagram));
+                break;
+            case QuicWriteFrame::TYPE::IMMEDIATE_ACK_FRAME:
+                new (&immAck) ImmediateAckFrame(std::move(other.immAck));
+                break;
+            case QuicWriteFrame::TYPE::QUIC_SIMPLE_FRAME:
+                new (&quicSimple) QuicSimpleFrame(std::move(other.quicSimple));
                 break;
         }
     }
 
     void QuicWriteFrame::destroy() noexcept{
         switch (_type) {
-
+            case QuicWriteFrame::TYPE::PADDING_FRAME:
+                padding.~PaddingFrame();
+                break;
+            case QuicWriteFrame::TYPE::RST_STREAM_FRAME:
+                rstStream.~RstStreamFrame();
+                break;
+            case QuicWriteFrame::TYPE::CONNECTION_CLOSE_FRAME:
+                connClose.~ConnectionCloseFrame();
+                break;
+            case QuicWriteFrame::TYPE::MAX_DATA_FRAME:
+                maxData.~MaxDataFrame();
+                break;
+            case QuicWriteFrame::TYPE::MAX_STREAM_DATA_FRAME:
+                maxStream.~MaxStreamDataFrame();
+                break;
+            case QuicWriteFrame::TYPE::DATA_BLOCKED_FRAME:
+                dataBlocked.~DataBlockedFrame();
+                break;
+            case QuicWriteFrame::TYPE::STREAM_DATA_BLOCKED_FRAME:
+                streamDataBlocked.~StreamDataBlockedFrame();
+                break;
+            case QuicWriteFrame::TYPE::STREAMS_BLOCKED_FRAME:
+                streamBlocked.~StreamsBlockedFrame();
+                break;
+            case QuicWriteFrame::TYPE::WRITE_ACK_FRAME:
+                writeACK.~WriteAckFrame();
+                break;
+            case QuicWriteFrame::TYPE::WRITE_STREAM_FRAME:
+                writeStream.~WriteStreamFrame();
+                break;
+            case QuicWriteFrame::TYPE::WRITE_CRYPTO_FRAME:
+                writeCrypto.~WriteCryptoFrame();
+                break;
+            case QuicWriteFrame::TYPE::PING_FRAME:
+                ping.~PingFrame();
+                break;
+            case QuicWriteFrame::TYPE::NOOP_FRAME:
+                noop.~NoopFrame();
+                break;
+            case QuicWriteFrame::TYPE::DATAGRAM_FRAME:
+                datagram.~DatagramFrame();
+                break;
+            case QuicWriteFrame::TYPE::IMMEDIATE_ACK_FRAME:
+                immAck.~ImmediateAckFrame();
+                break;
+            case QuicWriteFrame::TYPE::QUIC_SIMPLE_FRAME:
+                quicSimple.~QuicSimpleFrame();
+                break;
         }
     }
 
-    QuicWriteFrame::TYOE QuicWriteFrame::type() const{
+    QuicWriteFrame::QuicWriteFrame(PaddingFrame&& in)
+        :_type(QuicWriteFrame::TYPE::PADDING_FRAME){
+        new (&padding) PaddingFrame(std::move(in));
+    }
 
+    QuicWriteFrame::QuicWriteFrame(RstStreamFrame&& in)
+        :_type(QuicWriteFrame::TYPE::RST_STREAM_FRAME){
+        new (&rstStream) RstStreamFrame(std::move(in));
+    }
+
+    QuicWriteFrame::QuicWriteFrame(ConnectionCloseFrame&& in)
+        :_type(QuicWriteFrame::TYPE::CONNECTION_CLOSE_FRAME){
+        new (&connClose) ConnectionCloseFrame(std::move(in));
+    }
+
+    QuicWriteFrame::QuicWriteFrame(MaxDataFrame&& in)
+        :_type(QuicWriteFrame::TYPE::MAX_DATA_FRAME){
+        new (&maxData) MaxDataFrame(std::move(in));
+    }
+
+    QuicWriteFrame::QuicWriteFrame(MaxStreamDataFrame&& in)
+        :_type(QuicWriteFrame::TYPE::MAX_STREAM_DATA_FRAME){
+        new (&maxStream) MaxStreamDataFrame(std::move(in));
+    }
+
+    QuicWriteFrame::QuicWriteFrame(DataBlockedFrame&& in)
+        :_type(QuicWriteFrame::TYPE::DATA_BLOCKED_FRAME){
+        new (&dataBlocked) DataBlockedFrame(std::move(in));
+    }
+
+    QuicWriteFrame::QuicWriteFrame(StreamDataBlockedFrame&& in)
+        :_type(QuicWriteFrame::TYPE::STREAM_DATA_BLOCKED_FRAME){
+        new (&streamDataBlocked) StreamDataBlockedFrame(std::move(in));
+    }
+
+    QuicWriteFrame::QuicWriteFrame(StreamsBlockedFrame&& in)
+        :_type(QuicWriteFrame::TYPE::STREAMS_BLOCKED_FRAME){
+        new (&streamBlocked) StreamsBlockedFrame(std::move(in));
+    }
+
+    QuicWriteFrame::QuicWriteFrame(WriteAckFrame&& in)
+        :_type(QuicWriteFrame::TYPE::WRITE_ACK_FRAME){
+        new (&writeACK) WriteAckFrame(std::move(in));
+    }
+
+    QuicWriteFrame::QuicWriteFrame(WriteStreamFrame&& in)
+        :_type(QuicWriteFrame::TYPE::WRITE_STREAM_FRAME){
+        new (&writeStream) WriteStreamFrame(std::move(in));
+    }
+
+    QuicWriteFrame::QuicWriteFrame(WriteCryptoFrame&& in)
+        :_type(QuicWriteFrame::TYPE::WRITE_CRYPTO_FRAME){
+        new (&writeCrypto) WriteCryptoFrame(std::move(in));
+    }
+
+    QuicWriteFrame::QuicWriteFrame(PingFrame&& in)
+        :_type(QuicWriteFrame::TYPE::PING_FRAME){
+        new (&ping) PingFrame(std::move(in));
+    }
+
+    QuicWriteFrame::QuicWriteFrame(NoopFrame&& in)
+        :_type(QuicWriteFrame::TYPE::NOOP_FRAME){
+        new (&noop) NoopFrame(std::move(in));
+    }
+
+    QuicWriteFrame::QuicWriteFrame(DatagramFrame&& in)
+        :_type(QuicWriteFrame::TYPE::DATAGRAM_FRAME){
+        new (&datagram) DatagramFrame(std::move(in));
+    }
+
+    QuicWriteFrame::QuicWriteFrame(ImmediateAckFrame&& in)
+        :_type(QuicWriteFrame::TYPE::IMMEDIATE_ACK_FRAME){
+        new (&immAck) ImmediateAckFrame(std::move(in));
+    }
+
+    QuicWriteFrame::QuicWriteFrame(QuicSimpleFrame&& in)
+        :_type(QuicWriteFrame::TYPE::QUIC_SIMPLE_FRAME){
+        new (&quicSimple) QuicSimpleFrame(std::move(in));
+    }
+
+    QuicWriteFrame::TYPE QuicWriteFrame::type() const{
+        return _type;
+    }
+
+    PaddingFrame* QuicWriteFrame::asPaddingFrame(){
+        if(_type == QuicWriteFrame::TYPE::PADDING_FRAME){
+            return &padding;
+        }
+        return nullptr;
+    }
+
+    RstStreamFrame* QuicWriteFrame::asRstStreamFrame(){
+        if(_type == QuicWriteFrame::TYPE::RST_STREAM_FRAME){
+            return &rstStream;
+        }
+        return nullptr;
+    }
+
+    ConnectionCloseFrame* QuicWriteFrame::asConnectionCloseFrame(){
+        if(_type == QuicWriteFrame::TYPE::CONNECTION_CLOSE_FRAME){
+            return &connClose;
+        }
+        return nullptr;
+    }
+
+    MaxDataFrame* QuicWriteFrame::asMaxDataFrame(){
+        if(_type == QuicWriteFrame::TYPE::MAX_DATA_FRAME){
+            return &maxData;
+        }
+        return nullptr;
+    }
+
+    MaxStreamDataFrame* QuicWriteFrame::asMaxStreamDataFrame(){
+        if(_type == QuicWriteFrame::TYPE::MAX_STREAM_DATA_FRAME){
+            return &maxStream;
+        }
+        return nullptr;
+    }
+
+    DataBlockedFrame* QuicWriteFrame::asDataBlockedFrame(){
+        if(_type == QuicWriteFrame::TYPE::DATA_BLOCKED_FRAME){
+            return &dataBlocked;
+        }
+        return nullptr;
+    }
+
+    StreamDataBlockedFrame* QuicWriteFrame::asStreamDataBlockedFrame(){
+        if(_type == QuicWriteFrame::TYPE::STREAM_DATA_BLOCKED_FRAME){
+            return &streamDataBlocked;
+        }
+        return nullptr;
+    }
+
+    StreamsBlockedFrame* QuicWriteFrame::asStreamsBlockedFrame(){
+        if(_type == QuicWriteFrame::TYPE::STREAMS_BLOCKED_FRAME){
+            return &streamBlocked;
+        }
+        return nullptr;
+    }
+
+    WriteAckFrame* QuicWriteFrame::asWriteAckFrame(){
+        if(_type == QuicWriteFrame::TYPE::WRITE_ACK_FRAME){
+            return &writeACK;
+        }
+        return nullptr;
+    }
+
+    WriteStreamFrame* QuicWriteFrame::asWriteStreamFrame(){
+        if(_type == QuicWriteFrame::TYPE::WRITE_STREAM_FRAME){
+            return &writeStream;
+        }
+        return nullptr;
+    }
+
+    WriteCryptoFrame* QuicWriteFrame::asWriteCryptoFrame(){
+        if(_type == QuicWriteFrame::TYPE::WRITE_CRYPTO_FRAME){
+            return &writeCrypto;
+        }
+        return nullptr;
+    }
+
+    PingFrame* QuicWriteFrame::asPingFrame(){
+        if(_type == QuicWriteFrame::TYPE::PING_FRAME){
+            return &ping;
+        }
+        return nullptr;
+    }
+
+    NoopFrame* QuicWriteFrame::asNoopFrame(){
+        if(_type == QuicWriteFrame::TYPE::NOOP_FRAME){
+            return &noop;
+        }
+        return nullptr;
+    }
+
+    DatagramFrame* QuicWriteFrame::asDatagramFrame(){
+        if(_type == QuicWriteFrame::TYPE::DATAGRAM_FRAME){
+            return &datagram;
+        }
+        return nullptr;
+    }
+
+    ImmediateAckFrame* QuicWriteFrame::asImmediateAckFrame(){
+        if(_type == QuicWriteFrame::TYPE::IMMEDIATE_ACK_FRAME){
+            return &immAck;
+        }
+        return nullptr;
+    }
+
+    QuicSimpleFrame* QuicWriteFrame::asQuicSimpleFrame(){
+        if(_type == QuicWriteFrame::TYPE::QUIC_SIMPLE_FRAME){
+            return &padding;
+        }
+        return nullptr;
     }
 
 }
