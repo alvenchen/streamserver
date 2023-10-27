@@ -61,24 +61,6 @@ extern const Priority kDefaultPriority;
  * optional priority parameter.
  */
 struct PriorityQueue {
-public:
-    std::vector<Level> levels;
-    using LevelItr = decltype(levels)::const_iterator;
-    // This controls how many times next() needs to be called before moving
-    // onto the next stream.
-    uint64_t maxNextsPerStream;
-
-    PriorityQueue() : levels(kDefaultPriorityLevelsSize), maxNextsPerStream(1) {
-        for (size_t index = 0; index < levels.size(); index++) {
-            if (index % 2 == 1) {
-                levels[index].incremental = true;
-                levels[index].iterator = std::make_unique<Level::IncrementalIterator>(levels[index], maxNextsPerStream);
-            } else {
-                levels[index].iterator = std::make_unique<Level::SequentialIterator>(levels[index], maxNextsPerStream);
-            }
-        }
-    }
-
     struct Level {
     public:
         Level() : incremental(false){}
@@ -184,6 +166,24 @@ public:
     private:
         folly::F14FastMap<StreamId, OrderId> streamToOrderId;
     };
+    
+public:
+    std::vector<Level> levels;
+    using LevelItr = decltype(levels)::const_iterator;
+    // This controls how many times next() needs to be called before moving
+    // onto the next stream.
+    uint64_t maxNextsPerStream;
+
+    PriorityQueue() : levels(kDefaultPriorityLevelsSize), maxNextsPerStream(1) {
+        for (size_t index = 0; index < levels.size(); index++) {
+            if (index % 2 == 1) {
+                levels[index].incremental = true;
+                levels[index].iterator = std::make_unique<Level::IncrementalIterator>(levels[index], maxNextsPerStream);
+            } else {
+                levels[index].iterator = std::make_unique<Level::SequentialIterator>(levels[index], maxNextsPerStream);
+            }
+        }
+    }
 
     void setMaxNextsPerStream(uint64_t maxNexts) {
         maxNextsPerStream = maxNexts;

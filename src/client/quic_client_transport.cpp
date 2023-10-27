@@ -27,7 +27,7 @@
 #include "../state/simple_frame_functions.h"
 #include "../state/stream/stream_receive_handlers.h"
 #include "../state/stream/stream_send_handlers.h"
-
+#include "../state/outstanding_packet.h"
 
 namespace fsp = folly::portability::sockets;
 

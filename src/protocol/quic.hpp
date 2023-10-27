@@ -16,6 +16,7 @@ namespace quic{
     constexpr uint32_t kMaxPacketNumEncodingSize = 4;
     constexpr uint32_t kNumInitialAckBlocksPerFrame = 32;
 
+    template <class T>
     using IntervalSetVec = SmallVec<T, kNumInitialAckBlocksPerFrame>;
     using AckBlocks = IntervalSet<PacketNum, 1, IntervalSetVec>;
 }

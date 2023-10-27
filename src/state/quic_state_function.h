@@ -11,7 +11,6 @@
 #include "../protocol/quic_packet_builder.hpp"
 #include "../protocol/quic_packet_num.hpp"
 #include "../protocol/quic_header.hpp"
-
 #include "../state/state_data.h"
 
 

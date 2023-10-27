@@ -8,6 +8,7 @@
 #include <chrono>
 #include <cmath>
 #include <ostream>
+#include <cstdint>
 
 #pragma once
 

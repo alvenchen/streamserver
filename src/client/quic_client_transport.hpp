@@ -225,10 +225,12 @@ class QuicClientTransport
 
   void happyEyeballsConnAttemptDelayTimeoutExpired() noexcept;
 
+/*
   void handleAckFrame(
       const OutstandingPacketWrapper& outstandingPacket,
       const QuicWriteFrame& packetFrame,
       const ReadAckFrame&);
+*/
 
   Buf readBuffer_;
   folly::Optional<std::string> hostname_;
