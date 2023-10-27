@@ -8,6 +8,7 @@
 #pragma once
 
 #include <folly/Random.h>
+#include "../protocol/quic_frame.hpp"
 #include "../protocol/quic_constants.hpp"
 #include "../protocol/quic_packet_num.hpp"
 #include "../protocol/quic.hpp"

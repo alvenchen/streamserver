@@ -440,13 +440,18 @@ bool SendmmsgGSOPacketBatchWriter::append(std::unique_ptr<folly::IOBuf>&& buf,
 ssize_t SendmmsgGSOPacketBatchWriter::write(folly::AsyncUDPSocket& sock, const folly::SocketAddress& /*unused*/) {
     //CHECK_GT(bufs_.size(), 0);
     if (bufs_.size() == 1) {
-        return (currBufs_ > 1) ? sock.writeGSO(addrs_[0], bufs_[0], gso_[0])
+        return (currBufs_ > 1) ? sock.writeGSO(addrs_[0], bufs_[0], folly::AsyncUDPSocket::WriteOptions(gso_[0], false))
                             : sock.write(addrs_[0], bufs_[0]);
+    }
+
+    std::vector<folly::AsyncUDPSocket::WriteOptions> writeOptionsVev;
+    for(int i=0; i<gso_.size(); i++){
+        writeOptionsVev.push_back(folly::AsyncUDPSocket::WriteOptions(gso_[i], false));
     }
 
     int ret = sock.writemGSO(
         folly::range(addrs_.data(), addrs_.data() + addrs_.size()),
-            bufs_.data(), bufs_.size(), gso_.data());
+            bufs_.data(), bufs_.size(), writeOptionsVev.data());
 
     if (ret <= 0) {
         return ret;
