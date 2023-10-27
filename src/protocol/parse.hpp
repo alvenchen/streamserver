@@ -1,13 +1,19 @@
 #pragma once
 
+#include <folly/Optional.h>
+#include <folly/Expected.h>
+#include <folly/io/Cursor.h>
 #include "../common/common.hpp"
 #include "quic_header.hpp"
 #include "quic_frame.hpp"
 #include "../common/BufUtil.h"
-#include "transport_settings.h"
 #include "quic_integer.hpp"
 #include "quic_type.hpp"
 #include "quic_packet.hpp"
+#include "quic_packet_num.hpp"
+#include "quic_constants.hpp"
+#include "quic_connection_id.hpp"
+#include "../state/transport_setting.h"
 
 namespace quic{
 

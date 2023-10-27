@@ -2,7 +2,8 @@
 #include "parse.hpp"
 #include "../common/common.hpp"
 #include "quic_exception.h"
-#include "../folly/Conv.h"
+#include <folly/Conv.h>
+#include <folly/String.h>
 
 namespace{
     quic::PacketNum nextAckedPacketGap(quic::PacketNum packetNum, uint64_t gap) {
