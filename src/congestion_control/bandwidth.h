@@ -22,17 +22,17 @@ struct Bandwidth {
         PACKETS,
     };
 
-    uint64_t units{0};
+    std::uint64_t units{0};
     std::chrono::microseconds interval{0us};
     UnitType unitType{UnitType::BYTES};
     bool isAppLimited{false};
 
     explicit Bandwidth() : units(0), interval(std::chrono::microseconds::zero()) {}
 
-    explicit Bandwidth(uint64_t unitsDelievered, std::chrono::microseconds deliveryInterval, bool appLimited = false)
+    explicit Bandwidth(std::uint64_t unitsDelievered, std::chrono::microseconds deliveryInterval, bool appLimited = false)
         : units(unitsDelievered), interval(deliveryInterval), isAppLimited(appLimited) {}
 
-    explicit Bandwidth(uint64_t unitsDelievered, std::chrono::microseconds deliveryInterval, UnitType unitTypeIn, bool appLimited = false)
+    explicit Bandwidth(std::uint64_t unitsDelievered, std::chrono::microseconds deliveryInterval, UnitType unitTypeIn, bool appLimited = false)
         : units(unitsDelievered), interval(deliveryInterval), unitType(unitTypeIn), isAppLimited(appLimited) {}
 
     explicit operator bool() const noexcept {
@@ -49,7 +49,7 @@ struct Bandwidth {
         return Bandwidth(units / t, interval, unitType);
     }
 
-    uint64_t operator*(std::chrono::microseconds delay) const noexcept {
+    std::uint64_t operator*(std::chrono::microseconds delay) const noexcept {
         return interval == std::chrono::microseconds::zero() ? 0
             : units * delay / interval;
     }
@@ -57,7 +57,7 @@ struct Bandwidth {
     // Return the number of units one can send over 1 seconds with the current
     // bandwidth value.
     // TODO: 1s may not be the best choice. It can overflow units.
-    uint64_t normalize() const noexcept {
+    std::uint64_t normalize() const noexcept {
         return interval == 0us ? 0 : (1'000'000us * units / interval);
     }
 
@@ -86,12 +86,14 @@ bool operator>(const Bandwidth& lhs, const Bandwidth& rhs);
 bool operator>=(const Bandwidth& lhs, const Bandwidth& rhs);
 bool operator==(const Bandwidth& lhs, const Bandwidth& rhs);
 
+/*
 template <typename T, typename = std::enable_if_t<std::is_arithmetic<T>::value>>
 Bandwidth operator*(T t, const Bandwidth& bandwidth) noexcept{
     return Bandwidth(std::ceil(units * t), interval, unitType);
 }
+*/
 
-uint64_t operator*(std::chrono::microseconds delay, const Bandwidth& bandwidth);
+std::uint64_t operator*(std::chrono::microseconds delay, const Bandwidth& bandwidth);
 std::ostream& operator<<(std::ostream& os, const Bandwidth& bandwidth);
 
 } // namespace quic
