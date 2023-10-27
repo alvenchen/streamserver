@@ -12,6 +12,7 @@
 #include "../protocol/quic_header.hpp"
 #include "../protocol/quic_type.hpp"
 #include "quic_packet_builder.hpp"
+#include "../protocol/quic.hpp"
 #include "../common/CircularDeque.h"
 #include "../common/IntervalSet.h"
 #include "../state/transport_setting.h"

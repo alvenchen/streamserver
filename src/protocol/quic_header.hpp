@@ -12,6 +12,8 @@
 
 namespace quic {
 
+
+
 enum class HeaderForm : bool {
     Long = 1,
     Short = 0,
@@ -43,10 +45,6 @@ enum class ProtectionType {
     KeyPhaseZero,
     KeyPhaseOne,
 };
-
-constexpr uint8_t kHeaderFormMask = 0x80;
-constexpr uint32_t kMaxPacketNumEncodingSize = 4;
-constexpr uint32_t kNumInitialAckBlocksPerFrame = 32;
 
 HeaderForm getHeaderForm(uint8_t headerValue);
 

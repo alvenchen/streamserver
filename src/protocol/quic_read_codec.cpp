@@ -12,7 +12,7 @@
 #include "quic_packet_num.hpp"
 #include "quic_packet.hpp"
 #include "quic_header.hpp"
-#include "quic_ack.hpp"
+#include "../state/ack_states.h"
 #include "../fizz/crypto/Utils.h"
 
 namespace {

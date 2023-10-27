@@ -351,7 +351,7 @@ bool StreamFrameScheduler::writeStreamLossBuffers(PacketBuilderInterface& builde
             wroteStreamFrame = true;
             writeStreamFrameData(builder, buffer->data, *dataLen);
             /*
-            VLOG(4) << "Wrote loss data for stream=" << stream.id
+            //VLOG(4) << "Wrote loss data for stream=" << stream.id
                     << " offset=" << buffer->offset << " bytes=" << *dataLen
                     << " fin=" << (buffer->eof && *dataLen == bufferLen) << " "
                     << conn_;
@@ -514,7 +514,7 @@ bool StreamFrameScheduler::writeStreamFrame(PacketBuilderInterface& builder,
     }
     writeStreamFrameData(builder, stream.writeBuffer, *dataLen);
     /*
-    VLOG(4) << "Wrote stream frame stream=" << stream.id
+    //VLOG(4) << "Wrote stream frame stream=" << stream.id
             << " offset=" << stream.currentWriteOffset
             << " bytesWritten=" << *dataLen
             << " finWritten=" << (canWriteFin && *dataLen == bufferLen) << " "
@@ -679,7 +679,7 @@ void WindowUpdateScheduler::writeWindowUpdates(PacketBuilderInterface& builder) 
         auto maximumData = maxDataFrame.maximumData;
         auto bytes = writeFrame(std::move(maxDataFrame), builder);
         if (bytes) {
-            VLOG(4) << "Wrote max_data=" << maximumData << " " << conn_;
+            //VLOG(4) << "Wrote max_data=" << maximumData << " " << conn_;
         }
     }
     for (const auto& windowUpdateStream : conn_.streamManager->windowUpdates()) {

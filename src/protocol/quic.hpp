@@ -1,6 +1,7 @@
 #include <cstdint>
 #include <cstddef>
 #include <vector>
+#include "quic_packet_num.hpp"
 
 #pragma once
 
@@ -11,5 +12,11 @@ namespace quic{
     template <class T, size_t N>
     using SmallVec = std::vector<T>;
 
+    constexpr uint8_t kHeaderFormMask = 0x80;
+    constexpr uint32_t kMaxPacketNumEncodingSize = 4;
+    constexpr uint32_t kNumInitialAckBlocksPerFrame = 32;
+
+    using IntervalSetVec = SmallVec<T, kNumInitialAckBlocksPerFrame>;
+    using AckBlocks = IntervalSet<PacketNum, 1, IntervalSetVec>;
 }
 

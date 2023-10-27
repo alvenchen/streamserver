@@ -21,6 +21,7 @@
 #include "../state/quic_state_function.h"
 #include "../state/quic_stream_function.h"
 #include "../state/simple_frame_functions.h"
+#include "../protocol/quic.hpp"
 
 namespace {
 
@@ -546,7 +547,7 @@ bool handleStreamWritten(
     // hold, we need to avoid double-counting.
     ++stream.numPacketsTxWithNewData;
     /*
-    VLOG(10) << nodeToString(conn.nodeType) << " sent"
+    //VLOG(10) << nodeToString(conn.nodeType) << " sent"
              << " packetNum=" << packetNum << " space=" << packetNumberSpace
              << " " << conn;
     */
@@ -644,7 +645,7 @@ void updateConnection(
   OutstandingPacketWrapper::Metadata::DetailsPerStream detailsPerStream;
   auto packetNumberSpace = packet.header.getPacketNumberSpace();
   /*
-  VLOG(10) << nodeToString(conn.nodeType) << " sent packetNum=" << packetNum
+  //VLOG(10) << nodeToString(conn.nodeType) << " sent packetNum=" << packetNum
            << " in space=" << packetNumberSpace << " size=" << encodedSize
            << " bodySize: " << encodedBodySize << " isDSR=" << isDSRPacket
            << " " << conn;
@@ -716,7 +717,7 @@ void updateConnection(
         //DCHECK(!ackFrameCounter++)<< "Send more than one WriteAckFrame " << conn;
         auto largestAckedPacketWritten = writeAckFrame.ackBlocks.front().end;
         /*
-        VLOG(10) << nodeToString(conn.nodeType)
+        //VLOG(10) << nodeToString(conn.nodeType)
                  << " sent packet with largestAcked="
                  << largestAckedPacketWritten << " packetNum=" << packetNum
                  << " " << conn;
@@ -1263,7 +1264,7 @@ void writeCloseCommon(
     connection.qLogger->addPacket(packet.packet, packetSize);
   }
 /*
-  VLOG(10) << nodeToString(connection.nodeType)
+  //VLOG(10) << nodeToString(connection.nodeType)
            << " sent close packetNum=" << packetNum << " in space=" << pnSpace
            << " " << connection;
 */

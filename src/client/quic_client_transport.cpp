@@ -434,7 +434,7 @@ void QuicClientTransport::processPacketData(
                   auto ackedStream =
                       conn_->streamManager->getStream(frame.streamId);
                 /*
-                  VLOG(4) << "Client got ack for stream=" << frame.streamId
+                  //VLOG(4) << "Client got ack for stream=" << frame.streamId
                           << " offset=" << frame.offset << " fin=" << frame.fin
                           << " data=" << frame.len
                           << " closed=" << (ackedStream == nullptr) << " "
@@ -486,7 +486,7 @@ void QuicClientTransport::processPacketData(
         pktHasCryptoData = true;
         ReadCryptoFrame& cryptoFrame = *quicFrame.asReadCryptoFrame();
         /*
-        VLOG(10) << "Client received crypto data offset=" << cryptoFrame.offset
+        //VLOG(10) << "Client received crypto data offset=" << cryptoFrame.offset
                  << " len=" << cryptoFrame.data->computeChainDataLength()
                  << " packetNum=" << packetNum << " " << *this;
         */
@@ -499,7 +499,7 @@ void QuicClientTransport::processPacketData(
       case QuicFrame::Type::ReadStreamFrame: {
         ReadStreamFrame& frame = *quicFrame.asReadStreamFrame();
         /*
-        VLOG(10) << "Client received stream data for stream=" << frame.streamId
+        //VLOG(10) << "Client received stream data for stream=" << frame.streamId
                  << " offset=" << frame.offset
                  << " len=" << frame.data->computeChainDataLength()
                  << " fin=" << frame.fin << " packetNum=" << packetNum << " "
@@ -536,7 +536,7 @@ void QuicClientTransport::processPacketData(
         MaxStreamDataFrame& streamWindowUpdate =
             *quicFrame.asMaxStreamDataFrame();
         /*
-        VLOG(10) << "Client received max stream data stream="
+        //VLOG(10) << "Client received max stream data stream="
                  << streamWindowUpdate.streamId
                  << " offset=" << streamWindowUpdate.maximumData << " "
                  << *this;

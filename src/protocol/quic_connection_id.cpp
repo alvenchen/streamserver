@@ -39,7 +39,7 @@ bool ConnectionId::operator!=(const ConnectionId& other) const {
 }
 
 
-uint8_t* ConnectionId::data(){
+uint8_t* ConnectionId::data() const{
     return _connID.data();
 }
 

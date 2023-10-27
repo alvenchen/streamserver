@@ -151,8 +151,7 @@ bool IOBufQuicBatch::flushInternal() {
     auto errorMsg =
         folly::to<std::string>(firstSocketErrorMsg, secondSocketErrorMsg);
     // Both sockets becomes fatal, close connection
-    VLOG(4) << "Error writing to the socket " << errorMsg << " "
-            << peerAddress_;
+    //VLOG(4) << "Error writing to the socket " << errorMsg << " " << peerAddress_;
 
     // We can get write error for any reason, close the conn only if network
     // is unreachable, for all others, we throw a transport exception
