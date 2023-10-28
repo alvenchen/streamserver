@@ -208,7 +208,7 @@ bool GSOPacketBatchWriter::append(std::unique_ptr<folly::IOBuf>&& buf,
 
 ssize_t GSOPacketBatchWriter::write(folly::AsyncUDPSocket& sock, const folly::SocketAddress& address) {
     return (currBufs_ > 1)
-        ? sock.writeGSO(address, buf_, static_cast<int>(prevSize_)) : sock.write(address, buf_);
+        ? sock.writeGSO(address, buf_, folly::AsyncUDPSocket::WriteOptions(prevSize_, false)) : sock.write(address, buf_);
 }
 
 GSOInplacePacketBatchWriter::GSOInplacePacketBatchWriter(
@@ -273,7 +273,7 @@ ssize_t GSOInplacePacketBatchWriter::write(folly::AsyncUDPSocket& sock, const fo
     }
     uint64_t diffToStart = lastPacketEnd_ - buf->data();
     buf->trimEnd(diffToEnd);
-    auto bytesWritten = (numPackets_ > 1) ? sock.writeGSO(address, buf, static_cast<int>(prevSize_))
+    auto bytesWritten = (numPackets_ > 1) ? sock.writeGSO(address, buf, folly::AsyncUDPSocket::WriteOptions(prevSize_, false))
         : sock.write(address, buf);
     /**
      * If there is one more bytes after lastPacketEnd_, that means there is a

@@ -848,11 +848,9 @@ namespace quic{
         QuicWriteFrame(DataBlockedFrame&& in);
         QuicWriteFrame(StreamDataBlockedFrame&& in);
         QuicWriteFrame(StreamsBlockedFrame&& in);
-
         QuicWriteFrame(WriteAckFrame&& in);
         QuicWriteFrame(WriteStreamFrame&& in);
         QuicWriteFrame(WriteCryptoFrame&& in);
-
         QuicWriteFrame(PingFrame&& in);
         QuicWriteFrame(NoopFrame&& in);
         QuicWriteFrame(DatagramFrame&& in);
