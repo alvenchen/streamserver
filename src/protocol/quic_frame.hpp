@@ -4,12 +4,13 @@
 #include "../common/common.hpp"
 #include "quic_constants.hpp"
 #include "quic_packet_num.hpp"
-#include <common/IntervalSet.h>
+#include "../common/IntervalSet.h"
 #include "quic.hpp"
 #include "quic_exception.h"
 #include "quic_connection_id.hpp"
 #include "../common/BufUtil.h"
 #include "../common/CircularDeque.h"
+#include "../common/Variant.h"
 
 namespace quic{
 
@@ -625,279 +626,62 @@ namespace quic{
     };
 
 
-    struct QuicSimpleFrame{
-        enum class TYPE {
-            STOP_SENDING_FRAME,
-            PATH_CHALLANGE_FRAME,
-            PATH_RESPONSE_FRAME,
-            NEW_CONNECTION_ID_FRAME,
-            MAX_STREAMS_FRAME,
-            RETIRE_CONNECTION_ID_FRAME,
-            HANDSHAKE_DONE_FRAME,
-            KNOB_FRAME,
-            ACK_FREQUENCY_FRAME,
-            NEW_TOKEN_FRAME,
-        };
+    
+    #define QUIC_SIMPLE_FRAME(F, ...)         \
+    F(StopSendingFrame, __VA_ARGS__)        \
+    F(PathChallengeFrame, __VA_ARGS__)      \
+    F(PathResponseFrame, __VA_ARGS__)       \
+    F(NewConnectionIdFrame, __VA_ARGS__)    \
+    F(MaxStreamsFrame, __VA_ARGS__)         \
+    F(RetireConnectionIdFrame, __VA_ARGS__) \
+    F(HandshakeDoneFrame, __VA_ARGS__)      \
+    F(KnobFrame, __VA_ARGS__)               \
+    F(AckFrequencyFrame, __VA_ARGS__)       \
+    F(NewTokenFrame, __VA_ARGS__)
 
-        ~QuicSimpleFrame();
-        QuicSimpleFrame(QuicSimpleFrame&& other) noexcept;
-        QuicSimpleFrame& operator=(QuicSimpleFrame&& other) noexcept;
-        QuicSimpleFrame(StopSendingFrame&& in);
-        QuicSimpleFrame(PathChallengeFrame&& in);
-        QuicSimpleFrame(PathResponseFrame&& in);
-        QuicSimpleFrame(NewConnectionIdFrame&& in);
-        QuicSimpleFrame(MaxStreamsFrame&& in);
-        QuicSimpleFrame(RetireConnectionIdFrame&& in);
-        QuicSimpleFrame(HandshakeDoneFrame&& in);
-        QuicSimpleFrame(KnobFrame&& in);
-        QuicSimpleFrame(AckFrequencyFrame&& in);
-        QuicSimpleFrame(NewTokenFrame&& in);
+    DECLARE_VARIANT_TYPE(QuicSimpleFrame, QUIC_SIMPLE_FRAME)
 
-        TYPE type() const;
+    #define QUIC_FRAME(F, ...)               \
+    F(PaddingFrame, __VA_ARGS__)           \
+    F(RstStreamFrame, __VA_ARGS__)         \
+    F(ConnectionCloseFrame, __VA_ARGS__)   \
+    F(MaxDataFrame, __VA_ARGS__)           \
+    F(MaxStreamDataFrame, __VA_ARGS__)     \
+    F(DataBlockedFrame, __VA_ARGS__)       \
+    F(StreamDataBlockedFrame, __VA_ARGS__) \
+    F(StreamsBlockedFrame, __VA_ARGS__)    \
+    F(ReadAckFrame, __VA_ARGS__)           \
+    F(ReadStreamFrame, __VA_ARGS__)        \
+    F(ReadCryptoFrame, __VA_ARGS__)        \
+    F(ReadNewTokenFrame, __VA_ARGS__)      \
+    F(QuicSimpleFrame, __VA_ARGS__)        \
+    F(PingFrame, __VA_ARGS__)              \
+    F(NoopFrame, __VA_ARGS__)              \
+    F(DatagramFrame, __VA_ARGS__)          \
+    F(ImmediateAckFrame, __VA_ARGS__)
 
-        StopSendingFrame* asStopSendingFrame();
-        PathChallengeFrame* asPathChallengeFrame();
-        PathResponseFrame* asPathResponseFrame();
-        NewConnectionIdFrame* asNewConnectionIdFrame();
-        MaxStreamsFrame* asMaxStreamsFrame();
-        RetireConnectionIdFrame* asRetireConnectionIdFrame();
-        HandshakeDoneFrame* asHandshakeDoneFrame();
-        KnobFrame* asKnobFrame();
-        AckFrequencyFrame* asAckFrequencyFrame();
-        NewTokenFrame* asNewTokenFrame();
-        
-    private:
-        void destroy() noexcept;
+    DECLARE_VARIANT_TYPE(QuicFrame, QUIC_FRAME)
 
-        TYPE _type;
-        union{
-            StopSendingFrame stopSending;
-            PathChallengeFrame pathChallenge;
-            PathResponseFrame pathResp;
-            NewConnectionIdFrame newConnID;
-            MaxStreamsFrame maxStream;
-            RetireConnectionIdFrame retireConnID;
-            HandshakeDoneFrame handshakeDone;
-            KnobFrame knob;
-            AckFrequencyFrame ackFrequency;
-            NewTokenFrame newToken;
-        };
-    };
+    #define QUIC_WRITE_FRAME(F, ...)         \
+    F(PaddingFrame, __VA_ARGS__)           \
+    F(RstStreamFrame, __VA_ARGS__)         \
+    F(ConnectionCloseFrame, __VA_ARGS__)   \
+    F(MaxDataFrame, __VA_ARGS__)           \
+    F(MaxStreamDataFrame, __VA_ARGS__)     \
+    F(DataBlockedFrame, __VA_ARGS__)       \
+    F(StreamDataBlockedFrame, __VA_ARGS__) \
+    F(StreamsBlockedFrame, __VA_ARGS__)    \
+    F(WriteAckFrame, __VA_ARGS__)          \
+    F(WriteStreamFrame, __VA_ARGS__)       \
+    F(WriteCryptoFrame, __VA_ARGS__)       \
+    F(QuicSimpleFrame, __VA_ARGS__)        \
+    F(PingFrame, __VA_ARGS__)              \
+    F(NoopFrame, __VA_ARGS__)              \
+    F(DatagramFrame, __VA_ARGS__)          \
+    F(ImmediateAckFrame, __VA_ARGS__)
 
-    // generic type
-    // https://datatracker.ietf.org/doc/html/rfc9000#Frame-Types-and-Formats
-    struct QuicFrame{
-        enum class TYPE {
-            PADDING_FRAME,
-            PING_FRAME,
-            READ_ACK_FRAME,
-            WRITE_ACK_FRAME,
-            RST_STREAM_FRAME,
-            STOP_SENDING_FRAME,
-            READ_CRYPTO_FRAME,
-            READ_NEW_TOKEN_FRAME,
-            READ_STREAM_FRAME,
-            MAX_DATA_FRAME,
-            MAX_STREAM_DATA_FRAME,
-            MAX_STREAMS_FRAME,
-            DATA_BLOCKED_FRAME,
-            STREAM_DATA_BLOCKED_FRAME,
-            STREAMS_BLOCKED_FRAME,
-            NEW_CONNECTION_ID_FRAME,
-            RETIRE_CONNECTION_ID_FRAME,
-            PATH_CHALLANGE_FRAME,
-            PATH_RESPONSE_FRAME,
-            CONNECTION_CLOSE_FRAME,
-            HANDSHAKE_DONE_FRAME,
-            DATAGRAM_FRAME,
-            KNOB_FRAME,
-            IMMEDIATE_ACK_FRAME,
-            ACK_FREQUENCY_FRAME,
-            NOOP_FRAME,
-            QUIC_SIMPLE_FRAME,
-        };
+    // Types of frames which are written.
+    DECLARE_VARIANT_TYPE(QuicWriteFrame, QUIC_WRITE_FRAME)
 
-        ~QuicFrame();
-        QuicFrame(QuicFrame&& other) noexcept;
-        QuicFrame& operator=(QuicFrame&& other) noexcept;
-        QuicFrame(PaddingFrame&& in);
-        QuicFrame(PingFrame&& in);
-        QuicFrame(ReadAckFrame&& in);
-        QuicFrame(WriteAckFrame&& in);
-        QuicFrame(RstStreamFrame&& in);
-        
-        QuicFrame(ReadCryptoFrame&& in);
-        QuicFrame(ReadNewTokenFrame&& in);
-        QuicFrame(ReadStreamFrame&& in);
-        QuicFrame(MaxDataFrame&& in);
-        QuicFrame(MaxStreamDataFrame&& in);
-        QuicFrame(MaxStreamsFrame&& in);
-        QuicFrame(DataBlockedFrame&& in);
-        QuicFrame(StreamDataBlockedFrame&& in);
-        QuicFrame(StreamsBlockedFrame&& in);
-        QuicFrame(NewConnectionIdFrame&& in);
-        QuicFrame(RetireConnectionIdFrame&& in);
-        QuicFrame(PathChallengeFrame&& in);
-        QuicFrame(PathResponseFrame&& in);
-        QuicFrame(ConnectionCloseFrame&& in);
-        QuicFrame(HandshakeDoneFrame&& in);
-        QuicFrame(DatagramFrame&& in);
-        QuicFrame(KnobFrame&& in);
-        QuicFrame(ImmediateAckFrame&& in);
-        QuicFrame(AckFrequencyFrame&& in);
-        QuicFrame(NoopFrame&& in);
-        QuicFrame(QuicSimpleFrame&& in);
-
-        TYPE type() const;
-
-        PaddingFrame* asPaddingFrame();
-        PingFrame* asPingFrame();
-        ReadAckFrame* asReadAckFrame();
-        WriteAckFrame* asWriteAckFrame();
-        RstStreamFrame* asRstStreamFrame();
-        StopSendingFrame* asStopSendingFrame();
-        ReadCryptoFrame* asReadCryptoFrame();
-        ReadNewTokenFrame* asReadNewTokenFrame();
-        ReadStreamFrame* asReadStreamFrame();
-        MaxDataFrame* asMaxDataFrame();
-        MaxStreamDataFrame* asMaxStreamDataFrame();
-        MaxStreamsFrame* asMaxStreamsFrame();
-        DataBlockedFrame* asDataBlockedFrame();
-        StreamDataBlockedFrame* asStreamDataBlockedFrame();
-        StreamsBlockedFrame* asStreamsBlockedFrame();
-        NewConnectionIdFrame* asNewConnectionIdFrame();
-        RetireConnectionIdFrame* asRetireConnectionIdFrame();
-        PathChallengeFrame* asPathChallengeFrame();
-        PathResponseFrame* asPathResponseFrame();
-        ConnectionCloseFrame* asConnectionCloseFrame();
-        HandshakeDoneFrame* asHandshakeDoneFrame();
-        DatagramFrame* asDatagramFrame();
-        KnobFrame* asKnobFrame();
-        ImmediateAckFrame* asImmediateAckFrame();
-        AckFrequencyFrame* asAckFrequencyFrame();
-        NoopFrame* asNoopFrame();
-        QuicSimpleFrame* asQuicSimpleFrame();
-
-    private:
-        void destroy() noexcept;
-
-        TYPE _type;
-        union{
-            PaddingFrame padding;
-            PingFrame ping;
-            ReadAckFrame readAck;
-            WriteAckFrame writeAck;
-            RstStreamFrame rst;
-            StopSendingFrame stopSend;
-            ReadCryptoFrame readCrypto;
-            ReadNewTokenFrame readNewToken;
-            // TODO NewTokenFrame newToken; //
-            ReadStreamFrame readStream;
-            MaxDataFrame maxData;
-            MaxStreamDataFrame maxStreamData;
-            MaxStreamsFrame maxStreams; //
-            DataBlockedFrame dataBlocked;
-            StreamDataBlockedFrame streamDataBlocked;
-            StreamsBlockedFrame streamsBlocked;
-            NewConnectionIdFrame newConnID; //
-            RetireConnectionIdFrame retireConnID; //
-            PathChallengeFrame pathChallenge; //
-            PathResponseFrame pathResponse; //
-            ConnectionCloseFrame connClose;
-            HandshakeDoneFrame handshakeDone; //
-            DatagramFrame datagram; //
-            KnobFrame knob; //
-            ImmediateAckFrame immAck;
-            AckFrequencyFrame ackFrequency;
-            NoopFrame noop;
-            QuicSimpleFrame quicSimple;
-        };
-    };
-
-    struct QuicWriteFrame{
-        enum class TYPE {
-            PADDING_FRAME,
-            RST_STREAM_FRAME,
-            CONNECTION_CLOSE_FRAME,
-            MAX_DATA_FRAME,
-            MAX_STREAM_DATA_FRAME,
-            DATA_BLOCKED_FRAME,
-            STREAM_DATA_BLOCKED_FRAME,
-            STREAMS_BLOCKED_FRAME,
-
-            WRITE_ACK_FRAME,
-            WRITE_STREAM_FRAME,
-            WRITE_CRYPTO_FRAME,
-
-            PING_FRAME,
-            NOOP_FRAME,
-            DATAGRAM_FRAME,
-            IMMEDIATE_ACK_FRAME,
-            
-            QUIC_SIMPLE_FRAME,
-        };
-
-        ~QuicWriteFrame();
-        QuicWriteFrame(QuicWriteFrame&& other) noexcept;
-        QuicWriteFrame& operator=(QuicWriteFrame&& other) noexcept;
-        QuicWriteFrame(PaddingFrame&& in);
-        QuicWriteFrame(RstStreamFrame&& in);
-        QuicWriteFrame(ConnectionCloseFrame&& in);
-        QuicWriteFrame(MaxDataFrame&& in);
-        QuicWriteFrame(MaxStreamDataFrame&& in);
-        QuicWriteFrame(DataBlockedFrame&& in);
-        QuicWriteFrame(StreamDataBlockedFrame&& in);
-        QuicWriteFrame(StreamsBlockedFrame&& in);
-        QuicWriteFrame(WriteAckFrame&& in);
-        QuicWriteFrame(WriteStreamFrame&& in);
-        QuicWriteFrame(WriteCryptoFrame&& in);
-        QuicWriteFrame(PingFrame&& in);
-        QuicWriteFrame(NoopFrame&& in);
-        QuicWriteFrame(DatagramFrame&& in);
-        QuicWriteFrame(ImmediateAckFrame&& in);
-        QuicWriteFrame(QuicSimpleFrame&& in);
-
-        TYPE type() const;
-
-        PaddingFrame *asPaddingFrame();
-        RstStreamFrame *asRstStreamFrame();
-        ConnectionCloseFrame *asConnectionCloseFrame();
-        MaxDataFrame *asMaxDataFrame();
-        MaxStreamDataFrame *asMaxStreamDataFrame();
-        DataBlockedFrame *asDataBlockedFrame();
-        StreamDataBlockedFrame *asStreamDataBlockedFrame();
-        StreamsBlockedFrame *asStreamsBlockedFrame();
-        WriteAckFrame *asWriteAckFrame();
-        WriteStreamFrame *asWriteStreamFrame();
-        WriteCryptoFrame *asWriteCryptoFrame();
-        PingFrame *asPingFrame();
-        NoopFrame *asNoopFrame();
-        DatagramFrame *asDatagramFrame();
-        ImmediateAckFrame *asImmediateAckFrame();
-        QuicSimpleFrame *asQuicSimpleFrame();
-
-    private:
-        void destroy() noexcept;
-
-        TYPE _type;
-        union{
-            PaddingFrame padding;
-            RstStreamFrame rstStream;
-            ConnectionCloseFrame connClose;
-            MaxDataFrame maxData;
-            MaxStreamDataFrame maxStream;
-            DataBlockedFrame dataBlocked;
-            StreamDataBlockedFrame streamDataBlocked;
-            StreamsBlockedFrame streamBlocked;
-            WriteAckFrame writeACK;
-            WriteStreamFrame writeStream;
-            WriteCryptoFrame writeCrypto;
-            PingFrame ping;
-            NoopFrame noop;
-            DatagramFrame datagram;
-            ImmediateAckFrame immAck;
-            QuicSimpleFrame quicSimple;
-        };
-    };
 
 }

@@ -13,6 +13,7 @@
 
 #include "../protocol/quic_constants.hpp"
 #include "../protocol/quic_exception.h"
+#include "../protocol/quic_packet.hpp"
 #include "../handshake/Aead.hpp"
 #include "../handshake/handshake_layer.hpp"
 

@@ -218,11 +218,11 @@ void EventBaseAtomicNotificationQueue<Task, Consumer>::drainFd() {
   if (eventfd_ >= 0) {
     auto result = readNoInt(eventfd_, &message, sizeof(message));
 #ifndef _WIN32
-    //CHECK(result == (int)sizeof(message) || errno == EAGAIN || errno == EWOULDBLOCK)
+    //CHECK(result == (int)sizeof(message) || errno == EAGAIN || errno == EWOULDBLOCK)<< "result = " << result << "; errno = " << errno;
 #else
-    //CHECK(result == (int)sizeof(message) || errno == EAGAIN || errno == EWOULDBLOCK || errno == WSAECONNRESET)
+    //CHECK(result == (int)sizeof(message) || errno == EAGAIN || errno == EWOULDBLOCK || errno == WSAECONNRESET) << "result = " << result << "; errno = " << errno;
 #endif
-        << "result = " << result << "; errno = " << errno;
+
     writesObserved_ += message;
   } else {
     ssize_t result;
@@ -230,11 +230,10 @@ void EventBaseAtomicNotificationQueue<Task, Consumer>::drainFd() {
       writesObserved_ += result;
     }
 #ifndef _WIN32
-    //CHECK(result == -1 && (errno == EAGAIN || errno == EWOULDBLOCK))
+    //CHECK(result == -1 && (errno == EAGAIN || errno == EWOULDBLOCK)) << "result = " << result << "; errno = " << errno;
 #else
-    //CHECK(result == -1 && (errno == EAGAIN || errno == EWOULDBLOCK) || errno == WSAECONNRESET)
+    //CHECK(result == -1 && (errno == EAGAIN || errno == EWOULDBLOCK) || errno == WSAECONNRESET)<< "result = " << result << "; errno = " << errno;
 #endif
-        << "result = " << result << "; errno = " << errno;
   }
 }
 

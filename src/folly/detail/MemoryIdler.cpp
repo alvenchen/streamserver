@@ -21,7 +21,7 @@
 #include <cstring>
 #include <utility>
 
-#include <folly/GLog.h>
+//#include <folly/GLog.h>
 #include <folly/Portability.h>
 #include <folly/ScopeGuard.h>
 #include <folly/concurrency/CacheLocality.h>
@@ -68,7 +68,7 @@ void MemoryIdler::flushLocalMallocCaches() {
     return;
   }
   if (!mallctl || !mallctlnametomib || !mallctlbymib) {
-    FB_LOG_EVERY_MS(ERROR, 10000) << "mallctl* weak link failed";
+    //FB_LOG_EVERY_MS(ERROR, 10000) << "mallctl* weak link failed";
     return;
   }
 
@@ -100,7 +100,7 @@ void MemoryIdler::flushLocalMallocCaches() {
         mallctlbymib(mib, miblen, nullptr, nullptr, nullptr, 0);
       }
     } catch (const std::runtime_error& ex) {
-      FB_LOG_EVERY_MS(WARNING, 10000) << ex.what();
+      //FB_LOG_EVERY_MS(WARNING, 10000) << ex.what();
     }
   }
 }
@@ -124,7 +124,7 @@ static void fetchStackLimits() {
   pthread_attr_t attr;
   if ((err = pthread_getattr_np(pthread_self(), &attr))) {
     // some restricted environments can't access /proc
-    FB_LOG_ONCE(ERROR) << "pthread_getaddr_np failed errno=" << err;
+    //FB_LOG_ONCE(ERROR) << "pthread_getaddr_np failed errno=" << err;
     tls_stackSize = 1;
     return;
   }
@@ -134,7 +134,7 @@ static void fetchStackLimits() {
   size_t rawSize;
   if ((err = pthread_attr_getstack(&attr, &addr, &rawSize))) {
     // unexpected, but it is better to continue in prod than do nothing
-    FB_LOG_ONCE(ERROR) << "pthread_attr_getstack error " << err;
+    //FB_LOG_ONCE(ERROR) << "pthread_attr_getstack error " << err;
     assert(false);
     tls_stackSize = 1;
     return;
@@ -150,8 +150,7 @@ static void fetchStackLimits() {
     //
     // Very large stack size is a bug (hence the assert), but we can
     // carry on if we are in prod.
-    FB_LOG_ONCE(ERROR) << "pthread_attr_getstack returned insane stack size "
-                       << rawSize;
+    //FB_LOG_ONCE(ERROR) << "pthread_attr_getstack returned insane stack size " << rawSize;
     assert(false);
     tls_stackSize = 1;
     return;
@@ -216,7 +215,7 @@ void MemoryIdler::unmapUnusedStack(size_t retain) {
     // are bad.) Warn in debug mode, since MemoryIdler may not function as
     // expected.
     // We can also get an EAGAIN, theoretically.
-    PLOG_IF(WARNING, kIsDebug && errno == EINVAL) << "madvise failed";
+    //PLOG_IF(WARNING, kIsDebug && errno == EINVAL) << "madvise failed";
     assert(errno == EAGAIN || errno == ENOMEM || errno == EINVAL);
   }
 }

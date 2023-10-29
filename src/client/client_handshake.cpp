@@ -79,6 +79,7 @@ void ClientHandshake::doHandshake(
       break;
     default:
       //LOG(FATAL) << "Unhandled EncryptionLevel";
+      break;
   }
   // Get the current buffer type the transport is accepting.
   waitForData_ = false;
@@ -96,6 +97,7 @@ void ClientHandshake::doHandshake(
         break;
       default:
         //LOG(FATAL) << "Unhandled EncryptionLevel";
+        break;
     }
     throwOnError();
   }

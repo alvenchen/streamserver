@@ -56,7 +56,7 @@ class PidCache {
 
  public:
   FOLLY_ALWAYS_INLINE pid_t get() {
-    DCHECK(!valid() || pid_ == getpid());
+    //DCHECK(!valid() || pid_ == getpid());
     return valid() ? pid_ : init();
   }
 

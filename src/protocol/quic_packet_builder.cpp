@@ -187,7 +187,7 @@ void RegularQuicPacketBuilder::appendFrame(QuicWriteFrame frame) {
 void RegularQuicPacketBuilder::appendPaddingFrame() {
     packet_.empty = false;
     if (!packet_.frames.empty() &&
-        packet_.frames.back().type() == QuicWriteFrame::TYPE::PADDING_FRAME) {
+        packet_.frames.back().type() == QuicWriteFrame::Type::PaddingFrame) {
         packet_.frames.back().asPaddingFrame()->numFrames++;
     } else {
         packet_.frames.push_back(PaddingFrame());
@@ -551,7 +551,7 @@ void InplaceQuicPacketBuilder::appendFrame(QuicWriteFrame frame) {
 void InplaceQuicPacketBuilder::appendPaddingFrame() {
     packet_.empty = false;
     if (!packet_.frames.empty() &&
-        packet_.frames.back().type() == QuicWriteFrame::TYPE::PADDING_FRAME) {
+        packet_.frames.back().type() == QuicWriteFrame::Type::PaddingFrame) {
         packet_.frames.back().asPaddingFrame()->numFrames++;
     } else {
         packet_.frames.push_back(PaddingFrame());

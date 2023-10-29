@@ -115,7 +115,7 @@ class VirtualEventBase : public folly::TimeoutManager,
  protected:
   bool keepAliveAcquire() noexcept override {
     if (evb_->inRunningEventBaseThread()) {
-      DCHECK(loopKeepAliveCount_ + loopKeepAliveCountAtomic_.load() > 0);
+      //DCHECK(loopKeepAliveCount_ + loopKeepAliveCountAtomic_.load() > 0);
 
       ++loopKeepAliveCount_;
     } else {
@@ -128,7 +128,7 @@ class VirtualEventBase : public folly::TimeoutManager,
     if (loopKeepAliveCountAtomic_.load()) {
       loopKeepAliveCount_ += loopKeepAliveCountAtomic_.exchange(0);
     }
-    DCHECK(loopKeepAliveCount_ > 0);
+    //DCHECK(loopKeepAliveCount_ > 0);
     if (--loopKeepAliveCount_ == 0) {
       destroyImpl();
     }

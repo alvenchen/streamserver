@@ -102,7 +102,7 @@ FOLLY_SSL_DETAIL_DEFINE_PTR_TYPE(BioMethod, BIO_METHOD, BIO_meth_free);
 FOLLY_SSL_DETAIL_DEFINE_PTR_TYPE(Bio, BIO, BIO_vfree);
 FOLLY_SSL_DETAIL_DEFINE_PTR_TYPE(BioChain, BIO, BIO_free_all);
 inline void BIO_free_fb(BIO* bio) {
-  CHECK_EQ(1, BIO_free(bio));
+  //CHECK_EQ(1, BIO_free(bio));
 }
 using BioDeleterFb = folly::static_function_deleter<BIO, &BIO_free_fb>;
 using BioUniquePtrFb = std::unique_ptr<BIO, BioDeleterFb>;

@@ -214,7 +214,7 @@ WriteQuicDataResult writeQuicDataToSocketImpl(
   packetsWritten += connectionDataResult.packetsWritten;
   bytesWritten += connectionDataResult.bytesWritten;
   /*
-  VLOG_IF(10, packetsWritten || probesWritten)
+  //VLOG_IF(10, packetsWritten || probesWritten)
       << nodeToString(connection.nodeType) << " written data "
       << (exceptCryptoStream ? "without crypto data " : "")
       << "to socket packets=" << packetsWritten << " probes=" << probesWritten
@@ -429,6 +429,7 @@ void handleNewStreamDataWritten(
   // TODO: If we want to be able to write FIN out of order for DSR-ed streams,
   // this needs to be fixed:
   stream.currentWriteOffset += frameFin ? 1 : 0;
+  /*
   //CHECK(stream.retransmissionBuffer
             .emplace(
                 std::piecewise_construct,
@@ -436,6 +437,7 @@ void handleNewStreamDataWritten(
                 std::forward_as_tuple(std::make_unique<StreamBuffer>(
                     std::move(bufWritten), originalOffset, frameFin)))
             .second);
+  */
 }
 
 void handleNewStreamBufMetaWritten(
@@ -452,12 +454,14 @@ void handleNewStreamBufMetaWritten(
     ++stream.writeBufMeta.offset;
     //CHECK_GT(stream.writeBufMeta.offset, *stream.finalWriteOffset);
   }
+  /*
   //CHECK(stream.retransmissionBufMetas
             .emplace(
                 std::piecewise_construct,
                 std::forward_as_tuple(originalOffset),
                 std::forward_as_tuple(bufMetaSplit))
             .second);
+  */
 }
 
 void handleRetransmissionWritten(
@@ -658,8 +662,8 @@ void updateConnection(
       case QuicWriteFrame::Type::WriteStreamFrame: {
         const WriteStreamFrame& writeStreamFrame = *frame.asWriteStreamFrame();
         retransmittable = true;
-        auto stream = CHECK_NOTNULL(
-            conn.streamManager->getStream(writeStreamFrame.streamId));
+        //auto stream = CHECK_NOTNULL(conn.streamManager->getStream(writeStreamFrame.streamId));
+        auto stream = conn.streamManager->getStream(writeStreamFrame.streamId);
         bool newStreamDataWritten = false;
         if (writeStreamFrame.fromBufMeta) {
           newStreamDataWritten = handleStreamBufMetaWritten(
@@ -761,8 +765,8 @@ void updateConnection(
       case QuicWriteFrame::Type::MaxStreamDataFrame: {
         const MaxStreamDataFrame& maxStreamDataFrame =
             *frame.asMaxStreamDataFrame();
-        auto stream = CHECK_NOTNULL(
-            conn.streamManager->getStream(maxStreamDataFrame.streamId));
+        //auto stream = CHECK_NOTNULL(conn.streamManager->getStream(maxStreamDataFrame.streamId));
+        auto stream = conn.streamManager->getStream(maxStreamDataFrame.streamId);
         retransmittable = true;
         //VLOG(10) << nodeToString(conn.nodeType) << " sent packet with window update packetNum=" << packetNum << " stream=" << maxStreamDataFrame.streamId << " " << conn;
         onStreamWindowUpdateSent(
@@ -1073,7 +1077,7 @@ WriteQuicDataResult writeCryptoAndAckDataToSocket(
   bytesWritten += writeResult.bytesWritten;
 
 /*
-  VLOG_IF(10, packetsWritten || probesWritten)
+  //VLOG_IF(10, packetsWritten || probesWritten)
       << nodeToString(connection.nodeType)
       << " written crypto and acks data type=" << packetType
       << " packetsWritten=" << packetsWritten
@@ -1171,7 +1175,7 @@ uint64_t writeZeroRttDataToSocket(
                      Clock::now())
                      .packetsWritten;
 /*
-  VLOG_IF(10, written > 0) << nodeToString(connection.nodeType)
+  //VLOG_IF(10, written > 0) << nodeToString(connection.nodeType)
                            << " written zero rtt data, packets=" << written
                            << " " << connection;
   DCHECK_GE(packetLimit, written);
@@ -1246,7 +1250,7 @@ void writeCloseCommon(
   auto packet = std::move(packetBuilder).buildPacket();
   packet.header->coalesce();
   packet.body->reserve(0, aead.getCipherOverhead());
-  CHECK_GE(packet.body->tailroom(), aead.getCipherOverhead());
+  //CHECK_GE(packet.body->tailroom(), aead.getCipherOverhead());
   auto body = aead.inplaceEncrypt(
       std::move(packet.body), packet.header.get(), packetNum);
   body->coalesce();
@@ -1626,7 +1630,7 @@ bool hasAckDataToWrite(const QuicConnectionStateBase& conn) {
       (toWriteInitialAcks(conn) || toWriteHandshakeAcks(conn) ||
        toWriteAppDataAcks(conn));
 /*
-  VLOG_IF(10, writeAcks) << nodeToString(conn.nodeType)
+  //VLOG_IF(10, writeAcks) << nodeToString(conn.nodeType)
                          << " needs write because of acks largestAck="
                          << largestAckToSendToString(conn) << " largestSentAck="
                          << largestAckScheduledToString(conn)

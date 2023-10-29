@@ -489,7 +489,7 @@ size_t writeSimpleFrame(QuicSimpleFrame&& frame, PacketBuilderInterface& builder
     uint64_t spaceLeft = builder.remainingSpaceInPkt();
 
     switch (frame.type()) {
-        case QuicSimpleFrame::TYPE::STOP_SENDING_FRAME: {
+        case QuicSimpleFrame::Type::StopSendingFrame: {
             const StopSendingFrame& stopSendingFrame = *frame.asStopSendingFrame();
             QuicInteger intFrameType(static_cast<uint8_t>(FrameType::STOP_SENDING));
             QuicInteger streamId(stopSendingFrame.streamId);
@@ -506,7 +506,7 @@ size_t writeSimpleFrame(QuicSimpleFrame&& frame, PacketBuilderInterface& builder
             // no space left in packet
             return size_t(0);
         }
-        case QuicSimpleFrame::TYPE::PATH_CHALLANGE_FRAME: {
+        case QuicSimpleFrame::Type::PathChallengeFrame: {
             const PathChallengeFrame& pathChallengeFrame = *frame.asPathChallengeFrame();
             QuicInteger frameType(static_cast<uint8_t>(FrameType::PATH_CHALLENGE));
             auto pathChallengeFrameSize = frameType.getSize() + sizeof(pathChallengeFrame.pathData);
@@ -519,7 +519,7 @@ size_t writeSimpleFrame(QuicSimpleFrame&& frame, PacketBuilderInterface& builder
             // no space left in packet
             return size_t(0);
         }
-        case QuicSimpleFrame::TYPE::PATH_RESPONSE_FRAME: {
+        case QuicSimpleFrame::Type::PathResponseFrame: {
             const PathResponseFrame& pathResponseFrame = *frame.asPathResponseFrame();
             QuicInteger frameType(static_cast<uint8_t>(FrameType::PATH_RESPONSE));
             auto pathResponseFrameSize = frameType.getSize() + sizeof(pathResponseFrame.pathData);
@@ -532,7 +532,7 @@ size_t writeSimpleFrame(QuicSimpleFrame&& frame, PacketBuilderInterface& builder
             // no space left in packet
             return size_t(0);
         }
-        case QuicSimpleFrame::TYPE::NEW_CONNECTION_ID_FRAME: {
+        case QuicSimpleFrame::Type::NewConnectionIdFrame: {
             const NewConnectionIdFrame& newConnectionIdFrame = *frame.asNewConnectionIdFrame();
             QuicInteger frameType(static_cast<uint8_t>(FrameType::NEW_CONNECTION_ID));
             QuicInteger sequenceNumber(newConnectionIdFrame.sequenceNumber);
@@ -555,7 +555,7 @@ size_t writeSimpleFrame(QuicSimpleFrame&& frame, PacketBuilderInterface& builder
             // no space left in packet
             return size_t(0);
         }
-        case QuicSimpleFrame::TYPE::MAX_STREAMS_FRAME: {
+        case QuicSimpleFrame::Type::MaxStreamsFrame: {
             const MaxStreamsFrame& maxStreamsFrame = *frame.asMaxStreamsFrame();
             auto frameType = maxStreamsFrame.isForBidirectionalStream() ? FrameType::MAX_STREAMS_BIDI : FrameType::MAX_STREAMS_UNI;
             QuicInteger intFrameType(static_cast<FrameTypeType>(frameType));
@@ -569,7 +569,7 @@ size_t writeSimpleFrame(QuicSimpleFrame&& frame, PacketBuilderInterface& builder
             }
             return size_t(0);
         }
-        case QuicSimpleFrame::TYPE::RETIRE_CONNECTION_ID_FRAME: {
+        case QuicSimpleFrame::Type::RetireConnectionIdFrame: {
             const RetireConnectionIdFrame& retireConnectionIdFrame = *frame.asRetireConnectionIdFrame();
             QuicInteger frameType(static_cast<uint8_t>(FrameType::RETIRE_CONNECTION_ID));
             QuicInteger sequence(retireConnectionIdFrame.sequenceNumber);
@@ -583,7 +583,7 @@ size_t writeSimpleFrame(QuicSimpleFrame&& frame, PacketBuilderInterface& builder
             // no space left in packet
             return size_t(0);
         }
-        case QuicSimpleFrame::TYPE::HANDSHAKE_DONE_FRAME: {
+        case QuicSimpleFrame::Type::HandshakeDoneFrame: {
             const HandshakeDoneFrame& handshakeDoneFrame =*frame.asHandshakeDoneFrame();
             //CHECK(builder.getPacketHeader().asShort());
             QuicInteger intFrameType(static_cast<uint8_t>(FrameType::HANDSHAKE_DONE));
@@ -595,7 +595,7 @@ size_t writeSimpleFrame(QuicSimpleFrame&& frame, PacketBuilderInterface& builder
             // no space left in packet
             return size_t(0);
         }
-        case QuicSimpleFrame::TYPE::KNOB_FRAME: {
+        case QuicSimpleFrame::Type::KnobFrame: {
             const KnobFrame& knobFrame = *frame.asKnobFrame();
             QuicInteger intFrameType(static_cast<uint64_t>(FrameType::KNOB));
             QuicInteger intKnobSpace(knobFrame.knobSpace);
@@ -615,7 +615,7 @@ size_t writeSimpleFrame(QuicSimpleFrame&& frame, PacketBuilderInterface& builder
             // no space left in packet
             return size_t(0);
         }
-        case QuicSimpleFrame::TYPE::ACK_FREQUENCY_FRAME: {
+        case QuicSimpleFrame::Type::AckFrequencyFrame: {
             const auto ackFrequencyFrame = frame.asAckFrequencyFrame();
             QuicInteger intFrameType(static_cast<uint64_t>(FrameType::ACK_FREQUENCY));
             QuicInteger intSequenceNumber(ackFrequencyFrame->sequenceNumber);
@@ -637,7 +637,7 @@ size_t writeSimpleFrame(QuicSimpleFrame&& frame, PacketBuilderInterface& builder
             // no space left in packet
             return size_t(0);
         }
-        case QuicSimpleFrame::TYPE::NEW_TOKEN_FRAME: {
+        case QuicSimpleFrame::Type::NewTokenFrame: {
             const auto newTokenFrame = frame.asNewTokenFrame();
             QuicInteger intFrameType(static_cast<uint8_t>(FrameType::NEW_TOKEN));
 
@@ -667,7 +667,7 @@ size_t writeFrame(QuicWriteFrame&& frame, PacketBuilderInterface& builder) {
     uint64_t spaceLeft = builder.remainingSpaceInPkt();
 
     switch (frame.type()) {
-        case QuicWriteFrame::TYPE::PADDING_FRAME: {
+        case QuicWriteFrame::Type::PaddingFrame: {
             QuicInteger intFrameType(static_cast<uint8_t>(FrameType::PADDING));
             if (packetSpaceCheck(spaceLeft, intFrameType.getSize())) {
                 builder.write(intFrameType);
@@ -676,7 +676,7 @@ size_t writeFrame(QuicWriteFrame&& frame, PacketBuilderInterface& builder) {
             }
             return size_t(0);
         }
-        case QuicWriteFrame::TYPE::RST_STREAM_FRAME: {
+        case QuicWriteFrame::Type::RstStreamFrame: {
             RstStreamFrame& rstStreamFrame = *frame.asRstStreamFrame();
             QuicInteger intFrameType(static_cast<uint8_t>(FrameType::RST_STREAM));
             QuicInteger streamId(rstStreamFrame.streamId);
@@ -695,7 +695,7 @@ size_t writeFrame(QuicWriteFrame&& frame, PacketBuilderInterface& builder) {
             // no space left in packet
             return size_t(0);
         }
-        case QuicWriteFrame::TYPE::MAX_DATA_FRAME: {
+        case QuicWriteFrame::Type::MaxDataFrame: {
             MaxDataFrame& maxDataFrame = *frame.asMaxDataFrame();
             QuicInteger intFrameType(static_cast<uint8_t>(FrameType::MAX_DATA));
             QuicInteger maximumData(maxDataFrame.maximumData);
@@ -709,7 +709,7 @@ size_t writeFrame(QuicWriteFrame&& frame, PacketBuilderInterface& builder) {
             // no space left in packet
             return size_t(0);
         }
-        case QuicWriteFrame::TYPE::MAX_STREAM_DATA_FRAME: {
+        case QuicWriteFrame::Type::MaxStreamDataFrame: {
             MaxStreamDataFrame& maxStreamDataFrame = *frame.asMaxStreamDataFrame();
             QuicInteger intFrameType(static_cast<uint8_t>(FrameType::MAX_STREAM_DATA));
             QuicInteger streamId(maxStreamDataFrame.streamId);
@@ -725,7 +725,7 @@ size_t writeFrame(QuicWriteFrame&& frame, PacketBuilderInterface& builder) {
             // no space left in packet
             return size_t(0);
         }
-        case QuicWriteFrame::TYPE::DATA_BLOCKED_FRAME: {
+        case QuicWriteFrame::Type::DataBlockedFrame: {
             DataBlockedFrame& blockedFrame = *frame.asDataBlockedFrame();
             QuicInteger intFrameType(static_cast<uint8_t>(FrameType::DATA_BLOCKED));
             QuicInteger dataLimit(blockedFrame.dataLimit);
@@ -739,7 +739,7 @@ size_t writeFrame(QuicWriteFrame&& frame, PacketBuilderInterface& builder) {
             // no space left in packet
             return size_t(0);
         }
-        case QuicWriteFrame::TYPE::STREAM_DATA_BLOCKED_FRAME: {
+        case QuicWriteFrame::Type::StreamDataBlockedFrame: {
             StreamDataBlockedFrame& streamBlockedFrame = *frame.asStreamDataBlockedFrame();
             QuicInteger intFrameType(static_cast<uint8_t>(FrameType::STREAM_DATA_BLOCKED));
             QuicInteger streamId(streamBlockedFrame.streamId);
@@ -755,7 +755,7 @@ size_t writeFrame(QuicWriteFrame&& frame, PacketBuilderInterface& builder) {
             // no space left in packet
             return size_t(0);
         }
-        case QuicWriteFrame::TYPE::STREAMS_BLOCKED_FRAME: {
+        case QuicWriteFrame::Type::StreamsBlockedFrame: {
             StreamsBlockedFrame& streamsBlockedFrame = *frame.asStreamsBlockedFrame();
             auto frameType = streamsBlockedFrame.isForBidirectionalStream()
                 ? FrameType::STREAMS_BLOCKED_BIDI
@@ -772,7 +772,7 @@ size_t writeFrame(QuicWriteFrame&& frame, PacketBuilderInterface& builder) {
             // no space left in packet
             return size_t(0);
         }
-        case QuicWriteFrame::TYPE::CONNECTION_CLOSE_FRAME: {
+        case QuicWriteFrame::Type::ConnectionCloseFrame: {
             ConnectionCloseFrame& connectionCloseFrame = *frame.asConnectionCloseFrame();
             // Need to distinguish between CONNECTION_CLOSE & CONNECTINO_CLOSE_APP_ERR
             const TransportErrorCode* isTransportErrorCode = connectionCloseFrame.errorCode.asTransportErrorCode();
@@ -811,7 +811,7 @@ size_t writeFrame(QuicWriteFrame&& frame, PacketBuilderInterface& builder) {
             // no space left in packet
             return size_t(0);
         }
-        case QuicWriteFrame::TYPE::PING_FRAME: {
+        case QuicWriteFrame::Type::PingFrame: {
             const PingFrame& pingFrame = *frame.asPingFrame();
             QuicInteger intFrameType(static_cast<uint8_t>(FrameType::PING));
             if (packetSpaceCheck(spaceLeft, intFrameType.getSize())) {
@@ -822,10 +822,10 @@ size_t writeFrame(QuicWriteFrame&& frame, PacketBuilderInterface& builder) {
             // no space left in packet
             return size_t(0);
         }
-        case QuicWriteFrame::TYPE::QUIC_SIMPLE_FRAME: {
+        case QuicWriteFrame::Type::QuicSimpleFrame: {
             return writeSimpleFrame(std::move(*frame.asQuicSimpleFrame()), builder);
         }
-        case QuicWriteFrame::TYPE::DATAGRAM_FRAME: {
+        case QuicWriteFrame::Type::DatagramFrame: {
             const DatagramFrame& datagramFrame = *frame.asDatagramFrame();
             QuicInteger frameTypeQuicInt(static_cast<uint8_t>(FrameType::DATAGRAM_LEN));
             QuicInteger datagramLenInt(datagramFrame.length);
@@ -840,7 +840,7 @@ size_t writeFrame(QuicWriteFrame&& frame, PacketBuilderInterface& builder) {
             // no space left in packet
             return size_t(0);
         }
-        case QuicWriteFrame::TYPE::IMMEDIATE_ACK_FRAME: {
+        case QuicWriteFrame::Type::ImmediateAckFrame: {
             const ImmediateAckFrame& immediateAckFrame = *frame.asImmediateAckFrame();
             QuicInteger intFrameType(static_cast<uint8_t>(FrameType::IMMEDIATE_ACK));
             if (packetSpaceCheck(spaceLeft, intFrameType.getSize())) {

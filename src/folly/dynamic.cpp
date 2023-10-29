@@ -89,7 +89,6 @@ TypeError::TypeError(
         apply(std::string);           \
         break;                        \
       default:                        \
-        //CHECK(0);                     \
         abort();                      \
     }                                 \
   } while (0)

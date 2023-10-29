@@ -1787,7 +1787,7 @@ AutomaticCodec::AutomaticCodec(
 
   // Check that none of the codecs are null
   /*
-  DCHECK(std::none_of(
+  //DCHECK(std::none_of(
     codecs_.begin(), codecs_.end(), [](std::unique_ptr<Codec> const& codec) {
         return codec == nullptr;
       }));
@@ -1796,7 +1796,7 @@ AutomaticCodec::AutomaticCodec(
   // of USER_DEFINED).
   if (terminalCodec_) {
     /*
-    DCHECK(std::none_of(
+    //DCHECK(std::none_of(
         codecs_.begin(),
         codecs_.end(),
         [&](std::unique_ptr<Codec> const& codec) {

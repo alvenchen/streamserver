@@ -3,160 +3,6 @@
 
 namespace quic{
 
-    QuicErrorCode::~QuicErrorCode() {
-        destroy();
-    }
-
-    QuicErrorCode::QuicErrorCode(const QuicErrorCode& other) noexcept{
-        switch (other._type) {
-            case QuicErrorCode::TYPE::APP_ERR_CODE:
-                new (&appErr) ApplicationErrorCode(other.appErr);
-                break;
-            case QuicErrorCode::TYPE::LOCAL_ERR_CODE:
-                new (&localErr) LocalErrorCode(other.localErr);
-                break;
-            case QuicErrorCode::TYPE::TRANSPOORT_ERR_CODE:
-                new (&transportErr) TransportErrorCode(other.transportErr);
-                break;
-        }
-        _type = other._type;
-    }
-
-    QuicErrorCode::QuicErrorCode(QuicErrorCode&& other) noexcept {
-        switch (other._type) {
-            case QuicErrorCode::TYPE::APP_ERR_CODE:
-                new (&appErr) ApplicationErrorCode(std::move(other.appErr));
-                break;
-            case QuicErrorCode::TYPE::LOCAL_ERR_CODE:
-                new (&localErr) LocalErrorCode(std::move(other.localErr));
-                break;
-            case QuicErrorCode::TYPE::TRANSPOORT_ERR_CODE:
-                new (&transportErr) TransportErrorCode(std::move(other.transportErr));
-                break;
-        }
-        _type = other._type;
-    }
-
-    QuicErrorCode& QuicErrorCode::operator=(const QuicErrorCode& other) noexcept{
-        destroy();
-        switch (other._type) {
-            case QuicErrorCode::TYPE::APP_ERR_CODE:
-                new (&appErr) ApplicationErrorCode(other.appErr);
-                break;
-            case QuicErrorCode::TYPE::LOCAL_ERR_CODE:
-                new (&localErr) LocalErrorCode(other.localErr);
-                break;
-            case QuicErrorCode::TYPE::TRANSPOORT_ERR_CODE:
-                new (&transportErr) TransportErrorCode(other.transportErr);
-                break;
-        }
-        _type = other._type;
-        return *this;
-    }
-
-    QuicErrorCode& QuicErrorCode::operator=(QuicErrorCode&& other) noexcept{
-        destroy();
-        switch (other._type) {
-            case QuicErrorCode::TYPE::APP_ERR_CODE:
-                new (&appErr) ApplicationErrorCode(std::move(other.appErr));
-                break;
-            case QuicErrorCode::TYPE::LOCAL_ERR_CODE:
-                new (&localErr) LocalErrorCode(std::move(other.localErr));
-                break;
-            case QuicErrorCode::TYPE::TRANSPOORT_ERR_CODE:
-                new (&transportErr) TransportErrorCode(std::move(other.transportErr));
-                break;
-        }
-        _type = other._type;
-        return *this;
-    }
-
-    bool QuicErrorCode::operator==(const QuicErrorCode& other) const{
-        if(other._type != _type){
-            return false;
-        }
-        switch (other._type) {
-            case QuicErrorCode::TYPE::APP_ERR_CODE:
-                return appErr == other.appErr;
-            case QuicErrorCode::TYPE::LOCAL_ERR_CODE:
-                return localErr == other.localErr;
-            case QuicErrorCode::TYPE::TRANSPOORT_ERR_CODE:
-                return transportErr == other.transportErr;
-        }
-        return false;
-    }
-
-    QuicErrorCode::QuicErrorCode(ApplicationErrorCode &&in)
-        :_type(QuicErrorCode::TYPE::APP_ERR_CODE){
-        new (&appErr) ApplicationErrorCode(std::move(in));
-    }
-
-    QuicErrorCode::QuicErrorCode(LocalErrorCode &&in)
-        :_type(QuicErrorCode::TYPE::LOCAL_ERR_CODE){
-        new (&localErr) LocalErrorCode(std::move(in));
-    }
-
-    QuicErrorCode::QuicErrorCode(TransportErrorCode &&in)
-        :_type(QuicErrorCode::TYPE::TRANSPOORT_ERR_CODE){
-        new (&transportErr) TransportErrorCode(std::move(in));
-    }
-
-    QuicErrorCode::QuicErrorCode(const ApplicationErrorCode& in)
-        :_type(QuicErrorCode::TYPE::APP_ERR_CODE){
-        new (&appErr) ApplicationErrorCode(in);
-    }
-
-    QuicErrorCode::QuicErrorCode(const LocalErrorCode& in)
-        :_type(QuicErrorCode::TYPE::LOCAL_ERR_CODE){
-        new (&localErr) LocalErrorCode(in);
-    }
-
-    QuicErrorCode::QuicErrorCode(const TransportErrorCode& in)
-        :_type(QuicErrorCode::TYPE::TRANSPOORT_ERR_CODE){
-        new (&transportErr) TransportErrorCode(in);
-    }
-
-    void QuicErrorCode::destroy() noexcept{
-        switch (_type) {
-            case QuicErrorCode::TYPE::APP_ERR_CODE:
-                appErr.~ApplicationErrorCode();
-                break;
-            case QuicErrorCode::TYPE::LOCAL_ERR_CODE:
-                localErr.~LocalErrorCode();
-                break;
-            case QuicErrorCode::TYPE::TRANSPOORT_ERR_CODE:
-                transportErr.~TransportErrorCode();
-                break;
-        }
-    }
-
-    QuicErrorCode::TYPE QuicErrorCode::type() const{
-        return _type;
-    }
-
-    const ApplicationErrorCode* QuicErrorCode::asApplicationErrorCode() const{
-        if(_type == QuicErrorCode::TYPE::APP_ERR_CODE){
-            return &appErr;
-        }
-        return nullptr;
-    }
-
-    const LocalErrorCode* QuicErrorCode::asLocalErrorCode() const{
-        if(_type == QuicErrorCode::TYPE::LOCAL_ERR_CODE){
-            return &localErr;
-        }
-        return nullptr;
-    }
-
-    const TransportErrorCode* QuicErrorCode::asTransportErrorCode() const{
-        if(_type == QuicErrorCode::TYPE::TRANSPOORT_ERR_CODE){
-            return &transportErr;
-        }
-        return nullptr;
-    }
-
-
-
     /**/
     
     QuicTransportException::QuicTransportException(const std::string& msg, TransportErrorCode errCode)
@@ -359,14 +205,14 @@ namespace quic{
 
     std::string toString(QuicErrorCode code) {
         switch (code.type()) {
-            case QuicErrorCode::TYPE::APP_ERR_CODE:
+            case QuicErrorCode::Type::ApplicationErrorCode:
                 if (*code.asApplicationErrorCode() == GenericApplicationErrorCode::NO_ERROR) {
                     return "No Error";
                 }
                 return folly::to<std::string>(*code.asApplicationErrorCode());
-            case QuicErrorCode::TYPE::LOCAL_ERR_CODE:
+            case QuicErrorCode::Type::LocalErrorCode:
                 return toString(*code.asLocalErrorCode()).str();
-            case QuicErrorCode::TYPE::TRANSPOORT_ERR_CODE:
+            case QuicErrorCode::Type::TransportErrorCode:
                 return toString(*code.asTransportErrorCode());
         }
         folly::assume_unreachable();
@@ -375,13 +221,13 @@ namespace quic{
     std::string toString(const QuicError& error) {
         std::string err;
         switch (error.code.type()) {
-            case QuicErrorCode::TYPE::APP_ERR_CODE:
+            case QuicErrorCode::Type::ApplicationErrorCode:
                 err = "ApplicationError: " + fmt::format("{}", *error.code.asApplicationErrorCode()) + ", ";
                 break;
-            case QuicErrorCode::TYPE::LOCAL_ERR_CODE:
+            case QuicErrorCode::Type::LocalErrorCode:
                 err = "LocalError: " + folly::to<std::string>(toString(*error.code.asLocalErrorCode())) + ", ";
                 break;
-            case QuicErrorCode::TYPE::TRANSPOORT_ERR_CODE:
+            case QuicErrorCode::Type::TransportErrorCode:
                 err = "TransportError: " + toString(*error.code.asTransportErrorCode()) +", ";
         }
         if (!error.message.empty()) {

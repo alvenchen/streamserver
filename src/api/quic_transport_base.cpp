@@ -1715,7 +1715,7 @@ void QuicTransportBase::handleStreamFlowControlUpdatedCallbacks(
     }
     // In case the callback modified the stream map, get it again.
     //stream = CHECK_NOTNULL(conn_->streamManager->getStream(streamId));
-    auto stream = conn_->streamManager->getStream(streamId);
+    stream = conn_->streamManager->getStream(streamId);
     auto maxStreamWritable = maxWritableOnStream(*stream);
     if (maxStreamWritable != 0 && !pendingWriteCallbacks_.empty()) {
       auto pendingWriteIt = pendingWriteCallbacks_.find(stream->id);
@@ -2140,7 +2140,7 @@ QuicTransportBase::notifyPendingWriteOnStream(StreamId id, WriteCallback* wcb) {
     return folly::makeUnexpected(LocalErrorCode::STREAM_NOT_EXISTS);
   }
   //auto stream = CHECK_NOTNULL(conn_->streamManager->getStream(id));
-  auto stream = conn_->streamManager->getStream(streamId);
+  auto stream = conn_->streamManager->getStream(id);
   if (!stream->writable()) {
     return folly::makeUnexpected(LocalErrorCode::STREAM_CLOSED);
   }
@@ -2172,7 +2172,7 @@ QuicTransportBase::notifyPendingWriteOnStream(StreamId id, WriteCallback* wcb) {
       return;
     }
     //auto stream = CHECK_NOTNULL(self->conn_->streamManager->getStream(id));
-    auto stream = conn_->streamManager->getStream(streamId);
+    auto stream = self->conn_->streamManager->getStream(id);
     if (!stream->writable()) {
       self->pendingWriteCallbacks_.erase(wcbIt);
       writeCallback->onStreamWriteError(
@@ -2222,7 +2222,7 @@ QuicSocket::WriteResult QuicTransportBase::writeChain(
       return folly::makeUnexpected(LocalErrorCode::STREAM_NOT_EXISTS);
     }
     //auto stream = CHECK_NOTNULL(conn_->streamManager->getStream(id));
-    auto stream = conn_->streamManager->getStream(streamId);
+    auto stream = conn_->streamManager->getStream(id);
     if (!stream->writable()) {
       return folly::makeUnexpected(LocalErrorCode::STREAM_CLOSED);
     }
@@ -2289,7 +2289,7 @@ QuicSocket::WriteResult QuicTransportBase::writeBufMeta(
       return folly::makeUnexpected(LocalErrorCode::STREAM_NOT_EXISTS);
     }
     //auto stream = CHECK_NOTNULL(conn_->streamManager->getStream(id));
-    auto stream = conn_->streamManager->getStream(streamId);
+    auto stream = conn_->streamManager->getStream(id);
     if (!stream->writable()) {
       return folly::makeUnexpected(LocalErrorCode::STREAM_CLOSED);
     }
@@ -2412,7 +2412,7 @@ QuicTransportBase::registerByteEventCallback(
     byteEventMapIt->second.emplace(pos, offset, cb);
   }
   //auto stream = CHECK_NOTNULL(conn_->streamManager->getStream(id));
-  auto stream = conn_->streamManager->getStream(streamId);
+  auto stream = conn_->streamManager->getStream(id);
 
   // Notify recipients that the registration was successful.
   ByteEvent byteEvent = {};
@@ -2502,7 +2502,7 @@ folly::Expected<folly::Unit, LocalErrorCode> QuicTransportBase::resetStream(
       return folly::makeUnexpected(LocalErrorCode::STREAM_NOT_EXISTS);
     }
     //auto stream = CHECK_NOTNULL(conn_->streamManager->getStream(id));
-    auto stream = conn_->streamManager->getStream(streamId);
+    auto stream = conn_->streamManager->getStream(id);
     // Invoke state machine
     sendRstSMHandler(*stream, errorCode);
 
@@ -2855,7 +2855,7 @@ void QuicTransportBase::cancelAllAppCallbacks(const QuicError& err) noexcept {
     readCallbacks_.erase(cb.first);
     if (cb.second.readCb) {
       //auto stream = CHECK_NOTNULL(conn_->streamManager->getStream(cb.first));
-      auto stream = conn_->streamManager->getStream(streamId);
+      auto stream = conn_->streamManager->getStream(cb.first);
       if (!stream->groupId) {
         cb.second.readCb->readError(cb.first, err);
       } else {
@@ -2916,7 +2916,7 @@ void QuicTransportBase::resetNonControlStreams(
       if (readCallbackIt != readCallbacks_.end() &&
           readCallbackIt->second.readCb) {
         //auto stream = CHECK_NOTNULL(conn_->streamManager->getStream(id));
-        auto stream = conn_->streamManager->getStream(streamId);
+        auto stream = conn_->streamManager->getStream(id);
         if (!stream->groupId) {
           readCallbackIt->second.readCb->readError(
               id, QuicError(error, errorMsg.str()));
@@ -3507,7 +3507,7 @@ QuicTransportBase::getStreamTransportInfo(StreamId id) const {
     return folly::makeUnexpected(LocalErrorCode::STREAM_NOT_EXISTS);
   }
   //auto stream = CHECK_NOTNULL(conn_->streamManager->getStream(id));
-  auto stream = conn_->streamManager->getStream(streamId);
+  auto stream = conn_->streamManager->getStream(id);
   auto packets = getNumPacketsTxWithNewData(*stream);
   return StreamTransportInfo{
       stream->totalHolbTime,
@@ -3607,7 +3607,7 @@ QuicSocket::WriteResult QuicTransportBase::setDSRPacketizationRequestSender(
       return folly::makeUnexpected(LocalErrorCode::STREAM_NOT_EXISTS);
     }
     //auto stream = CHECK_NOTNULL(conn_->streamManager->getStream(id));
-    auto stream = conn_->streamManager->getStream(streamId);
+    auto stream = conn_->streamManager->getStream(id);
     // Only allow resetting it back to nullptr once set.
     if (stream->dsrSender && sender != nullptr) {
       return folly::makeUnexpected(LocalErrorCode::INVALID_OPERATION);

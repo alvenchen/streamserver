@@ -10,13 +10,9 @@
 #include "../protocol/quic_constants.hpp"
 #include "../protocol/quic_exception.h"
 #include "quic_socket.h"
-#include "../protocol/quic_constants.hpp"
-#include "../protocol/quic_exception.h"
-#include "quic_socket.h"
 #include "../common/Events.h"
 #include "../common/FunctionLooper.h"
 #include "../common/Timers.h"
-#include "../congestion_control/
 #include "../congestion_control/congestion_control_factory.h"
 #include "../congestion_control/copa.h"
 #include "../congestion_control/new_reno.h"
@@ -66,7 +62,7 @@ class QuicTransportBase : public QuicSocket, QuicStreamPrioritiesObserver {
 
   const folly::SocketAddress& getLocalAddress() const override;
 
-  //const std::shared_ptr<QLogger> getQLogger() const;
+  const std::shared_ptr<QLogger> getQLogger() const;
 
   // QuicSocket interface
   bool good() const override;
@@ -280,7 +276,7 @@ class QuicTransportBase : public QuicSocket, QuicStreamPrioritiesObserver {
   /**
    * Can Knob Frames be exchanged with the peer on this connection?
    */
-  [[nodiscard]]ool isKnobSupported() const override;
+  [[nodiscard]]bool isKnobSupported() const override;
 
   /**
    * Set factory to create specific congestion controller instances
@@ -425,13 +421,13 @@ class QuicTransportBase : public QuicSocket, QuicStreamPrioritiesObserver {
   /**
    * Get the number of pending byte events for the given stream.
    */
-  [[nodiscard]]ize_t
+  [[nodiscard]]size_t
   getNumByteEventCallbacksForStream(const StreamId id) const override;
 
   /**
    * Get the number of pending byte events of specified type for given stream.
    */
-  [[nodiscard]]ize_t getNumByteEventCallbacksForStream(
+  [[nodiscard]]size_t getNumByteEventCallbacksForStream(
       const ByteEvent::Type type,
       const StreamId id) const override;
 
@@ -603,7 +599,7 @@ class QuicTransportBase : public QuicSocket, QuicStreamPrioritiesObserver {
 
   void describe(std::ostream& os) const;
 
-  //virtual void setQLogger(std::shared_ptr<QLogger> qLogger);
+  virtual void setQLogger(std::shared_ptr<QLogger> qLogger);
 
   void setLoopDetectorCallback(std::shared_ptr<LoopDetectorCallback> callback) {
     conn_->loopDetectorCallback = std::move(callback);
@@ -611,7 +607,7 @@ class QuicTransportBase : public QuicSocket, QuicStreamPrioritiesObserver {
 
   virtual void cancelAllAppCallbacks(const QuicError& error) noexcept;
 
-  [[nodiscard]]uicConnectionStats getConnectionsStats() const override;
+  [[nodiscard]]QuicConnectionStats getConnectionsStats() const override;
 
   /**
    * Set the read callback for Datagrams
@@ -623,7 +619,7 @@ class QuicTransportBase : public QuicSocket, QuicStreamPrioritiesObserver {
    * Returns the maximum allowed Datagram payload size.
    * 0 means Datagram is not supported
    */
-  [[nodiscard]]int16_t getDatagramSizeLimit() const override;
+  [[nodiscard]]uint16_t getDatagramSizeLimit() const override;
 
   /**
    * Writes a Datagram frame. If buf is larger than the size limit returned by
@@ -808,7 +804,7 @@ class QuicTransportBase : public QuicSocket, QuicStreamPrioritiesObserver {
 
   using ByteEventMap = folly::F14FastMap<StreamId, std::deque<ByteEventDetail>>;
   ByteEventMap& getByteEventMap(const ByteEvent::Type type);
-  [[nodiscard]]onst ByteEventMap& getByteEventMapConst(
+  [[nodiscard]]const ByteEventMap& getByteEventMapConst(
       const ByteEvent::Type type) const;
 
   /**

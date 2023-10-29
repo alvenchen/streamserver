@@ -14,6 +14,8 @@
 #include <ostream>
 #include <string_view>
 #include <vector>
+#include "../common/enum.h"
+
 
 namespace quic {
 
@@ -79,7 +81,9 @@ constexpr uint64_t kDefaultQuicTransportKnobSpace = 0xfaceb001;
 // Default knob id for transport knobs (used for internal use-cases only)
 constexpr uint64_t kDefaultQuicTransportKnobId = 1;
 
-enum PacketDropReason : uint8_t{
+BETTER_ENUM(
+    PacketDropReason,
+    uint8_t,
     NONE,
     CONNECTION_NOT_FOUND,
     DECRYPTION_ERROR,
@@ -119,10 +123,11 @@ enum PacketDropReason : uint8_t{
     CLIENT_SHUTDOWN,
     INVALID_SRC_PORT,
     UNKNOWN_CID_VERSION,
-    CANNOT_FORWARD_DATA
-};
+    CANNOT_FORWARD_DATA)
 
-enum TransportKnobParamId : uint64_t{
+BETTER_ENUM(
+    TransportKnobParamId,
+    uint64_t,
     // Any value not in the list below
     UNKNOWN = 0x0,
     // No-op
@@ -132,20 +137,16 @@ enum TransportKnobParamId : uint64_t{
     FORCIBLY_SET_UDP_PAYLOAD_SIZE = 0xba92,
     // Set congestion control algorithm
     CC_ALGORITHM_KNOB = 0xccaa,
-    // Set congestion control aggressiveness (experimental)
-    CC_AGRESSIVENESS_KNOB = 0xccab,
     // Enable experimental CC settings
     CC_EXPERIMENTAL = 0xccac,
+    // Change congestion control config struct
+    CC_CONFIG = 0xccad,
     // Set pacing rtt factor used only during startup phase
     STARTUP_RTT_FACTOR_KNOB = 0x1111,
     // Set pacing rtt factor used when not in startup
     DEFAULT_RTT_FACTOR_KNOB = 0x2222,
-    // Set total buffer size (in bytes) for not yet sent packets
-    NOTSENT_BUFFER_SIZE_KNOB = 0x3333,
     // Set max pacing rate in bytes per second to be used if pacing is enabled
     MAX_PACING_RATE_KNOB = 0x4444,
-    // Set auto background mode (experimental)
-    AUTO_BACKGROUND_MODE = 0x5555,
     // Use adaptive loss detection thresholds for reordering and timeout
     ADAPTIVE_LOSS_DETECTION = 0x5556,
     // Enable experimental pacer settings
@@ -169,8 +170,9 @@ enum TransportKnobParamId : uint64_t{
     // Controls write loop time fraction in terms of srtt
     WRITE_LOOP_TIME_FRACTION = 0x10004,
     // Controls number of times a stream gets a write in incremental mode
-    WRITES_PER_STREAM = 0x10005
-};
+    WRITES_PER_STREAM = 0x10005,
+    // Control connection migration
+    CONNECTION_MIGRATION = 0x10006)
 
 enum class FrameType : uint64_t {
     PADDING = 0x00,

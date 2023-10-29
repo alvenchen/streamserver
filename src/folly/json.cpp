@@ -150,6 +150,7 @@ struct Printer {
         break;
       default:
         //CHECK(0) << "Bad type " << v.type();
+        break;
     }
   }
 

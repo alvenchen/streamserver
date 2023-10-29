@@ -11,6 +11,7 @@
 #include <folly/Optional.h>
 #include "../protocol/quic_constants.hpp"
 #include "../protocol/quic_header.hpp"
+#include "../protocol/quic_frame.hpp"
 #include "../common/TimeUtil.h"
 #include "../congestion_control/congestion_controller.h"
 #include "../flowcontrol/quic_flow_control.h"
@@ -158,13 +159,15 @@ void setLossDetectionAlarm(QuicConnectionStateBase& conn, Timeout& timeout) {
     timeout.cancelLossTimeout();
   }
   if (!conn.pendingEvents.setLossDetectionAlarm) {
-    VLOG_IF(10, !timeout.isLossTimeoutScheduled())
+    /*
+    //VLOG_IF(10, !timeout.isLossTimeoutScheduled())
         << __func__ << " alarm not scheduled"
         << " outstanding=" << totalPacketsOutstanding << " initialPackets="
         << conn.outstandings.packetCount[PacketNumberSpace::Initial]
         << " handshakePackets="
         << conn.outstandings.packetCount[PacketNumberSpace::Handshake] << " "
         << nodeToString(conn.nodeType) << " " << conn;
+    */
     return;
   }
   timeout.cancelLossTimeout();

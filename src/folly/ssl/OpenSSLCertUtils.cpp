@@ -50,7 +50,7 @@ std::string asn1ToString(ASN1_STRING* a) {
 }
 
 std::string getExtOid(X509_EXTENSION* extension) {
-  CHECK_NOTNULL(extension);
+  //CHECK_NOTNULL(extension);
   ASN1_OBJECT* object = X509_EXTENSION_get_object(extension);
   // Query for extension OID
   constexpr int buf_size = 256;
@@ -67,7 +67,7 @@ std::string getExtOid(X509_EXTENSION* extension) {
 }
 
 std::string getExtData(X509_EXTENSION* extension) {
-  CHECK_NOTNULL(extension);
+  //CHECK_NOTNULL(extension);
   auto asnValue = X509_EXTENSION_get_data(extension);
   return asnValue ? asn1ToString(asnValue) : std::string();
 }

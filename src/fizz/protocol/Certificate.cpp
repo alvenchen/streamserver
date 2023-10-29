@@ -113,7 +113,7 @@ std::unique_ptr<PeerCert> CertUtils::makePeerCert(Buf certData) {
     throw std::runtime_error("could not read cert");
   }
   if (begin != range.data() + range.size()) {
-    VLOG(1) << "Did not read to end of certificate";
+    //VLOG(1) << "Did not read to end of certificate";
   }
   return makePeerCert(std::move(cert));
 }

@@ -13,6 +13,9 @@
 #include "../common/SmallCollections.h"
 #include "../protocol/quic_header.hpp"
 #include "../protocol/quic_packet_num.hpp"
+#include "../protocol/quic_packet.hpp"
+#include "../protocol/quic_frame.hpp"
+
 
 #include "loss_state.h"
 #include "packet_event.h"

@@ -5,7 +5,7 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-#include "Bbr2.h"
+#include "bbr2.h"
 #include "congestion_control_functions.h"
 
 #include <sys/types.h>

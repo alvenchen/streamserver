@@ -14,48 +14,17 @@
 #include <stdexcept>
 #include <string>
 #include "fmt/format.h"
+#include "../common/Variant.h"
 
 namespace quic {
 
 
-    struct QuicErrorCode{
-        enum class TYPE {
-            APP_ERR_CODE,
-            LOCAL_ERR_CODE,
-            TRANSPOORT_ERR_CODE
-        };
+#define QUIC_ERROR_CODE(F, ...)        \
+  F(ApplicationErrorCode, __VA_ARGS__) \
+  F(LocalErrorCode, __VA_ARGS__)       \
+  F(TransportErrorCode, __VA_ARGS__)
 
-        ~QuicErrorCode();
-        QuicErrorCode(const QuicErrorCode& other) noexcept;
-        QuicErrorCode(QuicErrorCode&& other) noexcept;
-        QuicErrorCode& operator=(const QuicErrorCode& other) noexcept;
-        QuicErrorCode& operator=(QuicErrorCode&& other) noexcept;
-        bool operator==(const QuicErrorCode& other) const;
-        QuicErrorCode(ApplicationErrorCode&& in);
-        QuicErrorCode(LocalErrorCode&& in);
-        QuicErrorCode(TransportErrorCode&& in);
-        QuicErrorCode(const ApplicationErrorCode& in);
-        QuicErrorCode(const LocalErrorCode& in);
-        QuicErrorCode(const TransportErrorCode& in);
-
-        TYPE type() const;
-
-        const ApplicationErrorCode* asApplicationErrorCode() const;
-        const LocalErrorCode* asLocalErrorCode() const;
-        const TransportErrorCode* asTransportErrorCode() const;
-
-    private:
-        void destroy() noexcept;
-
-        TYPE _type;
-        union{
-            ApplicationErrorCode appErr;
-            LocalErrorCode localErr;
-            TransportErrorCode transportErr;
-        };
-    };
-
-    
+DECLARE_VARIANT_TYPE(QuicErrorCode, QUIC_ERROR_CODE)
 
 struct QuicError {
     QuicError(QuicErrorCode codeIn, const std::string& messageIn)

@@ -9,6 +9,7 @@
 
 #include <folly/Optional.h>
 #include <folly/Expected.h>
+#include <folly/Conv.h>
 #include <folly/io/async/AsyncUDPSocket.h>
 #include "../protocol/quic_exception.h"
 #include "io_buf_quic_batch.h"

@@ -38,7 +38,7 @@ struct ConnectionId {
     bool operator!=(const ConnectionId& other) const;
 
 
-    uint8_t* data() const;
+    const uint8_t* data() const;
     uint8_t size() const;    
     std::string hex() const;
 

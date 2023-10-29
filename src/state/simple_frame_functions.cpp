@@ -231,7 +231,7 @@ bool updateSimpleFrameOnPacketReceived(
           : conn.clientConnectionId;
       if (!curNodeConnId || curNodeConnId->size() == 0) {
         throw QuicTransportException(
-            "Peer issued RETIRE_CONNECTION_ID_FRAME to endpoint using 0-len connection ids.",
+            "Peer issued RetireConnectionIdFrame to endpoint using 0-len connection ids.",
             TransportErrorCode::PROTOCOL_VIOLATION);
       }
       const RetireConnectionIdFrame& retireConnIdFrame =
@@ -251,7 +251,7 @@ bool updateSimpleFrameOnPacketReceived(
 
       if (dstConnId == it->connId) {
         throw QuicTransportException(
-            "Peer issued RETIRE_CONNECTION_ID_FRAME refers to dst conn id field of containing packet.",
+            "Peer issued RetireConnectionIdFrame refers to dst conn id field of containing packet.",
             TransportErrorCode::PROTOCOL_VIOLATION);
       }
 

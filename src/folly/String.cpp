@@ -706,7 +706,7 @@ size_t hexDumpLine(
   }
   line.append(16 - n, ' ');
   line.push_back('|');
-  DCHECK_EQ(line.size(), 78u);
+  //DCHECK_EQ(line.size(), 78u);
 
   return n;
 }

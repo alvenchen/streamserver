@@ -5,10 +5,10 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-#include <quic/congestion_control/CongestionControlFunctions.h>
+#include "congestion_control_functions.h"
 
-#include <quic/QuicConstants.h>
-#include <quic/common/TimeUtil.h>
+#include "../protocol/quic_constants.hpp"
+#include "../common/TimeUtil.h"
 #include <algorithm>
 
 namespace quic {

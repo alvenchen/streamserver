@@ -1351,7 +1351,7 @@ public:
      *  Sets a retransmission policy on a stream group.
      */
     virtual folly::Expected<folly::Unit, LocalErrorCode>
-    setStreamGroupRetransmissionPolicy(0StreamGroupId groupId,
+    setStreamGroupRetransmissionPolicy(StreamGroupId groupId,
         std::optional<QuicStreamGroupRetransmissionPolicy> policy) noexcept = 0;
 
 protected:

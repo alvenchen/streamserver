@@ -275,7 +275,7 @@ SocketObserverInterface::PacketsWrittenEvent::Builder::build() && {
 SocketObserverInterface::PacketsWrittenEvent::PacketsWrittenEvent(
     SocketObserverInterface::PacketsWrittenEvent::BuilderFields&& builderFields)
     : WriteEvent(builderFields),
-      numPacketsWritten(*(builderFields.maybeNumPacketsWritten.get_pointer()),
+      numPacketsWritten(*builderFields.maybeNumPacketsWritten.get_pointer()),
       numAckElicitingPacketsWritten(*builderFields.maybeNumAckElicitingPacketsWritten.get_pointer()),
       numBytesWritten(*builderFields.maybeNumBytesWritten.get_pointer()) {}
 
