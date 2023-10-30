@@ -18,6 +18,10 @@ file(GLOB SRC
      ${CMAKE_CURRENT_SOURCE_DIR}/src/state/stream/*.cpp
      ${CMAKE_CURRENT_SOURCE_DIR}/src/congestion_control/*.hpp
      ${CMAKE_CURRENT_SOURCE_DIR}/src/congestion_control/*.cpp
+     ${CMAKE_CURRENT_SOURCE_DIR}/src/flow_control/*.hpp
+     ${CMAKE_CURRENT_SOURCE_DIR}/src/flow_control/*.cpp
+     ${CMAKE_CURRENT_SOURCE_DIR}/src/happyeyeballs/*.hpp
+     ${CMAKE_CURRENT_SOURCE_DIR}/src/happyeyeballs/*.cpp
      ${CMAKE_CURRENT_SOURCE_DIR}/src/client/*.hpp
      ${CMAKE_CURRENT_SOURCE_DIR}/src/client/*.cpp
      ${CMAKE_CURRENT_SOURCE_DIR}/src/api/*.hpp
@@ -30,6 +34,10 @@ file(GLOB SRC
      ${CMAKE_CURRENT_SOURCE_DIR}/src/client/*.cpp
      ${CMAKE_CURRENT_SOURCE_DIR}/src/loss/*.hpp
      ${CMAKE_CURRENT_SOURCE_DIR}/src/loss/*.cpp
+     ${CMAKE_CURRENT_SOURCE_DIR}/src/dsr/*.hpp
+     ${CMAKE_CURRENT_SOURCE_DIR}/src/dsr/*.cpp
+     ${CMAKE_CURRENT_SOURCE_DIR}/src/logging/*.hpp
+     ${CMAKE_CURRENT_SOURCE_DIR}/src/logging/*.cpp
      ${CMAKE_CURRENT_SOURCE_DIR}/src/folly/*.hpp
      ${CMAKE_CURRENT_SOURCE_DIR}/src/folly/*.cpp
      ${CMAKE_CURRENT_SOURCE_DIR}/src/folly/*/*.hpp
