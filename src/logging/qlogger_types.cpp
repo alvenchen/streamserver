@@ -315,7 +315,7 @@ folly::dynamic QLogPacketEvent::toDynamic() const {
   data["header"] = folly::dynamic::object("packet_size", packetSize);
 
   // A Retry packet does not include a packet number.
-  if (packetType != toString(LongHeader::Types::Retry)) {
+  if (packetType != toQlogString(LongHeader::Types::Retry)) {
     data["header"]["packet_number"] = packetNum;
     data["frames"] = folly::dynamic::array();
 

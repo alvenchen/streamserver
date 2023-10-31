@@ -18,8 +18,8 @@ file(GLOB SRC
      ${CMAKE_CURRENT_SOURCE_DIR}/src/state/stream/*.cpp
      ${CMAKE_CURRENT_SOURCE_DIR}/src/congestion_control/*.hpp
      ${CMAKE_CURRENT_SOURCE_DIR}/src/congestion_control/*.cpp
-     ${CMAKE_CURRENT_SOURCE_DIR}/src/flow_control/*.hpp
-     ${CMAKE_CURRENT_SOURCE_DIR}/src/flow_control/*.cpp
+     ${CMAKE_CURRENT_SOURCE_DIR}/src/flowcontrol/*.hpp
+     ${CMAKE_CURRENT_SOURCE_DIR}/src/flowcontrol/*.cpp
      ${CMAKE_CURRENT_SOURCE_DIR}/src/happyeyeballs/*.hpp
      ${CMAKE_CURRENT_SOURCE_DIR}/src/happyeyeballs/*.cpp
      ${CMAKE_CURRENT_SOURCE_DIR}/src/client/*.hpp

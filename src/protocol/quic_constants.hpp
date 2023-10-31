@@ -701,31 +701,5 @@ constexpr size_t kShortHeaderPaddingModulo = 32;
 constexpr uint8_t kMaxReceivedPktsTimestampsStored = 25;
 constexpr uint8_t kDefaultReceiveTimestampsExponent = 3;
 
-std::string toString(QuicVersion version){
-    switch (version) {
-        case QuicVersion::VERSION_NEGOTIATION:
-        return "VERSION_NEGOTIATION";
-        case QuicVersion::MVFST:
-        return "MVFST";
-        case QuicVersion::QUIC_V1:
-        return "QUIC_V1";
-        case QuicVersion::QUIC_V1_ALIAS:
-        return "QUIC_V1_ALIAS";
-        case QuicVersion::QUIC_DRAFT:
-        return "QUIC_DRAFT";
-        case QuicVersion::MVFST_EXPERIMENTAL:
-        return "MVFST_EXPERIMENTAL";
-        case QuicVersion::MVFST_ALIAS:
-        return "MVFST_ALIAS";
-        case QuicVersion::MVFST_INVALID:
-        return "MVFST_INVALID";
-        case QuicVersion::MVFST_EXPERIMENTAL2:
-        return "MVFST_EXPERIMENTAL2";
-        case QuicVersion::MVFST_EXPERIMENTAL3:
-        return "MVFST_EXPERIMENTAL3";
-    }
-    //LOG(WARNING) << "toString has unhandled version type";
-    return "UNKNOWN";
-}
 
 } // namespace quic

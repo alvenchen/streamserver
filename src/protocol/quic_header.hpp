@@ -269,7 +269,4 @@ LongHeader::Types parseLongHeaderType(uint8_t initialByte);
 ProtectionType longHeaderTypeToProtectionType(LongHeader::Types type);
 PacketNumberSpace protectionTypeToPacketNumberSpace(ProtectionType type);
 
-std::string toString(PacketNumberSpace pnSpace);
-std::string toString(ProtectionType protectionType);
-
 } // namespace quic
