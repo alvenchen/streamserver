@@ -263,4 +263,35 @@ PacketNumberSpace protectionTypeToPacketNumberSpace(ProtectionType protectionTyp
     folly::assume_unreachable();
 }
 
+
+std::string toString(PacketNumberSpace pnSpace) {
+    switch (pnSpace) {
+    case PacketNumberSpace::Initial:
+        return "InitialSpace";
+    case PacketNumberSpace::Handshake:
+        return "HandshakeSpace";
+    case PacketNumberSpace::AppData:
+        return "AppDataSpace";
+    }
+    //CHECK(false) << "Unknown packet number space";
+    folly::assume_unreachable();
+}
+
+std::string toString(ProtectionType protectionType){
+    switch (protectionType) {
+        case ProtectionType::Initial:
+        return "Initial";
+        case ProtectionType::Handshake:
+        return "Handshake";
+        case ProtectionType::ZeroRtt:
+        return "ZeroRtt";
+        case ProtectionType::KeyPhaseZero:
+        return "KeyPhaseZero";
+        case ProtectionType::KeyPhaseOne:
+        return "KeyPhaseOne";
+    }
+    //CHECK(false) << "Unknown protection type";
+    folly::assume_unreachable();
+}
+
 }

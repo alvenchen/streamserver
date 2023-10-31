@@ -1,6 +1,7 @@
 #pragma once
 
 #include <folly/Optional.h>
+#include <folly/IPAddress.h>
 #include "../common/common.hpp"
 #include "quic_constants.hpp"
 #include "quic_packet_num.hpp"
@@ -625,6 +626,69 @@ namespace quic{
                 timestampsWritten(timestampsWrittenIn) {}
     };
 
+    enum class TokenType : uint8_t { RetryToken = 0, NewToken };
+
+    struct QuicAddrValidationToken {
+        QuicAddrValidationToken(folly::IPAddress clientIpIn, uint64_t timestampInMsIn)
+            : clientIp(clientIpIn), timestampInMs(timestampInMsIn) {}
+
+        QuicAddrValidationToken(const QuicAddrValidationToken& other) = default;
+
+        QuicAddrValidationToken& operator=(const QuicAddrValidationToken& other) = default;
+
+        FOLLY_NODISCARD Buf getPlaintextToken() const;
+        FOLLY_NODISCARD virtual TokenType getTokenType() const = 0;
+        FOLLY_NODISCARD virtual Buf genAeadAssocData() const = 0;
+        virtual ~QuicAddrValidationToken() = default;
+
+        folly::IPAddress clientIp;
+        uint64_t timestampInMs;
+    };
+
+    struct RetryToken : QuicAddrValidationToken {
+        RetryToken(ConnectionId originalDstConnIdIn, folly::IPAddress clientIpIn,
+            uint16_t clientPortIn, uint64_t timestampInMsIn =
+                std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count())
+            : QuicAddrValidationToken(clientIpIn, timestampInMsIn),
+                originalDstConnId(originalDstConnIdIn), clientPort(clientPortIn) {}
+
+        RetryToken(const RetryToken& other) = default;
+
+        RetryToken& operator=(const RetryToken& other) = default;
+
+        FOLLY_NODISCARD TokenType getTokenType() const override {
+            return tokenType;
+        }
+
+        FOLLY_NODISCARD Buf genAeadAssocData() const override;
+
+        ConnectionId originalDstConnId;
+        uint16_t clientPort;
+
+        static constexpr TokenType tokenType = TokenType::RetryToken;
+    };
+
+    struct NewToken : QuicAddrValidationToken {
+        explicit NewToken(folly::IPAddress clientIpIn, uint64_t timestampInMsIn =
+                std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count())
+            : QuicAddrValidationToken(clientIpIn, timestampInMsIn) {}
+
+        NewToken(const NewToken& other) = default;
+
+        NewToken& operator=(const NewToken& other) = default;
+
+        FOLLY_NODISCARD TokenType getTokenType() const override {
+            return tokenType;
+        }
+
+        FOLLY_NODISCARD Buf genAeadAssocData() const override;
+
+        bool operator==(const NewToken& other) const {
+            return clientIp == other.clientIp && timestampInMs == other.timestampInMs;
+        }
+
+        static constexpr TokenType tokenType = TokenType::NewToken;
+    };
 
     
     #define QUIC_SIMPLE_FRAME(F, ...)         \
@@ -684,4 +748,96 @@ namespace quic{
     DECLARE_VARIANT_TYPE(QuicWriteFrame, QUIC_WRITE_FRAME)
 
 
+    std::string toString(FrameType frame){
+        switch (frame) {
+        case FrameType::PADDING:
+            return "PADDING";
+        case FrameType::PING:
+            return "PING";
+        case FrameType::ACK:
+            return "ACK";
+        case FrameType::ACK_ECN:
+            return "ACK_ECN";
+        case FrameType::RST_STREAM:
+            return "RST_STREAM";
+        case FrameType::STOP_SENDING:
+            return "STOP_SENDING";
+        case FrameType::CRYPTO_FRAME:
+            return "CRYPTO_FRAME";
+        case FrameType::NEW_TOKEN:
+            return "NEW_TOKEN";
+        case FrameType::STREAM:
+        case FrameType::STREAM_FIN:
+        case FrameType::STREAM_LEN:
+        case FrameType::STREAM_LEN_FIN:
+        case FrameType::STREAM_OFF:
+        case FrameType::STREAM_OFF_FIN:
+        case FrameType::STREAM_OFF_LEN:
+        case FrameType::STREAM_OFF_LEN_FIN:
+            return "STREAM";
+        case FrameType::MAX_DATA:
+            return "MAX_DATA";
+        case FrameType::MAX_STREAM_DATA:
+            return "MAX_STREAM_DATA";
+        case FrameType::MAX_STREAMS_BIDI:
+            return "MAX_STREAMS_BIDI";
+        case FrameType::MAX_STREAMS_UNI:
+            return "MAX_STREAMS_UNI";
+        case FrameType::DATA_BLOCKED:
+            return "DATA_BLOCKED";
+        case FrameType::STREAM_DATA_BLOCKED:
+            return "STREAM_DATA_BLOCKED";
+        case FrameType::STREAMS_BLOCKED_BIDI:
+            return "STREAMS_BLOCKED_BIDI";
+        case FrameType::STREAMS_BLOCKED_UNI:
+            return "STREAMS_BLOCKED_UNI";
+        case FrameType::NEW_CONNECTION_ID:
+            return "NEW_CONNECTION_ID";
+        case FrameType::RETIRE_CONNECTION_ID:
+            return "RETIRE_CONNECTION_ID";
+        case FrameType::PATH_CHALLENGE:
+            return "PATH_CHALLENGE";
+        case FrameType::PATH_RESPONSE:
+            return "PATH_RESPONSE";
+        case FrameType::CONNECTION_CLOSE:
+            return "CONNECTION_CLOSE";
+        case FrameType::CONNECTION_CLOSE_APP_ERR:
+            return "APPLICATION_CLOSE";
+        case FrameType::HANDSHAKE_DONE:
+            return "HANDSHAKE_DONE";
+        case FrameType::DATAGRAM:
+        case FrameType::DATAGRAM_LEN:
+            return "DATAGRAM";
+        case FrameType::KNOB:
+            return "KNOB";
+        case FrameType::ACK_FREQUENCY:
+            return "ACK_FREQUENCY";
+        case FrameType::IMMEDIATE_ACK:
+            return "IMMEDIATE_ACK";
+        case FrameType::GROUP_STREAM:
+        case FrameType::GROUP_STREAM_FIN:
+        case FrameType::GROUP_STREAM_LEN:
+        case FrameType::GROUP_STREAM_LEN_FIN:
+        case FrameType::GROUP_STREAM_OFF:
+        case FrameType::GROUP_STREAM_OFF_FIN:
+        case FrameType::GROUP_STREAM_OFF_LEN:
+        case FrameType::GROUP_STREAM_OFF_LEN_FIN:
+           return "GROUP_STREAM";
+        case FrameType::ACK_RECEIVE_TIMESTAMPS:
+            return "ACK_RECEIVE_TIMESTAMPS";
+        }
+        //LOG(WARNING) << "toString has unhandled frame type";
+        return "UNKNOWN";
+    }
+
+    std::string toString(TokenType type){
+        switch (type) {
+            case TokenType::RetryToken:
+                return "RetryToken";
+            case TokenType::NewToken:
+                return "NewToken";
+        }
+        //LOG(WARNING) << "toString has unhandled token type";
+        return "UNKNOWN";
+    }
 }
