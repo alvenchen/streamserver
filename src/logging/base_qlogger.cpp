@@ -101,7 +101,7 @@ std::unique_ptr<QLogPacketEvent> BaseQLogger::createPacketEvent(
     event->packetType =
         toQlogString(regularPacket.header.asLong()->getHeaderType()).str();
   }
-  if (event->packetType != toString(LongHeader::Types::Retry)) {
+  if (event->packetType != toQlogString(LongHeader::Types::Retry)) {
     // A Retry packet does not include a packet number.
     event->packetNum = regularPacket.header.getPacketSequenceNum();
   }

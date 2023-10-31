@@ -10,7 +10,7 @@ namespace quic{
     using StreamId = uint64_t;
     using StreamGroupId = uint64_t;
 
-    template <class T, size_t N>
+    template <class T, std::size_t N, class... Policy>
     using SmallVec = std::vector<T>;
 
     constexpr uint8_t kHeaderFormMask = 0x80;

@@ -232,8 +232,7 @@ class WriteAckFrameLog : public QLogFrame {
       const WriteAckFrame::AckBlockVec& ackBlocksIn,
       std::chrono::microseconds ackDelayIn,
       FrameType frameTypeIn = FrameType::ACK,
-      folly::Optional<std::chrono::microseconds> maybeLatestRecvdPacketTimeIn =
-          folly::none,
+      folly::Optional<std::chrono::microseconds> maybeLatestRecvdPacketTimeIn = folly::none,
       folly::Optional<PacketNum> maybeLatestRecvdPacketNumIn = folly::none,
       RecvdPacketsTimestampsRangeVec recvdPacketsTimestampRangesIn = {})
       : ackBlocks{ackBlocksIn},

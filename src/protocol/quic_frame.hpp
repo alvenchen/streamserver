@@ -1,6 +1,6 @@
 #pragma once
 
-#include <optional>
+#include <folly/Optional.h>
 #include "../common/common.hpp"
 #include "quic_constants.hpp"
 #include "quic_packet_num.hpp"
@@ -124,8 +124,8 @@ namespace quic{
         using Vec = SmallVec<AckBlock, 32>;
         Vec ackBlocks;
         FrameType frameType = FrameType::ACK;
-        std::optional<std::chrono::microseconds> maybeLatestRecvdPacketTime;
-        std::optional<PacketNum> maybeLatestRecvdPacketNum;
+        folly::Optional<std::chrono::microseconds> maybeLatestRecvdPacketTime;
+        folly::Optional<PacketNum> maybeLatestRecvdPacketNum;
         RecvdPacketsTimestampsRangeVec recvdPacketsTimestampRanges;
         bool operator==(const ReadAckFrame& /*rhs*/) const {
             // Can't compare ackBlocks, function is just here to appease compiler.
@@ -142,8 +142,8 @@ namespace quic{
         // Delay in sending ack from time that packet was received.
         std::chrono::microseconds ackDelay{0us};
         FrameType frameType = FrameType::ACK;
-        std::optional<std::chrono::microseconds> maybeLatestRecvdPacketTime;
-        std::optional<PacketNum> maybeLatestRecvdPacketNum;
+        folly::Optional<std::chrono::microseconds> maybeLatestRecvdPacketTime;
+        folly::Optional<PacketNum> maybeLatestRecvdPacketNum;
         RecvdPacketsTimestampsRangeVec recvdPacketsTimestampRanges;
         bool operator==(const WriteAckFrame& /*rhs*/) const {
             // Can't compare ackBlocks, function is just here to appease compiler.
