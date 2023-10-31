@@ -281,7 +281,7 @@ std::unique_ptr<QLogPacketEvent> BaseQLogger::createPacketEvent(
             frame.streamId, frame.dataLimit));
         break;
       }
-      case QuicWriteFrame::Type::WRITE_ACK_FRAME: {
+      case QuicWriteFrame::Type::WriteAckFrame: {
         const WriteAckFrame& frame = *quicFrame.asWriteAckFrame();
         event->frames.push_back(std::make_unique<WriteAckFrameLog>(
             frame.ackBlocks,
@@ -292,13 +292,13 @@ std::unique_ptr<QLogPacketEvent> BaseQLogger::createPacketEvent(
             frame.recvdPacketsTimestampRanges));
         break;
       }
-      case QuicWriteFrame::Type::WRITE_STREAM_FRAME: {
+      case QuicWriteFrame::Type::WriteStreamFrame: {
         const WriteStreamFrame& frame = *quicFrame.asWriteStreamFrame();
         event->frames.push_back(std::make_unique<StreamFrameLog>(
             frame.streamId, frame.offset, frame.len, frame.fin));
         break;
       }
-      case QuicWriteFrame::Type::WRITE_CRYPTO_FRAME: {
+      case QuicWriteFrame::Type::WriteCryptoFrame: {
         const WriteCryptoFrame& frame = *quicFrame.asWriteCryptoFrame();
         event->frames.push_back(
             std::make_unique<CryptoFrameLog>(frame.offset, frame.len));

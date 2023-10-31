@@ -9,6 +9,7 @@
 
 #include "../protocol/quic_connection_id.hpp"
 #include "../protocol/quic_header.hpp"
+#include "../protocol/quic_packet.hpp"
 #include "qlogger_constants.h"
 
 namespace quic {

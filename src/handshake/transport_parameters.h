@@ -10,6 +10,7 @@
 #include "../protocol/quic_constants.hpp"
 #include "../protocol/quic_exception.h"
 #include "../protocol/quic_header.hpp"
+#include "../protocol/quic_integer.hpp"
 #include "../common/BufUtil.h"
 #include <folly/Optional.h>
 
