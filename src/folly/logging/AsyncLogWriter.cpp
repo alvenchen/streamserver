@@ -19,7 +19,7 @@
 #include <folly/Exception.h>
 #include <folly/FileUtil.h>
 #include <folly/Portability.h>
-#include <folly/logging/LoggerDB.h>
+//#include <folly/logging/LoggerDB.h>
 #include <folly/system/AtFork.h>
 #include <folly/system/ThreadName.h>
 
@@ -51,9 +51,7 @@ AsyncLogWriter::~AsyncLogWriter() {
   {
     auto data = data_.lock();
     if (!(data->flags & FLAG_DESTROYING)) {
-      LoggerDB::internalWarning(
-          __FILE__, __LINE__, "cleanup() is not called before destroying");
-      stopIoThread(data, FLAG_DESTROYING);
+      //LoggerDB::internalWarning(__FILE__, __LINE__, "cleanup() is not called before destroying");stopIoThread(data, FLAG_DESTROYING);
       assert(false);
     }
   }

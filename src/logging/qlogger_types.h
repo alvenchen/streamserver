@@ -13,6 +13,7 @@
 #include "../protocol/quic_exception.h"
 #include "../protocol/quic_header.hpp"
 #include "../protocol/quic_frame.hpp"
+#include "../protocol/quic_type.hpp"
 #include "qlogger_constants.h"
 #include <memory>
 #include <string>

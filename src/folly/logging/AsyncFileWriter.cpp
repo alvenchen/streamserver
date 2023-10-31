@@ -18,7 +18,7 @@
 
 #include <folly/Exception.h>
 #include <folly/FileUtil.h>
-#include <folly/logging/LoggerDB.h>
+//#include <folly/logging/LoggerDB.h>
 
 namespace folly {
 
@@ -89,13 +89,7 @@ void AsyncFileWriter::performIO(
   try {
     writeToFile(ioQueue, numDiscarded);
   } catch (const std::exception& ex) {
-    LoggerDB::internalWarning(
-        __FILE__,
-        __LINE__,
-        "error writing to log file ",
-        file_.fd(),
-        " in AsyncFileWriter: ",
-        folly::exceptionStr(ex));
+    //LoggerDB::internalWarning(__FILE__, __LINE__,"error writing to log file ", file_.fd(), " in AsyncFileWriter: ", folly::exceptionStr(ex));
   }
 }
 
