@@ -107,6 +107,10 @@ target_include_directories(LiveServer PUBLIC "/usr/local/include")
 find_package(Sodium REQUIRED)
 target_include_directories(LiveServer PUBLIC ${sodium_INCLUDE_DIR})
 target_link_libraries(LiveServer PUBLIC sodium)
+
+# libevent
+target_link_libraries(LiveServer PUBLIC /usr/local/lib/libevent.so)
+target_include_directories(LiveServer PUBLIC "/usr/local/include")
 ##############################################################
 #for test
 
