@@ -69,7 +69,7 @@ struct CodecResult {
     RetryPacket* retryPacket();
     Nothing* nothing();
 
-    private:
+private:
     void destroyCodecResult();
 
     union {
@@ -90,7 +90,7 @@ struct CodecResult {
 folly::Expected<ParsedLongHeader, TransportErrorCode> tryParseLongHeader(folly::io::Cursor& cursor, QuicNodeType nodeType);
 
 class QuicReadCodec {
-    public:
+public:
     virtual ~QuicReadCodec() = default;
 
     explicit QuicReadCodec(QuicNodeType nodeType);
@@ -153,7 +153,7 @@ class QuicReadCodec {
 
     folly::Optional<TimePoint> getHandshakeDoneTime();
 
-    private:
+private:
     CodecResult tryParseShortHeaderPacket(Buf data, const AckStates& ackStates, size_t dstConnIdSize, folly::io::Cursor& cursor);
     CodecResult parseLongHeaderPacket(BufQueue& queue, const AckStates& ackStates);
 

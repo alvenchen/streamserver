@@ -30,8 +30,8 @@ file(GLOB SRC
      ${CMAKE_CURRENT_SOURCE_DIR}/src/observer/*.cpp
      ${CMAKE_CURRENT_SOURCE_DIR}/src/handshake/*.hpp
      ${CMAKE_CURRENT_SOURCE_DIR}/src/handshake/*.cpp
-     ${CMAKE_CURRENT_SOURCE_DIR}/src/client/*.hpp
-     ${CMAKE_CURRENT_SOURCE_DIR}/src/client/*.cpp
+     ${CMAKE_CURRENT_SOURCE_DIR}/src/server/*.hpp
+     ${CMAKE_CURRENT_SOURCE_DIR}/src/server/*.cpp
      ${CMAKE_CURRENT_SOURCE_DIR}/src/loss/*.hpp
      ${CMAKE_CURRENT_SOURCE_DIR}/src/loss/*.cpp
      ${CMAKE_CURRENT_SOURCE_DIR}/src/dsr/*.hpp
