@@ -16,7 +16,6 @@ enum ServerState {
 
 struct QuicServerConnectionState : public QuicConnectionStateBase {
     ~QuicServerConnectionState() override = default;
-
     ServerState state;
 
     QuicServerConnectionState():QuicConnectionStateBase(QuicNodeType::Server){
@@ -27,8 +26,8 @@ struct QuicServerConnectionState : public QuicConnectionStateBase {
 };
 
 
-void onServerReadData(QuicServerConnectionState& connState, seastar::packet& data);
-void onServerReadDataFromOpen(QuicServerConnectionState& conn, seastar::packet& data);
-void onServerReadDataFromClosed(QuicServerConnectionState& conn, seastar::packet& data);
+void onServerReadData(QuicServerConnectionState& connState, seastar::net::packet& data);
+void onServerReadDataFromOpen(QuicServerConnectionState& conn, seastar::net::packet& data);
+void onServerReadDataFromClosed(QuicServerConnectionState& conn, seastar::net::packet& data);
 
 }

@@ -1,27 +1,32 @@
 #include "server_state_machine.h"
 
+namespace quic{
 
-void onServerReadData(QuicServerConnectionState& connState, seastar::packet data){
+void onServerReadData(QuicServerConnectionState& connState, seastar::net::packet& data){
     switch (connState.state) {
         case ServerState::Open:
-            onServerReadDataFromOpen(conn, data);
+            onServerReadDataFromOpen(connState, data);
             return;
         case ServerState::Closed:
-            onServerReadDataFromClosed(conn, data);
+            onServerReadDataFromClosed(connState, data);
             return;
     }
 }
 
-void onServerReadDataFromOpen(QuicServerConnectionState& conn, seastar::packet& data){
-    if(data.len == 0){
+void onServerReadDataFromOpen(QuicServerConnectionState& connState, seastar::net::packet& data){
+    if(data.len() == 0){
         return;
     }
     bool firstPacketFromPeer = false;
-    if(!conn.readCodec){
+    if(!connState.readCodec){
         firstPacketFromPeer = true;
     }
 }
 
-void onServerReadDataFromClosed(QuicServerConnectionState& conn, seastar::packet& data){
+void onServerReadDataFromClosed(QuicServerConnectionState& connState, seastar::net::packet& data){
+
+}
+
+
 
 }
