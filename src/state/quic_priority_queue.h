@@ -10,9 +10,9 @@
 #include <folly/container/F14Map.h>
 #include <set>
 
-#include "../protocol/quic_header.hpp"
-#include "../protocol/quic_constants.hpp"
-#include "../protocol/quic_connection_id.hpp"
+#include "protocol/quic_header.hpp"
+#include "protocol/quic_constants.hpp"
+#include "protocol/quic_connection_id.hpp"
 
 namespace quic {
 

@@ -12,10 +12,10 @@
 #include <folly/io/SocketOptionMap.h>
 #include <folly/io/async/AsyncUDPSocket.h>
 #include <folly/net/NetOps.h>
-#include "../api/quic_transport_base.h"
+#include "api/quic_transport_base.h"
 #include "client_state_machine.h"
-#include "../common/BufUtil.h"
-#include "../state/quic_connection_stats.h"
+#include "common/BufUtil.h"
+#include "state/quic_connection_stats.h"
 
 namespace quic {
 

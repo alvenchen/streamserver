@@ -9,9 +9,9 @@
 
 #include <folly/container/F14Map.h>
 #include <folly/container/F14Set.h>
-#include "../protocol/quic_constants.hpp"
-#include "../protocol/quic_header.hpp"
-#include "../protocol/quic_frame.hpp"
+#include "protocol/quic_constants.hpp"
+#include "protocol/quic_header.hpp"
+#include "protocol/quic_frame.hpp"
 
 #include "quic_stream_priorities_observer.h"
 #include "stream_data.h"

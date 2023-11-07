@@ -7,8 +7,8 @@
 
 #include "quic_cubic.h"
 #include "congestion_control_functions.h"
-#include "../logging/qlogger_constants.h"
-#include "../state/quic_state_function.h"
+#include "logging/qlogger_constants.h"
+#include "state/quic_state_function.h"
 
 #include <folly/Chrono.h>
 

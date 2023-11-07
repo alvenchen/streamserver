@@ -10,8 +10,8 @@
 #include "bandwidth.h"
 #include "congestion_controller.h"
 #include "windowed_filter.h"
-#include "../state/state_data.h"
-#include "../state/transport_setting.h"
+#include "state/state_data.h"
+#include "state/transport_setting.h"
 #include <chrono>
 
 namespace quic {

@@ -6,19 +6,19 @@
  */
 
 #include "client_state_machine.h"
-#include "../protocol/quic_header.hpp"
+#include "protocol/quic_header.hpp"
 #include "cached_server_transport_parameters.h"
-#include "../loss/quic_loss_functions.h"
-#include "../protocol/quic_constants.hpp"
-#include "../protocol/parse.hpp"
-#include "../common/TimeUtil.h"
-#include "../congestion_control/congestion_control_factory.h"
-#include "../congestion_control/quic_cubic.h"
-#include "../flowcontrol/quic_flow_control.h"
-#include "../handshake/transport_parameters.h"
-#include "../state/quic_state_function.h"
-#include "../state/quic_stream_utilities.h"
-#include "../state/state_data.h"
+#include "loss/quic_loss_functions.h"
+#include "protocol/quic_constants.hpp"
+#include "protocol/parse.hpp"
+#include "common/TimeUtil.h"
+#include "congestion_control/congestion_control_factory.h"
+#include "congestion_control/quic_cubic.h"
+#include "flowcontrol/quic_flow_control.h"
+#include "handshake/transport_parameters.h"
+#include "state/quic_state_function.h"
+#include "state/quic_stream_utilities.h"
+#include "state/state_data.h"
 
 namespace quic {
 

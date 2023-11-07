@@ -9,17 +9,17 @@
 
 #include <folly/Optional.h>
 #include <boost/iterator/iterator_facade.hpp>
-#include "../protocol/quic_constants.hpp"
-#include "../protocol/quic_exception.h"
-#include "../protocol/quic_packet_builder.hpp"
-#include "../protocol/quic_packet_rebuilder.hpp"
-#include "../protocol/quic_write_codec.hpp"
-#include "../protocol/quic.hpp"
-#include "../protocol/quic_header.hpp"
-#include "../protocol/quic_frame.hpp"
-#include "../flowcontrol/quic_flow_control.h"
-#include "../state/quic_state_function.h"
-#include "../state/quic_stream_function.h"
+#include "protocol/quic_constants.hpp"
+#include "protocol/quic_exception.h"
+#include "protocol/quic_packet_builder.hpp"
+#include "protocol/quic_packet_rebuilder.hpp"
+#include "protocol/quic_write_codec.hpp"
+#include "protocol/quic.hpp"
+#include "protocol/quic_header.hpp"
+#include "protocol/quic_frame.hpp"
+#include "flowcontrol/quic_flow_control.h"
+#include "state/quic_state_function.h"
+#include "state/quic_stream_function.h"
 
 #include <folly/lang/Assume.h>
 

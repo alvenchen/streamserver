@@ -11,7 +11,7 @@
 #include <folly/Optional.h>
 #include <folly/io/Cursor.h>
 #include <folly/lang/Bits.h>
-#include "../common/BufUtil.h"
+#include "common/BufUtil.h"
 #include "quic_constants.hpp"
 
 namespace quic {

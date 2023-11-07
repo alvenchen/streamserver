@@ -7,9 +7,9 @@
 
 #pragma once
 
-#include "../protocol/quic_header.hpp"
-#include "../protocol/quic_frame.hpp"
-#include "../protocol/quic_connection_id.hpp"
+#include "protocol/quic_header.hpp"
+#include "protocol/quic_frame.hpp"
+#include "protocol/quic_connection_id.hpp"
 #include "state_data.h"
 
 namespace quic {

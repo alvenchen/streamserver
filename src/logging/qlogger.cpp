@@ -6,7 +6,7 @@
  */
 
 #include "qlogger.h"
-#include "../protocol/quic_header.hpp"
+#include "protocol/quic_header.hpp"
 
 namespace quic {
 

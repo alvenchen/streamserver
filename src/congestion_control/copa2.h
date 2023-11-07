@@ -9,8 +9,8 @@
 
 #include "congestion_controller.h"
 #include "windowed_filter.h"
-#include "../state/ack_event.h"
-#include "../state/state_data.h"
+#include "state/ack_event.h"
+#include "state/state_data.h"
 
 
 namespace quic {

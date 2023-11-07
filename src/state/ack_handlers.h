@@ -7,10 +7,10 @@
 
 #pragma once
 
-#include "../protocol/quic_constants.hpp"
-#include "../protocol/quic_header.hpp"
-#include "../protocol/quic_frame.hpp"
-#include "../state/state_data.h"
+#include "protocol/quic_constants.hpp"
+#include "protocol/quic_header.hpp"
+#include "protocol/quic_frame.hpp"
+#include "state/state_data.h"
 
 #include <functional>
 

@@ -7,18 +7,18 @@
 
 #pragma once
 
-#include "../protocol/quic_constants.hpp"
-#include "../protocol/quic_exception.h"
+#include "protocol/quic_constants.hpp"
+#include "protocol/quic_exception.h"
 #include "quic_socket.h"
-#include "../common/Events.h"
-#include "../common/FunctionLooper.h"
-#include "../common/Timers.h"
-#include "../congestion_control/congestion_control_factory.h"
-#include "../congestion_control/copa.h"
-#include "../congestion_control/new_reno.h"
-#include "../congestion_control/quic_cubic.h"
+#include "common/Events.h"
+#include "common/FunctionLooper.h"
+#include "common/Timers.h"
+#include "congestion_control/congestion_control_factory.h"
+#include "congestion_control/copa.h"
+#include "congestion_control/new_reno.h"
+#include "congestion_control/quic_cubic.h"
 
-#include "../state/state_data.h"
+#include "state/state_data.h"
 
 #include <folly/ExceptionWrapper.h>
 #include <folly/io/async/AsyncUDPSocket.h>

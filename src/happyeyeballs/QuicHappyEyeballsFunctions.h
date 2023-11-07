@@ -7,8 +7,8 @@
 
 #pragma once
 
-#include "../client/client_state_machine.h"
-#include "../common/Events.h"
+#include "client/client_state_machine.h"
+#include "common/Events.h"
 
 #include <folly/io/SocketOptionMap.h>
 #include <folly/io/async/AsyncUDPSocket.h>

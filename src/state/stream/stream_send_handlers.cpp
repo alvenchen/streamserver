@@ -6,8 +6,8 @@
  */
 
 #include "stream_send_handlers.h"
-#include "../../flowcontrol/quic_flow_control.h"
-#include "../quic_stream_function.h"
+#include "../flowcontrol/quic_flow_control.h"
+#include "quic_stream_function.h"
 
 
 namespace quic {

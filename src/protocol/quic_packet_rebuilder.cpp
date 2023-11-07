@@ -7,10 +7,10 @@
 
 #include "quic_packet_rebuilder.hpp"
 #include "quic_write_codec.hpp"
-#include "../flowcontrol/quic_flow_control.h"
-#include "../state/quic_state_function.h"
-#include "../state/quic_stream_function.h"
-#include "../state/simple_frame_functions.h"
+#include "flowcontrol/quic_flow_control.h"
+#include "state/quic_state_function.h"
+#include "state/quic_stream_function.h"
+#include "state/simple_frame_functions.h"
 
 namespace quic {
 

@@ -1,7 +1,7 @@
 #pragma once
 
 #include <cstdint>
-#include "../common/common.hpp"
+#include "common/common.hpp"
 
 namespace quic{
     using PacketNum = uint64_t;

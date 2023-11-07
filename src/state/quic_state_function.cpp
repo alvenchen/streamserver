@@ -6,8 +6,8 @@
  */
 
 #include "quic_state_function.h"
-#include "../state/quic_stream_function.h"
-#include "../common/TimeUtil.h"
+#include "state/quic_stream_function.h"
+#include "common/TimeUtil.h"
 
 namespace {
 std::deque<quic::OutstandingPacketWrapper>::reverse_iterator

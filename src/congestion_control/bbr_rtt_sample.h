@@ -7,7 +7,7 @@
 
 #pragma once
 
-#include "../protocol/quic_constants.hpp"
+#include "protocol/quic_constants.hpp"
 #include "bbr.h"
 
 namespace quic {

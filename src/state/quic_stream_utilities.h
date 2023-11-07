@@ -7,8 +7,8 @@
 
 #pragma once
 
-#include "../protocol/quic_constants.hpp"
-#include "../protocol/quic.hpp"
+#include "protocol/quic_constants.hpp"
+#include "protocol/quic.hpp"
 
 
 namespace quic {

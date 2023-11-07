@@ -6,7 +6,7 @@
  */
 
 #include "stream_state_functions.h"
-#include "../../flowcontrol/quic_flow_control.h"
+#include "../flowcontrol/quic_flow_control.h"
 
 
 namespace quic {

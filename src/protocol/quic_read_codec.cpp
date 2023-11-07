@@ -7,12 +7,12 @@
 
 #include "quic_read_codec.hpp"
 
-#include "../folly/io/Cursor.h"
+#include <folly/io/Cursor.h>
 #include "parse.hpp"
 #include "quic_packet_num.hpp"
 #include "quic_packet.hpp"
 #include "quic_header.hpp"
-#include "../fizz/crypto/Utils.h"
+#include "fizz/crypto/Utils.h"
 
 namespace {
     quic::ConnectionId zeroConnId() {

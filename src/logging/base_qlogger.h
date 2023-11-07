@@ -10,7 +10,7 @@
 #include "qlogger.h"
 #include "qlogger_constants.h"
 #include "qlogger_types.h"
-#include "../protocol/quic_packet.hpp"
+#include "protocol/quic_packet.hpp"
 
 namespace quic {
 

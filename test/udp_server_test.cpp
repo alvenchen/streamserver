@@ -10,7 +10,7 @@ A udp server using seastar framework randomly change connection thread
 #include <seastar/core/app-template.hh>
 #include <boost/program_options.hpp>
 #include <fmt/printf.h>
-#include "../src/common/common.hpp"
+#include "src/common/common.hpp"
 
 using namespace seastar;
 using namespace net;

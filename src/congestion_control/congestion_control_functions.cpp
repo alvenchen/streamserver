@@ -7,8 +7,8 @@
 
 #include "congestion_control_functions.h"
 
-#include "../protocol/quic_constants.hpp"
-#include "../common/TimeUtil.h"
+#include "protocol/quic_constants.hpp"
+#include "common/TimeUtil.h"
 #include <algorithm>
 
 namespace quic {

@@ -6,10 +6,10 @@
  */
 
 #include <folly/MapUtil.h>
-#include "../loss/quic_loss_functions.h"
+#include "loss/quic_loss_functions.h"
 #include "ack_handlers.h"
-#include "../state/quic_state_function.h"
-#include "../state/quic_stream_function.h"
+#include "state/quic_state_function.h"
+#include "state/quic_stream_function.h"
 
 #include <iterator>
 

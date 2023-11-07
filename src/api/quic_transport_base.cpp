@@ -11,18 +11,18 @@
 #include <folly/ScopeGuard.h>
 #include "loop_detector_callback.h"
 #include "quic_transport_function.h"
-#include "../common/TimeUtil.h"
-#include "../congestion_control/pacer.h"
-#include "../congestion_control/tokenless_pacer.h"
+#include "common/TimeUtil.h"
+#include "congestion_control/pacer.h"
+#include "congestion_control/tokenless_pacer.h"
 
-#include "../logging/qlogger_constants.h"
-#include "../loss/quic_loss_functions.h"
-#include "../state/quic_pacing_functions.h"
-#include "../state/quic_state_function.h"
-#include "../state/quic_stream_function.h"
-#include "../state/quic_stream_utilities.h"
-#include "../state/simple_frame_functions.h"
-#include "../state/stream/stream_send_handlers.h"
+#include "logging/qlogger_constants.h"
+#include "loss/quic_loss_functions.h"
+#include "state/quic_pacing_functions.h"
+#include "state/quic_state_function.h"
+#include "state/quic_stream_function.h"
+#include "state/quic_stream_utilities.h"
+#include "state/simple_frame_functions.h"
+#include "state/stream/stream_send_handlers.h"
 
 
 namespace quic {

@@ -9,8 +9,8 @@
 #include "client_transport_parameters_extension.h"
 #include "client_state_machine.h"
 
-#include "../state/quic_stream_function.h"
-#include "../fizz/client/QuicPskCache.h"
+#include "state/quic_stream_function.h"
+#include "fizz/client/QuicPskCache.h"
 
 namespace quic {
 

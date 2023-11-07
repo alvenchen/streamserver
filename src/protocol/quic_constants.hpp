@@ -14,7 +14,7 @@
 #include <ostream>
 #include <string_view>
 #include <vector>
-#include "../common/enum.h"
+#include "common/enum.h"
 
 
 namespace quic {

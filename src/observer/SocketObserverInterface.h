@@ -7,11 +7,11 @@
 
 #pragma once
 
-#include "../protocol/quic_exception.h"
-#include "../common/SmallCollections.h"
-#include "../state/ack_event.h"
-#include "../state/outstanding_packet.h"
-#include "../state/quic_stream_utilities.h"
+#include "protocol/quic_exception.h"
+#include "common/SmallCollections.h"
+#include "state/ack_event.h"
+#include "state/outstanding_packet.h"
+#include "state/quic_stream_utilities.h"
 
 #include <utility>
 

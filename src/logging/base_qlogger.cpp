@@ -6,8 +6,8 @@
  */
 
 #include "base_qlogger.h"
-#include "../protocol/quic_frame.hpp"
-#include "../protocol/quic_exception.h"
+#include "protocol/quic_frame.hpp"
+#include "protocol/quic_exception.h"
 
 namespace {
 void addQuicSimpleFrameToEvent(

@@ -8,11 +8,11 @@
 #include "bbr.h"
 
 #include <folly/Random.h>
-#include "../protocol/quic_constants.hpp"
-#include "../common/TimeUtil.h"
-#include "../congestion_control/congestion_control_functions.h"
-#include "../logging/qlogger_constants.h"
-#include "../state/quic_ack_frequency_function.h"
+#include "protocol/quic_constants.hpp"
+#include "common/TimeUtil.h"
+#include "congestion_control/congestion_control_functions.h"
+#include "logging/qlogger_constants.h"
+#include "state/quic_ack_frequency_function.h"
 
 #include <chrono>
 

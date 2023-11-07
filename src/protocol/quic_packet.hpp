@@ -1,6 +1,6 @@
 #pragma once
 
-#include "../common/common.hpp"
+#include "common/common.hpp"
 #include "quic.hpp"
 #include "quic_connection_id.hpp"
 #include "quic_packet_num.hpp"

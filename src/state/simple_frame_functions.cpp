@@ -5,11 +5,11 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-#include "../protocol/quic_constants.hpp"
-#include "../state/quic_state_function.h"
-#include "../state/quic_stream_function.h"
-#include "../state/simple_frame_functions.h"
-#include "../state/stream/stream_send_handlers.h"
+#include "protocol/quic_constants.hpp"
+#include "state/quic_state_function.h"
+#include "state/quic_stream_function.h"
+#include "state/simple_frame_functions.h"
+#include "state/stream/stream_send_handlers.h"
 
 
 namespace quic {

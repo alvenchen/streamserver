@@ -7,9 +7,9 @@
 
 #include <algorithm>
 #include "quic_write_codec.hpp"
-#include "../protocol/quic_constants.hpp"
-#include "../protocol/quic_exception.h"
-#include "../protocol/quic_integer.hpp"
+#include "protocol/quic_constants.hpp"
+#include "protocol/quic_exception.h"
+#include "protocol/quic_integer.hpp"
 
 #include <cstdint>
 #include <sstream>

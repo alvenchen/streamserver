@@ -6,9 +6,9 @@
  */
 
 #include "copa.h"
-#include "../common/TimeUtil.h"
+#include "common/TimeUtil.h"
 #include "congestion_control_functions.h"
-#include "../logging/qlogger_constants.h"
+#include "logging/qlogger_constants.h"
 
 namespace quic {
 

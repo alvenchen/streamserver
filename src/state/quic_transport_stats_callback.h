@@ -11,8 +11,8 @@
 #include <folly/functional/Invoke.h>
 #include <string>
 #include <memory>
-#include "../protocol/quic_constants.hpp"
-#include "../protocol/quic_exception.h"
+#include "protocol/quic_constants.hpp"
+#include "protocol/quic_exception.h"
 
 namespace quic {
 

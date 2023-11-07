@@ -8,7 +8,7 @@
 #pragma once
 
 #include <folly/Optional.h>
-#include <../protocol/quic_constants.hpp>
+#include "protocol/quic_constants.hpp"
 #include "quic_priority_queue.h"
 #include <chrono>
 #include <cstdint>

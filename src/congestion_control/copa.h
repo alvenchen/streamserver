@@ -8,12 +8,12 @@
 #pragma once
 
 #include <folly/Optional.h>
-#include "../protocol/quic_exception.h"
-#include "../protocol/quic_constants.hpp"
+#include "protocol/quic_exception.h"
+#include "protocol/quic_constants.hpp"
 #include "congestion_controller.h"
 #include "windowed_filter.h"
-#include "../state/ack_event.h"
-#include "../state/state_data.h"
+#include "state/ack_event.h"
+#include "state/state_data.h"
 
 #include <limits>
 

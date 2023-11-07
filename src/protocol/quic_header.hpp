@@ -1,14 +1,14 @@
 
 #pragma once
 
-#include "../common/common.hpp"
+#include "common/common.hpp"
 #include "quic.hpp"
 #include "quic_connection_id.hpp"
 #include "quic_packet_num.hpp"
 #include "quic_constants.hpp"
-#include "../folly/io/Cursor.h"
-#include "../folly/Optional.h"
-#include "../folly/lang/Assume.h"
+#include <folly/io/Cursor.h>
+#include <folly/Optional.h>
+#include <folly/lang/Assume.h>
 
 namespace quic {
 

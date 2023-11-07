@@ -1,4 +1,4 @@
-#include "../src/protocol/quic_packet_num.hpp"
+#include "src/protocol/quic_packet_num.hpp"
 #include <fmt/core.h>
 
 using namespace quic;

@@ -5,9 +5,9 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-#include "../protocol/quic_constants.hpp"
+#include "protocol/quic_constants.hpp"
 #include "quic_packet_scheduler.h"
-#include "../flowcontrol/quic_flow_control.h"
+#include "flowcontrol/quic_flow_control.h"
 #include <cstdint>
 
 namespace {

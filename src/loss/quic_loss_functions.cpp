@@ -7,7 +7,7 @@
 
 #include <folly/small_vector.h>
 #include "quic_loss_functions.h"
-#include "../state/quic_stream_function.h"
+#include "state/quic_stream_function.h"
 
 namespace quic {
 

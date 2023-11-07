@@ -1,12 +1,12 @@
 #pragma once
 
-#include "../common/common.hpp"
+#include "common/common.hpp"
 #include <folly/Optional.h>
 #include <folly/String.h>
 #include <folly/hash/Hash.h>
 #include <folly/io/Cursor.h>
 #include <folly/io/IOBuf.h>
-#include "../protocol/quic_constants.hpp"
+#include "protocol/quic_constants.hpp"
 
 #include <array>
 

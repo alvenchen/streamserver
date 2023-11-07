@@ -9,8 +9,8 @@
 
 #include <folly/String.h>
 #include <folly/Range.h>
-#include "../protocol/quic_constants.hpp"
-#include "../protocol/quic_header.hpp"
+#include "protocol/quic_constants.hpp"
+#include "protocol/quic_header.hpp"
 
 namespace quic {
 constexpr folly::StringPiece kShortHeaderPacketType = "1RTT";

@@ -8,14 +8,14 @@
 #pragma once
 
 #include <folly/Portability.h>
-#include "../protocol/quic_packet_num.hpp"
-#include "../protocol/quic_integer.hpp"
-#include "../protocol/quic_header.hpp"
-#include "../protocol/quic_constants.hpp"
-#include "../protocol/quic_packet.hpp"
-#include "../common/BufUtil.h"
-#include "../common/BufAccessor.h"
-#include "../handshake/handshake_layer.hpp"
+#include "protocol/quic_packet_num.hpp"
+#include "protocol/quic_integer.hpp"
+#include "protocol/quic_header.hpp"
+#include "protocol/quic_constants.hpp"
+#include "protocol/quic_packet.hpp"
+#include "common/BufUtil.h"
+#include "common/BufAccessor.h"
+#include "handshake/handshake_layer.hpp"
 
 
 namespace quic {

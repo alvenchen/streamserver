@@ -6,10 +6,10 @@
  */
 
 #include "quic_flow_control.h"
-#include "../protocol/quic_constants.hpp"
-#include "../protocol/quic_exception.h"
-#include "../logging/qlogger.h"
-#include "../state/stream_data.h"
+#include "protocol/quic_constants.hpp"
+#include "protocol/quic_exception.h"
+#include "logging/qlogger.h"
+#include "state/stream_data.h"
 
 #include <limits>
 

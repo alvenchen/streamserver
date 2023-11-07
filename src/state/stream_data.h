@@ -8,12 +8,12 @@
 #pragma once
 
 #include <folly/container/F14Map.h>
-#include "../protocol/quic_constants.hpp"
-#include "../protocol/quic_header.hpp"
-#include "../protocol/quic.hpp"
-#include "../common/SmallCollections.h"
+#include "protocol/quic_constants.hpp"
+#include "protocol/quic_header.hpp"
+#include "protocol/quic.hpp"
+#include "common/SmallCollections.h"
 #include "quic_priority_queue.h"
-#include "../dsr/DSRPacketizationRequestSender.h"
+#include "dsr/DSRPacketizationRequestSender.h"
 
 
 namespace quic {

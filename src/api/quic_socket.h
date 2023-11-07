@@ -11,20 +11,20 @@
 #include <folly/Optional.h>
 #include <folly/io/IOBuf.h>
 #include <folly/io/async/AsyncTransportCertificate.h>
-#include "../protocol/quic_constants.hpp"
-#include "../protocol/quic_header.hpp"
-#include "../protocol/quic.hpp"
-#include "../common/Events.h"
-#include "../common/SmallCollections.h"
-#include "../congestion_control/bandwidth.h"
+#include "protocol/quic_constants.hpp"
+#include "protocol/quic_header.hpp"
+#include "protocol/quic.hpp"
+#include "common/Events.h"
+#include "common/SmallCollections.h"
+#include "congestion_control/bandwidth.h"
 
-#include "../observer/SocketObserverContainer.h"
-#include "../observer/SocketObserverTypes.h"
-#include "../state/quic_connection_stats.h"
-#include "../state/quic_priority_queue.h"
-#include "../state/quic_stream_group_retransmission_policy.h"
-#include "../state/quic_stream_utilities.h"
-#include "../state/state_data.h"
+#include "observer/SocketObserverContainer.h"
+#include "observer/SocketObserverTypes.h"
+#include "state/quic_connection_stats.h"
+#include "state/quic_priority_queue.h"
+#include "state/quic_stream_group_retransmission_policy.h"
+#include "state/quic_stream_utilities.h"
+#include "state/state_data.h"
 
 #include <folly/Portability.h>
 #include <chrono>

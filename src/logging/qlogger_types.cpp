@@ -6,7 +6,7 @@
  */
 
 #include "qlogger_types.h"
-#include "../protocol/quic_exception.h"
+#include "protocol/quic_exception.h"
 #include "qlogger_constants.h"
 
 namespace quic {

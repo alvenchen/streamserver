@@ -13,7 +13,7 @@
 #include <folly/dynamic.h>
 #include <folly/logging/AsyncFileWriter.h>
 
-#include "../protocol/quic_header.hpp"
+#include "protocol/quic_header.hpp"
 #include "base_qlogger.h"
 #include "qlogger_constants.h"
 #include "qlogger_types.h"

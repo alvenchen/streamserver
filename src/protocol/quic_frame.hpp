@@ -2,16 +2,16 @@
 
 #include <folly/Optional.h>
 #include <folly/IPAddress.h>
-#include "../common/common.hpp"
+#include "common/common.hpp"
 #include "quic_constants.hpp"
 #include "quic_packet_num.hpp"
-#include "../common/IntervalSet.h"
+#include "common/IntervalSet.h"
 #include "quic.hpp"
 #include "quic_exception.h"
 #include "quic_connection_id.hpp"
-#include "../common/BufUtil.h"
-#include "../common/CircularDeque.h"
-#include "../common/Variant.h"
+#include "common/BufUtil.h"
+#include "common/CircularDeque.h"
+#include "common/Variant.h"
 
 namespace quic{
 

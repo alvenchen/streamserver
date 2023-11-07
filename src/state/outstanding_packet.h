@@ -9,12 +9,12 @@
 
 #include <folly/io/SocketOptionMap.h>
 #include <folly/Optional.h>
-#include "../common/IntervalSet.h"
-#include "../common/SmallCollections.h"
-#include "../protocol/quic_header.hpp"
-#include "../protocol/quic_packet_num.hpp"
-#include "../protocol/quic_packet.hpp"
-#include "../protocol/quic_frame.hpp"
+#include "common/IntervalSet.h"
+#include "common/SmallCollections.h"
+#include "protocol/quic_header.hpp"
+#include "protocol/quic_packet_num.hpp"
+#include "protocol/quic_packet.hpp"
+#include "protocol/quic_frame.hpp"
 
 
 #include "loss_state.h"

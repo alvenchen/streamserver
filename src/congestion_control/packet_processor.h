@@ -10,8 +10,8 @@
 #include <folly/Optional.h>
 #include <folly/io/SocketOptionMap.h>
 #include "congestion_controller.h"
-#include "../state/outstanding_packet.h"
-#include "../state/packet_event.h"
+#include "state/outstanding_packet.h"
+#include "state/packet_event.h"
 
 namespace quic {
 

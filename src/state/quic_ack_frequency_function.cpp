@@ -5,7 +5,7 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-#include "../common/TimeUtil.h"
+#include "common/TimeUtil.h"
 #include "quic_ack_frequency_function.h"
 
 namespace quic {

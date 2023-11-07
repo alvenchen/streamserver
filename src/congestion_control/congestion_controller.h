@@ -7,10 +7,10 @@
 
 #pragma once
 
-#include "../protocol/quic_constants.hpp"
+#include "protocol/quic_constants.hpp"
 #include "bandwidth.h"
-#include "../state/packet_event.h"
-#include "../state/outstanding_packet.h"
+#include "state/packet_event.h"
+#include "state/outstanding_packet.h"
 
 #include <sys/types.h>
 

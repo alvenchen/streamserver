@@ -7,7 +7,7 @@
 
 #include "copa2.h"
 #include "congestion_control_functions.h"
-#include "../logging/qlogger_constants.h"
+#include "logging/qlogger_constants.h"
 
 namespace quic {
 

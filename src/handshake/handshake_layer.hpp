@@ -7,10 +7,10 @@
 
 #pragma once
 
-#include "../protocol/quic_constants.hpp"
-#include "../protocol/quic_packet_num_cipher.hpp"
-#include "../protocol/quic_header.hpp"
-#include "../protocol/quic_constants.hpp"
+#include "protocol/quic_constants.hpp"
+#include "protocol/quic_packet_num_cipher.hpp"
+#include "protocol/quic_header.hpp"
+#include "protocol/quic_constants.hpp"
 #include <folly/Range.h>
 #include <folly/Optional.h>
 

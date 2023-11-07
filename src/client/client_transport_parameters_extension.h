@@ -7,9 +7,9 @@
 
 #pragma once
 
-#include "../handshake/transport_parameters.h"
-#include "../protocol/quic_constants.hpp"
-#include "../protocol/quic_connection_id.hpp"
+#include "handshake/transport_parameters.h"
+#include "protocol/quic_constants.hpp"
+#include "protocol/quic_connection_id.hpp"
 #include <folly/Optional.h>
 #include <chrono>
 

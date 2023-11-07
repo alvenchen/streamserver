@@ -7,12 +7,12 @@
 
 #pragma once
 
-#include "../protocol/quic_constants.hpp"
-#include "../protocol/quic_packet_builder.hpp"
-#include "../protocol/quic_packet_num.hpp"
-#include "../protocol/quic_header.hpp"
-#include "../protocol/quic_frame.hpp"
-#include "../state/state_data.h"
+#include "protocol/quic_constants.hpp"
+#include "protocol/quic_packet_builder.hpp"
+#include "protocol/quic_packet_num.hpp"
+#include "protocol/quic_header.hpp"
+#include "protocol/quic_frame.hpp"
+#include "state/state_data.h"
 
 
 namespace quic {

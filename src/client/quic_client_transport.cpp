@@ -9,25 +9,25 @@
 
 #include <folly/portability/Sockets.h>
 
-#include "../protocol/quic_constants.hpp"
-#include "../api/loop_detector_callback.h"
-#include "../api/quic_transport_function.h"
+#include "protocol/quic_constants.hpp"
+#include "api/loop_detector_callback.h"
+#include "api/quic_transport_function.h"
 #include "client_transport_parameters_extension.h"
 
 #include "client_handshake_factory.h"
 #include "client_state_machine.h"
-#include "../flowcontrol/quic_flow_control.h"
-#include "../handshake/crypto_factory.h"
+#include "flowcontrol/quic_flow_control.h"
+#include "handshake/crypto_factory.h"
 #include "happyeyeballs/QuicHappyEyeballsFunctions.h"
-#include "../logging/qlogger_constants.h"
-#include "../loss/quic_loss_functions.h"
-#include "../state/ack_handlers.h"
-#include "../state/datagram_handlers.h"
-#include "../state/quic_pacing_functions.h"
-#include "../state/simple_frame_functions.h"
-#include "../state/stream/stream_receive_handlers.h"
-#include "../state/stream/stream_send_handlers.h"
-#include "../state/outstanding_packet.h"
+#include "logging/qlogger_constants.h"
+#include "loss/quic_loss_functions.h"
+#include "state/ack_handlers.h"
+#include "state/datagram_handlers.h"
+#include "state/quic_pacing_functions.h"
+#include "state/simple_frame_functions.h"
+#include "state/stream/stream_receive_handlers.h"
+#include "state/stream/stream_send_handlers.h"
+#include "state/outstanding_packet.h"
 
 namespace fsp = folly::portability::sockets;
 

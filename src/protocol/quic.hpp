@@ -2,7 +2,7 @@
 #include <cstddef>
 #include <vector>
 #include "quic_packet_num.hpp"
-#include "../common/IntervalSet.h"
+#include "common/IntervalSet.h"
 
 #pragma once
 

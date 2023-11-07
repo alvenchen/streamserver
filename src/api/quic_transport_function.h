@@ -11,13 +11,13 @@
 #include <folly/Expected.h>
 #include <folly/Conv.h>
 #include <folly/io/async/AsyncUDPSocket.h>
-#include "../protocol/quic_exception.h"
+#include "protocol/quic_exception.h"
 #include "io_buf_quic_batch.h"
 #include "quic_socket.h"
 #include "quic_packet_scheduler.h"
-#include "../handshake/transport_parameters.h"
+#include "handshake/transport_parameters.h"
 
-#include "../state/state_data.h"
+#include "state/state_data.h"
 
 // Function to schedule writing data to socket. Return number of packets
 // successfully scheduled

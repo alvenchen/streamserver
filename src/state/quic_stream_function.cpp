@@ -6,9 +6,9 @@
  */
 
 #include "quic_stream_function.h"
-#include "../protocol/quic_exception.h"
-#include "../flowcontrol/quic_flow_control.h"
-#include "../state/quic_stream_utilities.h"
+#include "protocol/quic_exception.h"
+#include "flowcontrol/quic_flow_control.h"
+#include "state/quic_stream_utilities.h"
 
 
 #include <folly/io/Cursor.h>

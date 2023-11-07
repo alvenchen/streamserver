@@ -7,7 +7,7 @@
 
 #pragma once
 
-#include "../client/cached_server_transport_parameters.h"
+#include "client/cached_server_transport_parameters.h"
 
 
 #include <fizz/client/PskCache.h>

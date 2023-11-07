@@ -7,9 +7,9 @@
 
 #pragma once
 
-#include "../quic_stream_utilities.h"
+#include "quic_stream_utilities.h"
 #include "stream_state_functions.h"
-#include "../protocol/quic_constants.hpp"
+#include "protocol/quic_constants.hpp"
 
 namespace quic {
 

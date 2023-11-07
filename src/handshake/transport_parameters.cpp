@@ -7,7 +7,7 @@
 
 #include "transport_parameters.h"
 
-#include "../common/BufUtil.h"
+#include "common/BufUtil.h"
 
 namespace quic {
 folly::Optional<uint64_t> getIntegerParameter(

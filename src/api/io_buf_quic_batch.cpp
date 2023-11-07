@@ -6,9 +6,9 @@
  */
 
 #include "io_buf_quic_batch.h"
-#include "../common/SocketUtil.h"
+#include "common/SocketUtil.h"
 
-#include "../happyeyeballs/QuicHappyEyeballsFunctions.h"
+#include "happyeyeballs/QuicHappyEyeballsFunctions.h"
 
 namespace quic {
 IOBufQuicBatch::IOBufQuicBatch(

@@ -6,8 +6,8 @@
  */
 
 #include "QuicHappyEyeballsFunctions.h"
-#include "../common/SocketUtil.h"
-#include "../state/state_data.h"
+#include "common/SocketUtil.h"
+#include "state/state_data.h"
 
 #include <folly/SocketAddress.h>
 #include <folly/io/SocketOptionMap.h>

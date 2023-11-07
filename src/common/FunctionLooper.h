@@ -9,7 +9,7 @@
 #include <ostream>
 
 #include <folly/Function.h>
-#include "../protocol/quic_constants.hpp"
+#include "protocol/quic_constants.hpp"
 #include "Events.h"
 #include "Timers.h"
 

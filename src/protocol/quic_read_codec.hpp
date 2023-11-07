@@ -7,7 +7,7 @@
 
 #pragma once
 
-#include "../folly/Optional.h"
+#include <folly/Optional.h>
 #include "quic_connection_id.hpp"
 #include "quic_packet_num.hpp"
 #include "quic_header.hpp"
@@ -17,9 +17,9 @@
 #include "quic_type.hpp"
 
 #include "quic_packet_num_cipher.hpp"
-#include "../common/BufUtil.h"
-#include "../handshake/Aead.hpp"
-#include "../state/ack_states.h"
+#include "common/BufUtil.h"
+#include "handshake/Aead.hpp"
+#include "state/ack_states.h"
 #include "parse.hpp"
 
 namespace quic {

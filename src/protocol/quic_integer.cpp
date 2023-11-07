@@ -6,7 +6,7 @@
  */
 
 #include "quic_integer.hpp"
-#include "../common/common.hpp"
+#include "common/common.hpp"
 
 namespace quic {
 
