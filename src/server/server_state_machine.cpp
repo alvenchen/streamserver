@@ -20,6 +20,10 @@ void onServerReadDataFromOpen(QuicServerConnectionState& connState, seastar::net
     bool firstPacketFromPeer = false;
     if(!connState.readCodec){
         firstPacketFromPeer = true;
+
+        auto initialByte = data.get_header(0, 1);
+
+        auto parsedLongHeader = parseLongHeaderInvariant(initialByte, 1, data);
     }
 }
 
