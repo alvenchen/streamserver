@@ -11,6 +11,7 @@
 #include "protocol/quic_exception.h"
 #include "protocol/quic_header.hpp"
 #include "protocol/quic_integer.hpp"
+#include "handshake/transport_parameters.h"
 #include "common/BufUtil.h"
 #include <folly/Optional.h>
 
