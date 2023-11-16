@@ -104,6 +104,7 @@ public:
      * before the version is negotiated to detect VN.
      */
     virtual CodecResult parsePacket(BufQueue& queue, const AckStates& ackStates, size_t dstConnIdSize = kDefaultConnectionIdSize);
+    virtual CodecResult parsePacket(const char* buf, size_t len, const AckStates& ackStates, size_t dstConnIdSize = kDefaultConnectionIdSize);
 
     /**
      * Tries to parse the packet and returns whether or not
@@ -156,6 +157,7 @@ public:
 private:
     CodecResult tryParseShortHeaderPacket(Buf data, const AckStates& ackStates, size_t dstConnIdSize, folly::io::Cursor& cursor);
     CodecResult parseLongHeaderPacket(BufQueue& queue, const AckStates& ackStates);
+    CodecResult parseLongHeaderPacket(const char* buf, size_t len , const AckStates& ackStates);
 
     [[nodiscard]] std::string connIdToHex() const;
 

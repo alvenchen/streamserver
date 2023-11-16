@@ -37,28 +37,31 @@ folly::Optional<ConnectionIdData> QuicServerConnectionState::createAndAddNewSelf
 /*
 
 */
-void onServerReadData(QuicServerConnectionState& connState, seastar::net::packet& data){
+void onServerReadData(QuicServerConnectionState& connState, seastar::net::packet& packetData){
     switch (connState.state) {
         case ServerState::Open:
-            onServerReadDataFromOpen(connState, data);
+            onServerReadDataFromOpen(connState, packetData);
             return;
         case ServerState::Closed:
-            onServerReadDataFromClosed(connState, data);
+            onServerReadDataFromClosed(connState, packetData);
             return;
     }
 }
 
-void onServerReadDataFromOpen(QuicServerConnectionState& conn, seastar::net::packet& data){
-    if(data.len() == 0){
+void onServerReadDataFromOpen(QuicServerConnectionState& conn, seastar::net::packet& packetData){
+    if(packetData.len() == 0){
         return;
     }
     bool firstPacketFromPeer = false;
+    size_t packetOffset = 0;
+
     if(!conn.readCodec){
         firstPacketFromPeer = true;
 
-        auto initialByte = data.get_header(0, 1);
+        auto initialByte = packetData.get_header(packetOffset, 1);
+        packetOffset += 1;
 
-        auto parsedLongHeader = parseLongHeaderInvariant(initialByte, 1, data);
+        auto parsedLongHeader = parseLongHeaderInvariant(initialByte, packetOffset, packetData);
         if(!parsedLongHeader){
             if(conn.qLogger){
                 conn.qLogger->addPacketDrop(0,PacketDropReason(PacketDropReason::PARSE_ERROR_LONG_HEADER_INITIAL)._to_string());
@@ -113,32 +116,33 @@ void onServerReadDataFromOpen(QuicServerConnectionState& conn, seastar::net::pac
             initialDestinationConnectionId,
             customTransportParams));
             
-    conn.transportParametersEncoded = true;
-    const CryptoFactory& cryptoFactory =
-        conn.serverHandshakeLayer->getCryptoFactory();
-    conn.readCodec = std::make_unique<QuicReadCodec>(QuicNodeType::Server);
-    conn.readCodec->setInitialReadCipher(cryptoFactory.getClientInitialCipher(
-        initialDestinationConnectionId, version));
-    conn.readCodec->setClientConnectionId(clientConnectionId);
-    conn.readCodec->setServerConnectionId(*conn.serverConnectionId);
-    if (conn.qLogger) {
-      conn.qLogger->setScid(conn.serverConnectionId);
-      conn.qLogger->setDcid(initialDestinationConnectionId);
-    }
-    conn.readCodec->setCodecParameters(CodecParameters(
-        conn.peerAckDelayExponent,
-        version,
-        conn.transportSettings.maybeAckReceiveTimestampsConfigSentToPeer));
-    conn.initialWriteCipher = cryptoFactory.getServerInitialCipher(
-        initialDestinationConnectionId, version);
+        conn.transportParametersEncoded = true;
+        const CryptoFactory& cryptoFactory = conn.serverHandshakeLayer->getCryptoFactory();
+        conn.readCodec = std::make_unique<QuicReadCodec>(QuicNodeType::Server);
+        conn.readCodec->setInitialReadCipher(cryptoFactory.getClientInitialCipher(initialDestinationConnectionId, version));
+        conn.readCodec->setClientConnectionId(clientConnectionId);
+        conn.readCodec->setServerConnectionId(*conn.serverConnectionId);
+        if (conn.qLogger) {
+            conn.qLogger->setScid(conn.serverConnectionId);
+            conn.qLogger->setDcid(initialDestinationConnectionId);
+        }
+        conn.readCodec->setCodecParameters(CodecParameters(conn.peerAckDelayExponent, version, conn.transportSettings.maybeAckReceiveTimestampsConfigSentToPeer));
+        conn.initialWriteCipher = cryptoFactory.getServerInitialCipher(initialDestinationConnectionId, version);
 
-    conn.readCodec->setInitialHeaderCipher(
-        cryptoFactory.makeClientInitialHeaderCipher(
-            initialDestinationConnectionId, version));
-    conn.initialHeaderCipher = cryptoFactory.makeServerInitialHeaderCipher(
-        initialDestinationConnectionId, version);
-    conn.peerAddress = conn.originalPeerAddress;
+        conn.readCodec->setInitialHeaderCipher(cryptoFactory.makeClientInitialHeaderCipher(initialDestinationConnectionId, version));
+        conn.initialHeaderCipher = cryptoFactory.makeServerInitialHeaderCipher(initialDestinationConnectionId, version);
+        conn.peerAddress = conn.originalPeerAddress;
+
     } // end of !readCodec
+
+    //BufQueue udpData;
+    //udpData.append(std::move(packetData));
+    size_t packetLen = packetData.len() - packetOffset;
+    for (uint16_t processedPackets = 0; packetLen>0 && processedPackets < kMaxNumCoalescedPackets; processedPackets++) {
+        
+        auto parsedPacket = conn.readCodec->parsePacket(udpData, conn.ackStates);
+    }
+
 }
 
 void onServerReadDataFromClosed(QuicServerConnectionState& conn, seastar::net::packet& data){

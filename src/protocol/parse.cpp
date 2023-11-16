@@ -854,7 +854,7 @@ folly::Expected<ParsedLongHeader, TransportErrorCode> parseLongHeaderVariants(Lo
 }
 
 
-folly::Expected<ParsedLongHeaderInvariant, TransportErrorCode> parseLongHeaderInvariant(uint8_t initialByte, size_t offset, seastar::net::packet& data){
+folly::Expected<ParsedLongHeaderInvariant, TransportErrorCode> parseLongHeaderInvariant(uint8_t initialByte, size_t &offset, seastar::net::packet& data){
     size_t initialLength = data.len() - offset;
     size_t needLen = sizeof(QuicVersionType) + 1;
     if(needLen < initialLength){
