@@ -88,6 +88,7 @@ private:
  * Returns an error if parsing is unsuccessful.
  */
 folly::Expected<ParsedLongHeader, TransportErrorCode> tryParseLongHeader(folly::io::Cursor& cursor, QuicNodeType nodeType);
+folly::Expected<ParsedLongHeader, TransportErrorCode> tryParseLongHeader(const char* buf, size_t len, QuicNodeType nodeType);
 
 class QuicReadCodec {
 public:

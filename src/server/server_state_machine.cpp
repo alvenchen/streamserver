@@ -58,10 +58,10 @@ void onServerReadDataFromOpen(QuicServerConnectionState& conn, seastar::net::pac
     if(!conn.readCodec){
         firstPacketFromPeer = true;
 
-        auto initialByte = packetData.get_header(packetOffset, 1);
+        char* initialByte = packetData.get_header(packetOffset, 1);
         packetOffset += 1;
 
-        auto parsedLongHeader = parseLongHeaderInvariant(initialByte, packetOffset, packetData);
+        auto parsedLongHeader = parseLongHeaderInvariant(*initialByte, packetOffset, (const char*)initialByte, packetData.len());
         if(!parsedLongHeader){
             if(conn.qLogger){
                 conn.qLogger->addPacketDrop(0,PacketDropReason(PacketDropReason::PARSE_ERROR_LONG_HEADER_INITIAL)._to_string());

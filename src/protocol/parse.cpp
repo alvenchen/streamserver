@@ -854,17 +854,16 @@ folly::Expected<ParsedLongHeader, TransportErrorCode> parseLongHeaderVariants(Lo
 }
 
 
-folly::Expected<ParsedLongHeaderInvariant, TransportErrorCode> parseLongHeaderInvariant(uint8_t initialByte, size_t &offset, seastar::net::packet& data){
-    size_t initialLength = data.len() - offset;
+folly::Expected<ParsedLongHeaderInvariant, TransportErrorCode> parseLongHeaderInvariant(uint8_t initialByte, size_t &offset, const char* buf, size_t len){
+    size_t initialLength = len - offset;
     size_t needLen = sizeof(QuicVersionType) + 1;
     if(needLen < initialLength){
         return folly::makeUnexpected(TransportErrorCode::FRAME_ENCODING_ERROR);
     }
-
-    auto version = static_cast<QuicVersion>(data.get_header(offset)<QuicVersionType>());
+    auto version = GetTypedBuf<QuicVersionType>(buf, offset);
     offset += sizeof(QuicVersionType);
 
-    uint8_t destConnIdLen = data.get_header(offset)<uint8_t>();
+    uint8_t destConnIdLen = GetTypedBuf<uint8_t>(buf, offset);
     if (destConnIdLen > kMaxConnectionIdSize) {
         return folly::makeUnexpected(TransportErrorCode::PROTOCOL_VIOLATION);
     }
@@ -877,7 +876,7 @@ folly::Expected<ParsedLongHeaderInvariant, TransportErrorCode> parseLongHeaderIn
     
     std::vector<uint8_t> connIds;
     for(size_t i=0; i<destConnIdLen; i++){
-        auto id = static_cast<uint8_t>(data.get_header(offset)<uint8_t>());
+        auto id = GetTypedBuf<uint8_t>(buf, offset));
         offset += 1;
     }
 
@@ -887,7 +886,7 @@ folly::Expected<ParsedLongHeaderInvariant, TransportErrorCode> parseLongHeaderIn
     if(needLen < initialLength){
         return folly::makeUnexpected(TransportErrorCode::FRAME_ENCODING_ERROR);
     }
-    uint8_t srcConnIdLen = data.get_header(offset)<uint8_t>();
+    uint8_t srcConnIdLen = GetTypedBuf<uint8_t>(buf, offset);
     if (srcConnIdLen > kMaxConnectionIdSize) {
         return folly::makeUnexpected(TransportErrorCode::PROTOCOL_VIOLATION);
     }
@@ -900,11 +899,11 @@ folly::Expected<ParsedLongHeaderInvariant, TransportErrorCode> parseLongHeaderIn
     
     std::vector<uint8_t> srcConnIds;
     for(size_t i=0; i<srcConnIdLen; i++){
-        auto id = static_cast<uint8_t>(data.get_header(offset)<uint8_t>());
+        auto id = GetTypedBuf<uint8_t>(buf, offset);
         offset += 1;
     }
     ConnectionId srcConnId(srcConnIds);
-    size_t currentLength = data.len() - offset;
+    size_t currentLength = len - offset;
     size_t bytesRead = initialLength - currentLength;
  
     return ParsedLongHeaderInvariant(initialByte, LongHeaderInvariant(version, std::move(srcConnId), std::move(destConnId)), bytesRead);

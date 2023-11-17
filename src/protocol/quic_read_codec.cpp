@@ -81,6 +81,42 @@ folly::Expected<ParsedLongHeader, TransportErrorCode> tryParseLongHeader(folly::
     return std::move(parsedLongHeader.value());
 }
 
+folly::Expected<ParsedLongHeader, TransportErrorCode> tryParseLongHeader(const char* buf, size_t len, QuicNodeType nodeType){
+    if(!buf || len <= 0){
+        return folly::makeUnexpected(TransportErrorCode::PROTOCOL_VIOLATION);
+    }
+
+    size_t offset = 0;
+
+    auto initialByte = cursor.readBE<uint8_t>();
+    auto longHeaderInvariant = parseLongHeaderInvariant(initialByte, cursor);
+    if (!longHeaderInvariant) {
+        // We've failed to parse the long header, so we have no idea where this
+        // packet ends. Clear the queue since no other data in this packet is
+        // parse-able.
+        return folly::makeUnexpected(longHeaderInvariant.error());
+    }
+    if (longHeaderInvariant->invariant.version == QuicVersion::VERSION_NEGOTIATION) {
+        // We shouldn't handle VN packets while parsing the long header.
+        // We assume here that they have been handled before calling this
+        // function.
+        // Since VN is not allowed to be coalesced with another packet
+        // type, we clear out the buffer to avoid anyone else parsing it.
+        return folly::makeUnexpected(TransportErrorCode::PROTOCOL_VIOLATION);
+    }
+    auto type = parseLongHeaderType(initialByte);
+
+    auto parsedLongHeader = parseLongHeaderVariants(type, *longHeaderInvariant, cursor, nodeType);
+    if (!parsedLongHeader) {
+        // We've failed to parse the long header, so we have no idea where this
+        // packet ends. Clear the queue since no other data in this packet is
+        // parse-able.
+        return folly::makeUnexpected(parsedLongHeader.error());
+    }
+
+    return std::move(parsedLongHeader.value());
+}
+
 CodecResult QuicReadCodec::parseLongHeaderPacket(BufQueue& queue, const AckStates& ackStates) {
     folly::io::Cursor cursor(queue.front());
     const uint8_t initialByte = *cursor.peekBytes().data();
@@ -217,6 +253,10 @@ CodecResult QuicReadCodec::parseLongHeaderPacket(BufQueue& queue, const AckState
     }
 
     return decodeRegularPacket(std::move(longHeader), _params, std::move(decrypted));
+}
+
+CodecResult parseLongHeaderPacket(const char* buf, size_t len , const AckStates& ackStates){
+
 }
 
 CodecResult QuicReadCodec::tryParseShortHeaderPacket(Buf data, const AckStates& ackStates, size_t dstConnIdSize, folly::io::Cursor& cursor) {
