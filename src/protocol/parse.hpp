@@ -158,6 +158,7 @@ namespace quic{
     folly::Expected<ParsedLongHeaderInvariant, TransportErrorCode> parseLongHeaderInvariant(uint8_t initialByte, size_t &offset, const char* buf, size_t len);
 
     // nodeType: Determine if we allow 0-len dst connection ids.
-    folly::Expected<ParsedLongHeader, TransportErrorCode> parseLongHeaderVariants(LongHeader::Types type, ParsedLongHeaderInvariant longHeaderInvariant, folly::io::Cursor& cursor, QuicNodeType nodeType = QuicNodeType::Server);
+    folly::Expected<ParsedLongHeader, TransportErrorCode> parseLongHeaderVariants(LongHeader::Types type, ParsedLongHeaderInvariant parsedLongHeaderInvariant, folly::io::Cursor& cursor, QuicNodeType nodeType = QuicNodeType::Server);
+    folly::Expected<ParsedLongHeader, TransportErrorCode> parseLongHeaderVariants(LongHeader::Types type, ParsedLongHeaderInvariant parsedLongHeaderInvariant, const char* buf, size_t len, QuicNodeType nodeType = QuicNodeType::Server);
 
 }

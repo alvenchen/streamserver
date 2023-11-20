@@ -853,6 +853,64 @@ folly::Expected<ParsedLongHeader, TransportErrorCode> parseLongHeaderVariants(Lo
         token ? token->moveToFbString().toStdString() : std::string()), PacketLength(pktLen->first, pktLen->second));
 }
 
+folly::Expected<ParsedLongHeader, TransportErrorCode> parseLongHeaderVariants(LongHeader::Types type, ParsedLongHeaderInvariant parsedLongHeaderInvariant, const char* buf, size_t len, QuicNodeType nodeType){
+    
+    if (type == LongHeader::Types::Retry) {
+        // The integrity tag is kRetryIntegrityTagLen bytes in length, and the
+        // token must be at least one byte, so the remaining length must
+        // be > kRetryIntegrityTagLen.
+        if (len <= kRetryIntegrityTagLen) {
+            return folly::makeUnexpected(TransportErrorCode::FRAME_ENCODING_ERROR);
+        }
+
+        std::string token(buf, len);
+
+        return ParsedLongHeader(LongHeader(type, std::move(parsedLongHeaderInvariant.invariant), token, PacketLength(0, 0));
+    }
+
+    // TODO Checking kMinInitialDestinationConnIdLength isn't necessary
+    // if this packet is in response to a retry.
+    if (type == LongHeader::Types::Initial && nodeType == QuicNodeType::Server &&
+        parsedLongHeaderInvariant.invariant.dstConnId.size() < kMinInitialDestinationConnIdLength) {
+
+        return folly::makeUnexpected(TransportErrorCode::FRAME_ENCODING_ERROR);
+    }
+
+    std::string token;
+    if (type == LongHeader::Types::Initial) {
+        //TODO
+        auto tokenLen = decodeQuicInteger(cursor);
+        if (!tokenLen) {
+            return folly::makeUnexpected(TransportErrorCode::FRAME_ENCODING_ERROR);
+        }
+        if (!cursor.canAdvance(tokenLen->first)) {
+            return folly::makeUnexpected(TransportErrorCode::FRAME_ENCODING_ERROR);
+        }
+
+        if (tokenLen->first > 0) {
+            Buf tokenBuf;
+            // If tokenLen > token's actual length then the cursor will throw.
+            cursor.clone(tokenBuf, tokenLen->first);
+            token = std::move(tokenBuf);
+        }
+    }
+    auto pktLen = decodeQuicInteger(cursor);
+    if (!pktLen) {
+        return folly::makeUnexpected(TransportErrorCode::FRAME_ENCODING_ERROR);
+    }
+    if (!cursor.canAdvance(pktLen->first)) {
+        return folly::makeUnexpected(TransportErrorCode::FRAME_ENCODING_ERROR);
+    }
+    size_t packetNumLen = parsePacketNumberLength(parsedLongHeaderInvariant.initialByte);
+    if (!cursor.canAdvance(packetNumLen)) {
+        return folly::makeUnexpected(TransportErrorCode::FRAME_ENCODING_ERROR);
+    }
+    if (packetNumLen > kMaxPacketNumEncodingSize) {
+        return folly::makeUnexpected(TransportErrorCode::FRAME_ENCODING_ERROR);
+    }
+    return ParsedLongHeader(LongHeader(type, std::move(parsedLongHeaderInvariant.invariant), 
+        token ? token->moveToFbString().toStdString() : std::string()), PacketLength(pktLen->first, pktLen->second));
+}
 
 folly::Expected<ParsedLongHeaderInvariant, TransportErrorCode> parseLongHeaderInvariant(uint8_t initialByte, size_t &offset, const char* buf, size_t len){
     size_t initialLength = len - offset;

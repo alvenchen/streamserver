@@ -88,8 +88,10 @@ folly::Expected<ParsedLongHeader, TransportErrorCode> tryParseLongHeader(const c
 
     size_t offset = 0;
 
-    auto initialByte = cursor.readBE<uint8_t>();
-    auto longHeaderInvariant = parseLongHeaderInvariant(initialByte, cursor);
+    auto initialByte = GetTypedBuf<uint8_t>(buf, offset);
+    offset += 1;
+
+    auto longHeaderInvariant = parseLongHeaderInvariant(initialByte, offset, buf, len);
     if (!longHeaderInvariant) {
         // We've failed to parse the long header, so we have no idea where this
         // packet ends. Clear the queue since no other data in this packet is
@@ -106,7 +108,7 @@ folly::Expected<ParsedLongHeader, TransportErrorCode> tryParseLongHeader(const c
     }
     auto type = parseLongHeaderType(initialByte);
 
-    auto parsedLongHeader = parseLongHeaderVariants(type, *longHeaderInvariant, cursor, nodeType);
+    auto parsedLongHeader = parseLongHeaderVariants(type, *longHeaderInvariant, buf+offset, len-offset, nodeType);
     if (!parsedLongHeader) {
         // We've failed to parse the long header, so we have no idea where this
         // packet ends. Clear the queue since no other data in this packet is
