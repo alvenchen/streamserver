@@ -13,6 +13,7 @@
 #include <folly/lang/Bits.h>
 #include "common/BufUtil.h"
 #include "quic_constants.hpp"
+#include "quic.hpp"
 
 namespace quic {
 
@@ -98,6 +99,7 @@ encodeQuicInteger(uint64_t value, BufOp bufop, int outputSize) {
  * read the int. It only advances the cursor in case of success.
  */
 folly::Optional<std::pair<uint64_t, size_t>> decodeQuicInteger(folly::io::Cursor& cursor, uint64_t atMost = sizeof(uint64_t));
+folly::Optional<std::pair<uint64_t, size_t>> decodeQuicInteger(const char *buf, size_t &offset, size_t len, uint64_t atMost = sizeof(uint64_t)) {
 
 /**
  * Returns the length of a quic integer given the first byte

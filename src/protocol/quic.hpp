@@ -20,5 +20,17 @@ namespace quic{
     template <class T>
     using IntervalSetVec = SmallVec<T, kNumInitialAckBlocksPerFrame>;
     using AckBlocks = IntervalSet<PacketNum, 1, IntervalSetVec>;
+
+    template <typename T>
+    inline
+    T GetTypedBuf(char* buf, size_t offset) {
+        return *(reinterpret_cast<T*>(buf + offset));
+    }
+
+    template <typename T>
+    inline
+    T GetTypedBuf(const char* buf, size_t offset) {
+        return *(reinterpret_cast<T*>(buf + offset));
+    }
 }
 

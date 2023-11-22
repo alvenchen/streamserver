@@ -18,12 +18,6 @@
 
 namespace quic{
 
-    template <typename T>
-    inline
-    T GetTypedBuf(char* buf, size_t offset) {
-        return *(reinterpret_cast<T*>(buf + offset));
-    }
-
     /**
      * Connection level parameters needed by the codec to decode the packet
      * successfully.
