@@ -88,7 +88,7 @@ private:
  * Returns an error if parsing is unsuccessful.
  */
 folly::Expected<ParsedLongHeader, TransportErrorCode> tryParseLongHeader(folly::io::Cursor& cursor, QuicNodeType nodeType);
-folly::Expected<ParsedLongHeader, TransportErrorCode> tryParseLongHeader(const char* buf, size_t len, QuicNodeType nodeType);
+folly::Expected<ParsedLongHeader, TransportErrorCode> tryParseLongHeader(const char* buf, size_t &offset, size_t len, QuicNodeType nodeType);
 
 class QuicReadCodec {
 public:
@@ -158,7 +158,7 @@ public:
 private:
     CodecResult tryParseShortHeaderPacket(Buf data, const AckStates& ackStates, size_t dstConnIdSize, folly::io::Cursor& cursor);
     CodecResult parseLongHeaderPacket(BufQueue& queue, const AckStates& ackStates);
-    CodecResult parseLongHeaderPacket(const char* buf, size_t len , const AckStates& ackStates);
+    CodecResult parseLongHeaderPacket(const char* buf, size_t &offset, size_t len , const AckStates& ackStates);
 
     [[nodiscard]] std::string connIdToHex() const;
 

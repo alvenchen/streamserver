@@ -184,8 +184,7 @@ void QuicClientTransport::processPacketData(
   if (packetSize == 0) {
     return;
   }
-  auto parsedPacket = conn_->readCodec->parsePacket(
-      packetQueue, conn_->ackStates, conn_->clientConnectionId->size());
+  auto parsedPacket = conn_->readCodec->parsePacket(packetQueue, conn_->ackStates, conn_->clientConnectionId->size());
   StatelessReset* statelessReset = parsedPacket.statelessReset();
   if (statelessReset) {
     const auto& token = clientConn_->statelessResetToken;

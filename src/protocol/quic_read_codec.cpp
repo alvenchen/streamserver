@@ -81,12 +81,10 @@ folly::Expected<ParsedLongHeader, TransportErrorCode> tryParseLongHeader(folly::
     return std::move(parsedLongHeader.value());
 }
 
-folly::Expected<ParsedLongHeader, TransportErrorCode> tryParseLongHeader(const char* buf, size_t len, QuicNodeType nodeType){
-    if(!buf || len <= 0){
+folly::Expected<ParsedLongHeader, TransportErrorCode> tryParseLongHeader(const char* buf, size_t &offset, size_t len, QuicNodeType nodeType){
+    if(!buf || offset + 1 > len){
         return folly::makeUnexpected(TransportErrorCode::PROTOCOL_VIOLATION);
     }
-
-    size_t offset = 0;
 
     auto initialByte = GetTypedBuf<uint8_t>(buf, offset);
     offset += 1;
@@ -108,7 +106,7 @@ folly::Expected<ParsedLongHeader, TransportErrorCode> tryParseLongHeader(const c
     }
     auto type = parseLongHeaderType(initialByte);
 
-    auto parsedLongHeader = parseLongHeaderVariants(type, *longHeaderInvariant, buf+offset, len-offset, nodeType);
+    auto parsedLongHeader = parseLongHeaderVariants(type, *longHeaderInvariant, buf, offset, len, nodeType);
     if (!parsedLongHeader) {
         // We've failed to parse the long header, so we have no idea where this
         // packet ends. Clear the queue since no other data in this packet is
@@ -257,8 +255,147 @@ CodecResult QuicReadCodec::parseLongHeaderPacket(BufQueue& queue, const AckState
     return decodeRegularPacket(std::move(longHeader), _params, std::move(decrypted));
 }
 
-CodecResult parseLongHeaderPacket(const char* buf, size_t len , const AckStates& ackStates){
+CodecResult QuicReadCodec::parseLongHeaderPacket(const char* buf, size_t &offset, size_t len , const AckStates& ackStates){
+    if(offset + 1 > len){
+        return CodecResult(Nothing());
+    }
 
+    const uint8_t initialByte = GetTypedBuf<uint8_t>(buf, offset);
+    offset += 1;
+    len -= 1;
+
+    auto res = tryParseLongHeader(buf, offset, len, _nodeType);
+    if (res.hasError()) {
+        queue.move();
+        return CodecResult(Nothing());
+    }
+    auto parsedLongHeader = std::move(res.value());
+    auto type = parsedLongHeader.header.getHeaderType();
+
+    // As soon as we have parsed out the long header we can split off any
+    // coalesced packets. We do this early since the spec mandates that decryption
+    // failure must not stop the processing of subsequent coalesced packets.
+    auto longHeader = std::move(parsedLongHeader.header);
+
+    if (type == LongHeader::Types::Retry) {
+        Buf integrityTag;
+        cursor.clone(integrityTag, kRetryIntegrityTagLen);
+        queue.move();
+        return RetryPacket(std::move(longHeader), std::move(integrityTag), initialByte);
+    }
+
+    uint64_t packetNumberOffset = cursor.getCurrentPosition();
+    size_t currentPacketLen = packetNumberOffset + parsedLongHeader.packetLength.packetLength;
+    if (queue.chainLength() < currentPacketLen) {
+        // Packet appears truncated, there's no parse-able data left.
+        queue.move();
+        return CodecResult(Nothing());
+    }
+    auto currentPacketData = queue.splitAtMost(currentPacketLen);
+    cursor.reset(currentPacketData.get());
+    cursor.skip(packetNumberOffset);
+    // Sample starts after the max packet number size. This ensures that we
+    // have enough bytes to skip before we can start reading the sample.
+    if (!cursor.canAdvance(kMaxPacketNumEncodingSize)) {
+    // Packet appears truncated, there's no parse-able data left.
+        queue.move();
+        return CodecResult(Nothing());
+    }
+    cursor.skip(kMaxPacketNumEncodingSize);
+    Sample sample;
+    if (!cursor.canAdvance(sample.size())) {
+        // Packet appears truncated, there's no parse-able data left.
+        queue.move();
+        return CodecResult(Nothing());
+    }
+    cursor.pull(sample.data(), sample.size());
+    const PacketNumberCipher* headerCipher{nullptr};
+    const Aead* cipher{nullptr};
+    auto protectionType = longHeader.getProtectionType();
+    switch (protectionType) {
+        case ProtectionType::Initial:
+            if (!_initialHeaderCipher) {
+                return CodecResult(Nothing());
+            }
+            headerCipher = _initialHeaderCipher.get();
+            cipher = _initialReadCipher.get();
+            break;
+        case ProtectionType::Handshake:
+            headerCipher = _handshakeHeaderCipher.get();
+            cipher = _handshakeReadCipher.get();
+            break;
+        case ProtectionType::ZeroRtt:
+            if (_handshakeDoneTime) {
+                // TODO actually drop the 0-rtt keys in addition to dropping packets.
+                auto timeBetween = Clock::now() - *_handshakeDoneTime;
+                if (timeBetween > kTimeToRetainZeroRttKeys) {
+                    return CodecResult(Nothing());
+                }
+            }
+            headerCipher = _zeroRttHeaderCipher.get();
+            cipher = _zeroRttReadCipher.get();
+            break;
+        case ProtectionType::KeyPhaseZero:
+        case ProtectionType::KeyPhaseOne:
+            //CHECK(false) << "one rtt protection type in long header";
+            break;
+    }
+    if (!headerCipher || !cipher) {
+        return CodecResult(CipherUnavailable(std::move(currentPacketData), protectionType));
+    }
+
+    PacketNum expectedNextPacketNum = 0;
+    folly::Optional<PacketNum> largestRecvdPacketNum;
+    switch (longHeaderTypeToProtectionType(type)) {
+        case ProtectionType::Initial:
+            largestRecvdPacketNum = ackStates.initialAckState->largestRecvdPacketNum;
+            break;
+        case ProtectionType::Handshake:
+            largestRecvdPacketNum = ackStates.handshakeAckState->largestRecvdPacketNum;
+            break;
+        case ProtectionType::ZeroRtt:
+            largestRecvdPacketNum = ackStates.appDataAckState.largestRecvdPacketNum;
+            break;
+        default:
+            folly::assume_unreachable();
+    }
+    if (largestRecvdPacketNum) {
+        expectedNextPacketNum = 1 + *largestRecvdPacketNum;
+    }
+    folly::MutableByteRange initialByteRange(currentPacketData->writableData(), 1);
+    folly::MutableByteRange packetNumberByteRange(currentPacketData->writableData() + packetNumberOffset, kMaxPacketNumEncodingSize);
+
+    headerCipher->decryptLongHeader(folly::range(sample), initialByteRange, packetNumberByteRange);
+    
+    std::pair<PacketNum, size_t> packetNum = parsePacketNumber(initialByteRange.data()[0], packetNumberByteRange, expectedNextPacketNum);
+    longHeader.setPacketNumber(packetNum.first);
+    BufQueue decryptQueue;
+    decryptQueue.append(std::move(currentPacketData));
+    size_t aadLen = packetNumberOffset + packetNum.second;
+    auto headerData = decryptQueue.splitAtMost(aadLen);
+    // parsing verifies that packetLength >= packet number length.
+    auto encryptedData = decryptQueue.splitAtMost(parsedLongHeader.packetLength.packetLength - packetNum.second);
+    if (!encryptedData) {
+        // There should normally be some integrity tag at least in the data,
+        // however allowing the aead to process the data even if the tag is not
+        // present helps with writing tests.
+        encryptedData = folly::IOBuf::create(0);
+    }
+
+    Buf decrypted;
+    //TODO pure virtual
+    auto decryptAttempt = cipher->tryDecrypt(std::move(encryptedData), headerData.get(), packetNum.first);
+    if (!decryptAttempt) {
+        return CodecResult(Nothing());
+    }
+    decrypted = std::move(*decryptAttempt);
+
+    if (!decrypted) {
+        // TODO better way of handling this (tests break without this)
+        decrypted = folly::IOBuf::create(0);
+    }
+
+    return decodeRegularPacket(std::move(longHeader), _params, std::move(decrypted));
 }
 
 CodecResult QuicReadCodec::tryParseShortHeaderPacket(Buf data, const AckStates& ackStates, size_t dstConnIdSize, folly::io::Cursor& cursor) {
@@ -327,6 +464,49 @@ CodecResult QuicReadCodec::parsePacket(BufQueue& queue, const AckStates& ackStat
     auto headerForm = getHeaderForm(initialByte);
     if (headerForm == HeaderForm::Long) {
         return parseLongHeaderPacket(queue, ackStates);
+    }
+    // Missing 1-rtt Cipher is the only case we wouldn't consider reset
+    // TODO: support key phase one.
+    if (!_oneRttReadCipher || !_oneRttHeaderCipher) {
+        return CodecResult(CipherUnavailable(queue.move(), ProtectionType::KeyPhaseZero));
+    }
+
+    auto data = queue.move();
+    folly::Optional<StatelessResetToken> token;
+    if (_nodeType == QuicNodeType::Client && initialByte & ShortHeader::kFixedBitMask) {
+        auto dataLength = data->length();
+        if (_statelessResetToken && dataLength > sizeof(StatelessResetToken)) {
+            const uint8_t* tokenSource = data->data() + (dataLength - sizeof(StatelessResetToken));
+            // Only allocate & copy the token if it matches the token we have
+            if (fizz::CryptoUtils::equal(folly::ByteRange(tokenSource, sizeof(StatelessResetToken)),
+                    folly::ByteRange(_statelessResetToken->data(), sizeof(StatelessResetToken)))) {
+                        
+                token = StatelessResetToken();
+                memcpy(token->data(), tokenSource, token->size());
+            }
+        }
+    }
+
+    auto maybeShortHeaderPacket = tryParseShortHeaderPacket(std::move(data), ackStates, dstConnIdSize, cursor);
+    if (token && maybeShortHeaderPacket.nothing()) {
+        return StatelessReset(*token);
+    }
+    return maybeShortHeaderPacket;
+}
+
+CodecResult QuicReadCodec::parsePacket(const char* buf, size_t &offset, size_t len, const AckStates& ackStates, size_t dstConnIdSize) {
+    if (!buf || len <= sizeof(uint8_t)) {
+        return CodecResult(Nothing());
+    }
+    
+    uint8_t initialByte = GetTypedBuf<uint8_t>(buf, offset);
+    offset += sizeof(uint8_t);
+    len -= sizeof(uint8_t);
+
+    auto headerForm = getHeaderForm(initialByte);
+    if (headerForm == HeaderForm::Long) {
+        //return parseLongHeaderPacket(queue, ackStates);
+        return parseLongHeaderPacket(buf, offset, len, ackStates);
     }
     // Missing 1-rtt Cipher is the only case we wouldn't consider reset
     // TODO: support key phase one.

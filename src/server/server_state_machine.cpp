@@ -140,7 +140,7 @@ void onServerReadDataFromOpen(QuicServerConnectionState& conn, seastar::net::pac
     size_t packetLen = packetData.len() - packetOffset;
     for (uint16_t processedPackets = 0; packetLen>0 && processedPackets < kMaxNumCoalescedPackets; processedPackets++) {
         
-        auto parsedPacket = conn.readCodec->parsePacket(udpData, conn.ackStates);
+        auto parsedPacket = conn.readCodec->parsePacket(packetData.get_header(packetOffset, packetLen), conn.ackStates);
     }
 
 }

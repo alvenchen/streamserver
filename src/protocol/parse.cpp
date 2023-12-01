@@ -854,7 +854,7 @@ folly::Expected<ParsedLongHeader, TransportErrorCode> parseLongHeaderVariants(Lo
 }
 
 folly::Expected<ParsedLongHeader, TransportErrorCode> parseLongHeaderVariants(LongHeader::Types type, 
-    ParsedLongHeaderInvariant parsedLongHeaderInvariant, const char* buf, size_t len, QuicNodeType nodeType){
+    ParsedLongHeaderInvariant parsedLongHeaderInvariant, const char* buf, size_t &offset, size_t len, QuicNodeType nodeType){
     
     if (type == LongHeader::Types::Retry) {
         // The integrity tag is kRetryIntegrityTagLen bytes in length, and the
@@ -878,7 +878,6 @@ folly::Expected<ParsedLongHeader, TransportErrorCode> parseLongHeaderVariants(Lo
     }
 
     std::string token;
-    size_t offset = 0;
     if (type == LongHeader::Types::Initial) {
         auto tokenLen = decodeQuicInteger(buf, offset, len)
         if (!tokenLen) {
@@ -912,7 +911,7 @@ folly::Expected<ParsedLongHeader, TransportErrorCode> parseLongHeaderVariants(Lo
         PacketLength(pktLen->first, pktLen->second));
 }
 
-folly::Expected<ParsedLongHeaderInvariant, TransportErrorCode> parseLongHeaderInvariant(uint8_t initialByte, size_t &offset, const char* buf, size_t len){
+folly::Expected<ParsedLongHeaderInvariant, TransportErrorCode> parseLongHeaderInvariant(uint8_t initialByte, const char* buf, size_t &offset, size_t len){
     size_t initialLength = len - offset;
     size_t needLen = sizeof(QuicVersionType) + 1;
     if(needLen < initialLength){
