@@ -7,7 +7,7 @@
 
 #pragma once
 
-#include "quic_stream_utilities.h"
+#include "state/quic_stream_utilities.h"
 #include "stream_state_functions.h"
 #include "protocol/quic_constants.hpp"
 

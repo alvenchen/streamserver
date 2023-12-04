@@ -505,7 +505,6 @@ CodecResult QuicReadCodec::parsePacket(const char* buf, size_t &offset, size_t l
 
     auto headerForm = getHeaderForm(initialByte);
     if (headerForm == HeaderForm::Long) {
-        //return parseLongHeaderPacket(queue, ackStates);
         return parseLongHeaderPacket(buf, offset, len, ackStates);
     }
     // Missing 1-rtt Cipher is the only case we wouldn't consider reset
